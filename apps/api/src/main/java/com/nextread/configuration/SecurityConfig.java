@@ -2,9 +2,9 @@ package com.nextread.configuration;
 
 import org.springframework.context.annotation.Configuration;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.context.annotation.Bean;
@@ -36,10 +36,12 @@ public class SecurityConfig {
   JwtAuthenticationConverter jwtAuthConverter() {
     var converter = new JwtAuthenticationConverter();
     converter.setJwtGrantedAuthoritiesConverter(jwt -> {
-        // Supabase suele incluir los roles en "role" o "roles".
-        Collection<String> roles = Optional.ofNullable(jwt.getClaimAsStringList("role"))
-                                          .orElseGet(() -> jwt.getClaimAsStringList("roles"));
-        if (roles == null) roles = List.of();
+        Set<String> roles = new HashSet<>();
+
+        // 1) Claim "role" como lista o string (según configuración Supabase)
+        Optional.ofNullable(jwt.getClaimAsStringList("role")).ifPresent(roles::addAll);
+        Optional.ofNullable(jwt.getClaimAsString("role")).ifPresent(roles::add);
+
         return roles.stream()
                     .map(r -> new SimpleGrantedAuthority("ROLE_" + r.toUpperCase()))
                     .collect(Collectors.toSet());
