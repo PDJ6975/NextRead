@@ -7,7 +7,6 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import com.nextread.utils.anotations.HalfStarIncrement;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Table;
