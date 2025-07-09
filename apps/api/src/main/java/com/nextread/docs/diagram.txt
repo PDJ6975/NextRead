@@ -1,12 +1,12 @@
 entity User {
   * id : id
-  * name : string
   * email : string
   * password : <<encrypted>>
   * avatar : string
   * role : Role
   * createdAt : Instant
   * updatedAt : Instant
+  * version: Long
 }
 
 entity Author {
@@ -33,6 +33,7 @@ entity UserBook {
   * createdAt : Instant
   * startedAt : Instant
   * finishedAt : Instant
+  * version: Long
 }
 
 entity Survey {
@@ -51,6 +52,7 @@ entity Recommendation {
   * id : id
   * reason : string
   * createdAt : Instant
+  * version: Long
 }
 
 enum BookStatus {
