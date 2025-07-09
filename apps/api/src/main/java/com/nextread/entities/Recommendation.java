@@ -1,16 +1,18 @@
 package com.nextread.entities;
 
-import java.util.List;
+import java.time.Instant;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import org.hibernate.annotations.CreationTimestamp;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.Index;
+import jakarta.persistence.Version;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -19,13 +21,13 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "author", indexes = { @Index(columnList = "name", unique = true) })
+@Table(name = "recommendation")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Author {
+public class Recommendation {
     
     @EqualsAndHashCode.Include
     @Id
@@ -33,12 +35,20 @@ public class Author {
     private Long id;
 
     @NotBlank
-    @Column(nullable = false, length = 100)
-    private String name;
+    @Column(nullable = false)
+    private String reason;
+
+    @CreationTimestamp
+    private Instant createdAt;
+
+    @Version
+    private Long version;
 
     // Relationships
 
-    @JsonBackReference
-    @ManyToMany(mappedBy = "authors")
-    private List<Book> books;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private User recommendedUser;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Book recommendedBook;
 }

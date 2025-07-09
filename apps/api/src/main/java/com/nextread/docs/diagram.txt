@@ -35,10 +35,6 @@ entity UserBook {
   * finishedAt : Instant
 }
 
-entity AuthorBook {
-  * id : id
-}
-
 entity Survey {
   * id : id
   * pace : PaceSelection
@@ -49,14 +45,6 @@ entity Survey {
 entity Genre {
   * id : id
   * name : GenreSelection
-}
-
-entity SurveyGenre {
-  * id : id
-}
-
-entity SurveyUserBook {
-  * id : id
 }
 
 entity Recommendation {
@@ -90,22 +78,16 @@ enum GenreSelection {
 
 User "1" -- "0..*" UserBook
 
-User "1" -- "0..*" Survey
+User "1" -- "1..*" Survey
 
 User "1" -- "0..*" Recommendation
 
 Book "1" -- "0..*" UserBook
 
-Book "1" -- "1..*" AuthorBook
+Book "1..*" -- "1..*" Author
 
 Book "1" -- "0..*" Recommendation
 
-Author "1" -- "0..*" AuthorBook
+Survey "1..*" -- "1..*" UserBook
 
-Survey "1" -- "0..*" SurveyUserBook
-
-Survey "1" -- "0..*" SurveyGenre
-
-Genre "1" -- "0..*" SurveyGenre
-
-UserBook "1" -- "0..*" SurveyUserBook
+Survey "0..*" -- "1..*" Genre
