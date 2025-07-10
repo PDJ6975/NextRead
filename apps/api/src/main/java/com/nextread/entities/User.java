@@ -32,7 +32,7 @@ public class User implements UserDetails {
 
     @NotBlank
     @Column(nullable = false, unique = true)
-    private String username;
+    private String nickname;
 
     @Email
     @NotBlank
@@ -51,10 +51,16 @@ public class User implements UserDetails {
     @Column(name = "verification_expiration")
     private LocalDateTime verificationCodeExpiresAt;
 
-    public User(String email, String username, String password) {
+    public User(String email, String nickname, String password) {
         this.email = email;
-        this.username = username;
+        this.nickname = nickname;
         this.password = password;
+    }
+
+    // Devuelve el email como identificador principal para Spring Security
+    @Override
+    public String getUsername() {
+        return this.email;
     }
 
     @Override

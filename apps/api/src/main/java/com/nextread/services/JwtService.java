@@ -63,11 +63,12 @@ public class JwtService {
         return Jwts
                 .builder()
                 .setClaims(extraClaims) // datos extra que se quiere meter en el token (si procede)
+                // Firmamos el token usando el username (Spring Security identificador)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
-                .signWith(getSignInKey(), SignatureAlgorithm.ES256) // firma del token con clave secreta y algoritmo
-                                                                    // ES256
+                // Usamos HS256 porque firmamos con una clave secreta simétrica
+                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
