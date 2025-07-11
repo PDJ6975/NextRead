@@ -38,9 +38,7 @@
 ---
 
 ## 4. Encuesta de preferencias de lectura (`Survey`)
-*Cada usuario mantiene **una única** encuesta que puede crear/actualizar.*
-
-Hay que actualizar la relación User-Survey.
+*Relación 1-a-1: cada usuario mantiene **una única** encuesta (`User` ⇢ `Survey`). A actualizar*
 
 | Método | Endpoint | Descripción |
 |--------|----------|-------------|
