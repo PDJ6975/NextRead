@@ -68,8 +68,8 @@ public class Book {
     @Column(nullable = false)
     private int pages;
 
-    @Column(nullable = false)
-    private int publishedYear;
+    @Column(nullable = false, length = 10)
+    private String publishedYear;
 
     @CreationTimestamp
     private Instant createdAt;

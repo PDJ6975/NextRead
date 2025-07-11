@@ -28,7 +28,7 @@ public class BookDTO {
 
     private int pages;
 
-    private int publishedYear;
+    private String publishedYear;
 
     private List<String> authors;
 }

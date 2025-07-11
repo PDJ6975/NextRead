@@ -73,11 +73,89 @@ public class BookService {
     }
 
     /**
+     * Busca libros por título:
+     * 1. Devuelve todos los libros locales cuyo título coincide (ignore case).
+     * 2. Si no hay coincidencias en BD, consulta Google Books y devuelve
+     * todos los items encontrados (mapeados a BookDTO).
+     */
+    public List<BookDTO> findBooks(String title) throws RuntimeException {
+
+        // 1) resultados locales
+        List<Book> localMatches = bookRepository.findByTitleIgnoreCase(title);
+
+        if (!localMatches.isEmpty()) {
+            return localMatches.stream()
+                    .map(b -> BookDTO.builder()
+                            .title(b.getTitle())
+                            .isbn10(b.getIsbn10())
+                            .isbn13(b.getIsbn13())
+                            .publisher(b.getPublisher())
+                            .coverUrl(b.getCoverUrl())
+                            .synopsis(b.getSynopsis())
+                            .pages(b.getPages())
+                            .publishedYear(b.getPublishedYear())
+                            .authors(b.getAuthors().stream().map(a -> a.getName()).toList())
+                            .build())
+                    .toList();
+        } else {
+            List<BookDTO> booksDTO = findGoogleBooks(title);
+            return booksDTO;
+        }
+    }
+
+    /**
+     * Consulta la API de Google Books para obtener libros según título al hacer una
+     * búsqueda por título
+     * 
+     * @param title El título del libro
+     * @return BookDTO con los datos del libro obtenidos de Google Books
+     * @throws RuntimeException si no se encuentran resultados
+     */
+    private List<BookDTO> findGoogleBooks(String title) {
+
+        String url = "https://www.googleapis.com/books/v1/volumes?q=intitle:" + title.replace(" ", "+");
+        JsonNode root = restTemplate.getForObject(url, JsonNode.class);
+        if (root == null || root.path("items").isEmpty()) {
+            throw new RuntimeException("No se encontraron libros con título: " + title);
+        }
+
+        List<BookDTO> results = new ArrayList<>();
+        for (JsonNode item : root.path("items")) {
+            JsonNode info = item.path("volumeInfo");
+            JsonNode identifiers = info.path("industryIdentifiers");
+            JsonNode imageLinks = info.path("imageLinks");
+
+            String isbn10 = null, isbn13 = null;
+            for (JsonNode idNode : identifiers) {
+                switch (idNode.path("type").asText()) {
+                    case "ISBN_10" -> isbn10 = idNode.path("identifier").asText();
+                    case "ISBN_13" -> isbn13 = idNode.path("identifier").asText();
+                }
+            }
+
+            List<String> authors = new ArrayList<>();
+            info.path("authors").forEach(a -> authors.add(a.asText()));
+
+            results.add(BookDTO.builder()
+                    .title(info.path("title").asText())
+                    .isbn10(isbn10)
+                    .isbn13(isbn13)
+                    .coverUrl(imageLinks.path("thumbnail").asText(null))
+                    .synopsis(info.path("description").asText(null))
+                    .pages(info.path("pageCount").asInt(0))
+                    .publishedYear(info.path("publishedDate").asText(null))
+                    .authors(authors)
+                    .build());
+        }
+        return results;
+    }
+
+    /**
      * Consulta la API de Google Books para obtener información de un libro por
-     * ISBN.
+     * título
      * Extrae los campos relevantes del JSON de respuesta y los mapea a un BookDTO.
      * 
-     * @param isbn El ISBN-13 del libro a buscar en Google Books
+     * @param title El título del libro
      * @return BookDTO con los datos del libro obtenidos de Google Books
      * @throws RuntimeException si el libro no se encuentra en Google Books
      */
@@ -116,7 +194,7 @@ public class BookService {
                 .coverUrl(cover)
                 .synopsis(info.path("description").asText())
                 .pages(info.path("pageCount").asInt())
-                .publishedYear(info.path("publishedDate").asInt())
+                .publishedYear(info.path("publishedDate").asText())
                 .authors(authors)
                 .build();
     }
