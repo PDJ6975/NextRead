@@ -1,13 +1,12 @@
 package com.nextread.services;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.nextread.entities.User;
 import com.nextread.repositories.UserRepository;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class UserService {
@@ -19,9 +18,14 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public List<User> allUsers() {
-        List<User> users = new ArrayList<>();
-        userRepository.findAll().forEach(users::add);
-        return users;
+    @Transactional
+    public String updateAvatar(String avatar, User current) {
+
+        User user = userRepository.findByEmail(current.getEmail())
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        user.setAvatarUrl(avatar);
+        userRepository.save(user);
+        return user.getAvatarUrl();
+
     }
 }

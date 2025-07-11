@@ -1,15 +1,16 @@
 package com.nextread.controller;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.nextread.dto.UserProfileDTO;
 import com.nextread.entities.User;
 import com.nextread.services.UserService;
 
@@ -25,15 +26,24 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<User> authenticatedUser() {
+    public ResponseEntity<UserProfileDTO> authenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
-        return ResponseEntity.ok(currentUser);
+        UserProfileDTO userDTO = UserProfileDTO.builder()
+                .nickname(currentUser.getNickname())
+                .avatarUrl(currentUser.getAvatarUrl())
+                .build();
+        return ResponseEntity.ok(userDTO);
     }
 
-    @GetMapping("/")
-    public ResponseEntity<List<User>> allUsers() {
-        List<User> users = userService.allUsers();
-        return ResponseEntity.ok(users);
+    @PutMapping("/update")
+    public ResponseEntity<String> changeAvatar(@RequestBody String avatar) {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+
+        String updatedAvatar = userService.updateAvatar(avatar, currentUser);
+
+        return ResponseEntity.ok(updatedAvatar);
     }
 }
