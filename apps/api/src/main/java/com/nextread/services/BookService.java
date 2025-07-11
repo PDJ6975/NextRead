@@ -48,6 +48,7 @@ public class BookService {
      * @throws RuntimeException si el libro no se encuentra ni en BD ni en Google
      *                          Books
      */
+    @Transactional
     public BookDTO findRecommendedBook(String title) throws RuntimeException {
 
         List<Book> localMatches = bookRepository.findByTitleIgnoreCase(title);
@@ -78,6 +79,7 @@ public class BookService {
      * 2. Si no hay coincidencias en BD, consulta Google Books y devuelve
      * todos los items encontrados (mapeados a BookDTO).
      */
+    @Transactional
     public List<BookDTO> findBooks(String title) throws RuntimeException {
 
         // 1) resultados locales
