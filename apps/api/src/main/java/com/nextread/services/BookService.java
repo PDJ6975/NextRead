@@ -207,9 +207,6 @@ public class BookService {
         Survey survey = surveyService.findSurveyByUser(user);
 
         if (survey.getFirstTime().equals(true)) {
-            // Marcar como que ya no es la primera vez
-            survey.setFirstTime(false);
-            surveyService.saveSurvey(survey);
             return findBooks(title);
         } else {
             throw new RuntimeException("No es la primera vez que realizas la encuesta.");

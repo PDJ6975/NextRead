@@ -13,17 +13,21 @@ import com.nextread.entities.UserBook;
 import com.nextread.repositories.UserBookRepository;
 
 import org.springframework.transaction.annotation.Transactional;
+import com.nextread.entities.Survey;
 
 @Service
 public class UserBookService {
 
     private final UserBookRepository userBookRepository;
     private final BookService bookService;
+    private final SurveyService surveyService;
 
     @Autowired
-    public UserBookService(UserBookRepository userBookRepository, BookService bookService) {
+    public UserBookService(UserBookRepository userBookRepository, BookService bookService,
+            SurveyService surveyService) {
         this.userBookRepository = userBookRepository;
         this.bookService = bookService;
+        this.surveyService = surveyService;
     }
 
     /**
@@ -125,6 +129,13 @@ public class UserBookService {
         // Crear la nueva relación UserBook
         UserBook newBookForUser = UserBook.builder().user(user).book(bookToSave).build();
         userBookRepository.save(newBookForUser);
+
+        // Si es la primera vez que añade un libro, marcar encuesta como completada
+        Survey survey = surveyService.findSurveyByUser(user);
+        if (Boolean.TRUE.equals(survey.getFirstTime())) {
+            survey.setFirstTime(false);
+            surveyService.saveSurvey(survey);
+        }
 
         // Actualizar con los datos del DTO si se proporcionan
         UserBookDTO updatedUserBook = updateUserBook(newBookForUser.getId(), user, userBookDTO);

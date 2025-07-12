@@ -76,11 +76,20 @@ public class SurveyService {
 
         Survey survey = findSurveyByUser(user);
 
+        // Validaciones dependiendo de firstTime
+        if (Boolean.TRUE.equals(survey.getFirstTime())) {
+            // Primera vez: pace y genresIds son obligatorios y lista no vacía
+            if (pace == null || genresIds == null || genresIds.isEmpty()) {
+                throw new RuntimeException(
+                        "Debes seleccionar ritmo y al menos un género la primera vez que completas la encuesta");
+            }
+        }
+
         if (pace != null) {
             survey.setPace(pace);
         }
 
-        if (!genresIds.isEmpty()) {
+        if (genresIds != null && !genresIds.isEmpty()) {
 
             List<Genre> genres = genresIds.stream().filter(g -> g != null).map(g -> genreService.findById(g)).toList();
 
