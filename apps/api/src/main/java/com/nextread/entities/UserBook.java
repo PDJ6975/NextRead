@@ -1,14 +1,11 @@
 package com.nextread.entities;
 
 import java.time.Instant;
-import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
 
 import com.nextread.utils.anotations.HalfStarIncrement;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 import lombok.EqualsAndHashCode;
@@ -20,13 +17,11 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -38,6 +33,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@Builder
 public class UserBook {
 
     @EqualsAndHashCode.Include
@@ -46,7 +42,8 @@ public class UserBook {
     private Long id;
 
     @HalfStarIncrement
-    @Min(0) @Max(5)
+    @Min(0)
+    @Max(5)
     private Float rating;
 
     @Enumerated(EnumType.STRING)
@@ -60,7 +57,7 @@ public class UserBook {
 
     @Column(nullable = true)
     private Instant finishedAt;
-    
+
     @Version
     private Long version;
 
@@ -71,15 +68,4 @@ public class UserBook {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Book book;
-
-    // Relación ManyToMany con Survey, con UserBook como dueña
-
-    @JsonManagedReference
-    @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
-    @JoinTable(
-        name = "user_book_survey",
-        joinColumns = @JoinColumn(name = "user_book_id"),
-        inverseJoinColumns = @JoinColumn(name = "survey_id")
-    )
-    private List<Survey> surveys;
 }

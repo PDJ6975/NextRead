@@ -9,12 +9,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nextread.dto.UserBookDTO;
+import com.nextread.entities.Book;
 import com.nextread.entities.User;
 import com.nextread.services.UserBookService;
 
@@ -87,5 +89,14 @@ public class UserBookController {
 
         userBookService.deleteUserBook(id, currentUser);
         return ResponseEntity.ok("Libro eliminado de tu lista correctamente");
+    }
+
+    @PostMapping("/add")
+    public ResponseEntity<UserBookDTO> addBookForUserList(@RequestBody Book book,
+            @RequestBody UserBookDTO userBookDTO) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+
+        return ResponseEntity.ok(userBookService.addBookSelected(book, userBookDTO, currentUser));
     }
 }

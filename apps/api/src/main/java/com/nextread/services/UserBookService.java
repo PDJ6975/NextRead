@@ -7,20 +7,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.nextread.dto.UserBookDTO;
+import com.nextread.entities.Book;
 import com.nextread.entities.User;
 import com.nextread.entities.UserBook;
 import com.nextread.repositories.UserBookRepository;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserBookService {
 
     private final UserBookRepository userBookRepository;
+    private final BookService bookService;
 
     @Autowired
-    public UserBookService(UserBookRepository userBookRepository) {
+    public UserBookService(UserBookRepository userBookRepository, BookService bookService) {
         this.userBookRepository = userBookRepository;
+        this.bookService = bookService;
     }
 
     /**
@@ -29,7 +32,7 @@ public class UserBookService {
      * @param user El usuario autenticado
      * @return Lista de UserBook del usuario
      */
-    @Transactional
+    @Transactional(readOnly = true)
     public List<UserBook> findUserBooks(User user) {
         return userBookRepository.findByUser(user);
     }
@@ -40,7 +43,7 @@ public class UserBookService {
      * @param user El usuario autenticado
      * @return Lista de UserBookDTO del usuario
      */
-    @Transactional
+    @Transactional(readOnly = true)
     public List<UserBookDTO> findUserBooksAsDTO(User user) {
         List<UserBook> userBooks = userBookRepository.findByUser(user);
         return userBooks.stream()
@@ -55,7 +58,7 @@ public class UserBookService {
      * @param user El usuario autenticado
      * @return UserBook encontrado o excepción si no existe
      */
-    @Transactional
+    @Transactional(readOnly = true)
     public UserBook findUserBookById(Long id, User user) {
         return userBookRepository.findByIdAndUser(id, user)
                 .orElseThrow(() -> new RuntimeException("Libro del usuario no encontrado"));
@@ -68,7 +71,7 @@ public class UserBookService {
      * @param user El usuario autenticado
      * @return UserBookDTO encontrado o excepción si no existe
      */
-    @Transactional
+    @Transactional(readOnly = true)
     public UserBookDTO findUserBookByIdAsDTO(Long id, User user) {
         UserBook userBook = findUserBookById(id, user);
         return convertToDTO(userBook);
@@ -102,6 +105,25 @@ public class UserBookService {
 
         UserBook savedUserBook = userBookRepository.save(userBook);
         return convertToDTO(savedUserBook);
+    }
+
+    @Transactional
+    public UserBookDTO addBookSelected(Book book, UserBookDTO userBookDTO, User user) {
+
+        // Si no tiene id, viene de google y hay que añadirlo a la BD
+
+        if (book.getId() == null) {
+            bookService.saveBook(book);
+        }
+
+        // Si tiene id, o ya lo hemos guardado, solo queda añadir la relacion UserBook,
+        // permitiendo update del rating, status, etc.
+
+        UserBook newBookForUser = UserBook.builder().user(user).book(book).build();
+        userBookRepository.save(newBookForUser);
+        UserBookDTO updatedUserBook = updateUserBook(newBookForUser.getId(), user, userBookDTO);
+        return updatedUserBook;
+
     }
 
     /**

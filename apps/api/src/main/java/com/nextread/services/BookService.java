@@ -2,29 +2,33 @@ package com.nextread.services;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.nextread.dto.BookDTO;
+import com.nextread.entities.Author;
 import com.nextread.entities.Book;
+import com.nextread.entities.Survey;
+import com.nextread.entities.User;
 import com.nextread.repositories.BookRepository;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class BookService {
 
     private final BookRepository bookRepository;
-
     private final RestTemplate restTemplate;
+    private final SurveyService surveyService;
 
     @Autowired
-    public BookService(BookRepository bookRepository, RestTemplate restTemplate) {
+    public BookService(BookRepository bookRepository, RestTemplate restTemplate, SurveyService surveyService) {
         this.bookRepository = bookRepository;
         this.restTemplate = restTemplate;
+        this.surveyService = surveyService;
     }
 
     /**
@@ -32,7 +36,7 @@ public class BookService {
      * 
      * @return Lista de todos los libros disponibles
      */
-    @Transactional
+    @Transactional(readOnly = true)
     public List<Book> findAllBooks() {
         List<Book> books = new ArrayList<>();
         bookRepository.findAll().forEach(books::add);
@@ -45,7 +49,7 @@ public class BookService {
      * @param id El ID del libro a buscar
      * @return El libro encontrado o excepción si no existe
      */
-    @Transactional
+    @Transactional(readOnly = true)
     public Book findBookById(Long id) {
         return bookRepository.findById(id).orElseThrow(() -> new RuntimeException("Libro no encontrado"));
     }
@@ -59,28 +63,17 @@ public class BookService {
      * @throws RuntimeException si el libro no se encuentra ni en BD ni en Google
      *                          Books
      */
-    @Transactional
-    public BookDTO findRecommendedBook(String title) throws RuntimeException {
+    @Transactional(readOnly = true)
+    public Book findRecommendedBook(String title) throws RuntimeException {
 
         List<Book> localMatches = bookRepository.findByTitleIgnoreCase(title);
 
         if (!localMatches.isEmpty()) {
             Book loadedBook = localMatches.get(0);
-            BookDTO bookDTO = BookDTO.builder()
-                    .title(loadedBook.getTitle())
-                    .isbn10(loadedBook.getIsbn10())
-                    .isbn13(loadedBook.getIsbn13())
-                    .publisher(loadedBook.getPublisher())
-                    .coverUrl(loadedBook.getCoverUrl())
-                    .synopsis(loadedBook.getSynopsis())
-                    .pages(loadedBook.getPages())
-                    .publishedYear(loadedBook.getPublishedYear())
-                    .authors(loadedBook.getAuthors().stream().map(a -> a.getName()).toList())
-                    .build();
-            return bookDTO;
+            return loadedBook;
         } else {
-            BookDTO bookDTO = findGoogleBook(title);
-            return bookDTO;
+            Book googleBook = findGoogleBook(title);
+            return googleBook;
         }
     }
 
@@ -90,29 +83,17 @@ public class BookService {
      * 2. Si no hay coincidencias en BD, consulta Google Books y devuelve
      * todos los items encontrados (mapeados a BookDTO).
      */
-    @Transactional
-    public List<BookDTO> findBooks(String title) throws RuntimeException {
+    @Transactional(readOnly = true)
+    public List<Book> findBooks(String title) throws RuntimeException {
 
         // 1) resultados locales
         List<Book> localMatches = bookRepository.findByTitleIgnoreCase(title);
 
         if (!localMatches.isEmpty()) {
-            return localMatches.stream()
-                    .map(b -> BookDTO.builder()
-                            .title(b.getTitle())
-                            .isbn10(b.getIsbn10())
-                            .isbn13(b.getIsbn13())
-                            .publisher(b.getPublisher())
-                            .coverUrl(b.getCoverUrl())
-                            .synopsis(b.getSynopsis())
-                            .pages(b.getPages())
-                            .publishedYear(b.getPublishedYear())
-                            .authors(b.getAuthors().stream().map(a -> a.getName()).toList())
-                            .build())
-                    .toList();
+            return localMatches;
         } else {
-            List<BookDTO> booksDTO = findGoogleBooks(title);
-            return booksDTO;
+            List<Book> books = findGoogleBooks(title);
+            return books;
         }
     }
 
@@ -124,7 +105,7 @@ public class BookService {
      * @return BookDTO con los datos del libro obtenidos de Google Books
      * @throws RuntimeException si no se encuentran resultados
      */
-    private List<BookDTO> findGoogleBooks(String title) {
+    private List<Book> findGoogleBooks(String title) {
 
         String url = "https://www.googleapis.com/books/v1/volumes?q=intitle:" + title.replace(" ", "+");
         JsonNode root = restTemplate.getForObject(url, JsonNode.class);
@@ -132,7 +113,7 @@ public class BookService {
             throw new RuntimeException("No se encontraron libros con título: " + title);
         }
 
-        List<BookDTO> results = new ArrayList<>();
+        List<Book> results = new ArrayList<>();
         for (JsonNode item : root.path("items")) {
             JsonNode info = item.path("volumeInfo");
             JsonNode identifiers = info.path("industryIdentifiers");
@@ -146,10 +127,14 @@ public class BookService {
                 }
             }
 
-            List<String> authors = new ArrayList<>();
-            info.path("authors").forEach(a -> authors.add(a.asText()));
+            List<String> authorNames = new ArrayList<>();
+            info.path("authors").forEach(a -> authorNames.add(a.asText()));
 
-            results.add(BookDTO.builder()
+            List<Author> authors = authorNames.stream()
+                    .map(name -> Author.builder().name(name).build())
+                    .collect(Collectors.toList());
+
+            results.add(Book.builder()
                     .title(info.path("title").asText())
                     .isbn10(isbn10)
                     .isbn13(isbn13)
@@ -172,7 +157,7 @@ public class BookService {
      * @return BookDTO con los datos del libro obtenidos de Google Books
      * @throws RuntimeException si el libro no se encuentra en Google Books
      */
-    private BookDTO findGoogleBook(String title) {
+    private Book findGoogleBook(String title) {
 
         String url = "https://www.googleapis.com/books/v1/volumes?q=intitle:" + title.replace(" ", "+");
         JsonNode root = restTemplate.getForObject(url, JsonNode.class);
@@ -197,10 +182,14 @@ public class BookService {
                 isbn13 = idVal;
         }
         String cover = imageLinks.path("thumbnail").asText();
-        List<String> authors = new ArrayList<>();
-        info.path("authors").forEach(a -> authors.add(a.asText()));
+        List<String> authorNames = new ArrayList<>();
+        info.path("authors").forEach(a -> authorNames.add(a.asText()));
 
-        return BookDTO.builder()
+        List<Author> authors = authorNames.stream()
+                .map(name -> Author.builder().name(name).build())
+                .collect(Collectors.toList());
+
+        return Book.builder()
                 .title(info.path("title").asText())
                 .isbn10(isbn10)
                 .isbn13(isbn13)
@@ -210,5 +199,23 @@ public class BookService {
                 .publishedYear(info.path("publishedDate").asText())
                 .authors(authors)
                 .build();
+    }
+
+    @Transactional
+    public List<Book> findBookCauseSurvey(String title, User user) {
+
+        Survey survey = surveyService.findSurveyByUser(user);
+
+        if (survey.getFirstTime().equals(true)) {
+            return findBooks(title);
+        } else {
+            throw new RuntimeException("No es la primera vez que realizas la encuesta.");
+
+        }
+    }
+
+    @Transactional
+    public Book saveBook(Book book) {
+        return bookRepository.save(book);
     }
 }

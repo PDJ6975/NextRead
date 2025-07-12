@@ -9,9 +9,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
-import com.nextread.dto.BookDTO;
 import com.nextread.entities.Book;
+import com.nextread.entities.User;
 import com.nextread.services.BookService;
 
 @RequestMapping("/books")
@@ -39,8 +41,16 @@ public class BookController {
         return ResponseEntity.ok(book);
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<List<BookDTO>> findBookByTitle(@RequestParam String title) {
+    @GetMapping("/search/basic")
+    public ResponseEntity<List<Book>> findBookByTitleAlways(@RequestParam String title) {
         return ResponseEntity.ok(bookService.findBooks(title));
+    }
+
+    @GetMapping("/search/survey")
+    public ResponseEntity<List<Book>> findBookByTitleForSurvey(@RequestParam String title) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+
+        return ResponseEntity.ok(bookService.findBookCauseSurvey(title, currentUser));
     }
 }

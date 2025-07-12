@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import com.nextread.entities.User;
 import com.nextread.repositories.UserRepository;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserService {
