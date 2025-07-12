@@ -65,6 +65,7 @@ public class SurveyService {
                 .user(user)
                 .pace(PaceSelection.SLOW)
                 .selectedGenres(List.of())
+                .firstTime(true)
                 .build();
 
         return surveryRepository.save(survey);
@@ -108,6 +109,17 @@ public class SurveyService {
     public boolean hasUserBooks(User user) {
         List<UserBook> userBooks = userBookService.findUserBooks(user);
         return !userBooks.isEmpty();
+    }
+
+    /**
+     * Guarda una encuesta en la base de datos
+     * 
+     * @param survey La encuesta a guardar
+     * @return La encuesta guardada
+     */
+    @Transactional
+    public Survey saveSurvey(Survey survey) {
+        return surveryRepository.save(survey);
     }
 
     /**

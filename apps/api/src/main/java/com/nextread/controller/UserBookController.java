@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nextread.dto.UserBookDTO;
-import com.nextread.entities.Book;
+import com.nextread.dto.AddBookRequestDTO;
 import com.nextread.entities.User;
 import com.nextread.services.UserBookService;
 
@@ -92,11 +92,11 @@ public class UserBookController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<UserBookDTO> addBookForUserList(@RequestBody Book book,
-            @RequestBody UserBookDTO userBookDTO) {
+    public ResponseEntity<UserBookDTO> addBookForUserList(@RequestBody AddBookRequestDTO request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
 
-        return ResponseEntity.ok(userBookService.addBookSelected(book, userBookDTO, currentUser));
+        return ResponseEntity
+                .ok(userBookService.addBookSelected(request.getBook(), request.getUserBookDTO(), currentUser));
     }
 }

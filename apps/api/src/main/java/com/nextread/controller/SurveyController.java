@@ -1,19 +1,18 @@
 package com.nextread.controller;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.nextread.dto.SurveyResponseDTO;
-import com.nextread.entities.PaceSelection;
+import com.nextread.dto.UpdateSurveyRequestDTO;
 import com.nextread.entities.User;
 import com.nextread.services.SurveyService;
 
@@ -36,12 +35,13 @@ public class SurveyController {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<SurveyResponseDTO> updateSurveyBasics(PaceSelection pace, List<Long> genresIds) {
+    public ResponseEntity<SurveyResponseDTO> updateSurveyBasics(@RequestBody UpdateSurveyRequestDTO request) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
 
-        return ResponseEntity.ok(surveyService.updatePaceGenreSurvey(pace, genresIds, currentUser));
+        return ResponseEntity
+                .ok(surveyService.updatePaceGenreSurvey(request.getPace(), request.getGenresIds(), currentUser));
     }
 
     // TODO: Actualizar para restricción con rol para admin

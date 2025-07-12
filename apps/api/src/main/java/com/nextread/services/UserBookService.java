@@ -111,19 +111,24 @@ public class UserBookService {
     public UserBookDTO addBookSelected(Book book, UserBookDTO userBookDTO, User user) {
 
         // Si no tiene id, viene de google y hay que añadirlo a la BD
+        final Book bookToSave = book.getId() == null ? bookService.saveBook(book) : book;
 
-        if (book.getId() == null) {
-            bookService.saveBook(book);
+        // Verificar si el usuario ya tiene este libro
+        List<UserBook> existingUserBooks = userBookRepository.findByUser(user);
+        boolean bookAlreadyExists = existingUserBooks.stream()
+                .anyMatch(ub -> ub.getBook().getId().equals(bookToSave.getId()));
+
+        if (bookAlreadyExists) {
+            throw new RuntimeException("El usuario ya tiene este libro en su lista");
         }
 
-        // Si tiene id, o ya lo hemos guardado, solo queda añadir la relacion UserBook,
-        // permitiendo update del rating, status, etc.
-
-        UserBook newBookForUser = UserBook.builder().user(user).book(book).build();
+        // Crear la nueva relación UserBook
+        UserBook newBookForUser = UserBook.builder().user(user).book(bookToSave).build();
         userBookRepository.save(newBookForUser);
+
+        // Actualizar con los datos del DTO si se proporcionan
         UserBookDTO updatedUserBook = updateUserBook(newBookForUser.getId(), user, userBookDTO);
         return updatedUserBook;
-
     }
 
     /**
