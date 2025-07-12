@@ -40,6 +40,17 @@ public class BookService {
     }
 
     /**
+     * Busca un libro por su ID en la base de datos.
+     * 
+     * @param id El ID del libro a buscar
+     * @return El libro encontrado o excepción si no existe
+     */
+    @Transactional
+    public Book findBookById(Long id) {
+        return bookRepository.findById(id).orElseThrow(() -> new RuntimeException("Libro no encontrado"));
+    }
+
+    /**
      * Busca un libro por ISBN en la base de datos local. Si no se encuentra,
      * consulta la API de Google Books para obtener los datos del libro.
      * 
