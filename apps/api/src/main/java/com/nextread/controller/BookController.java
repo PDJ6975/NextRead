@@ -41,8 +41,8 @@ public class BookController {
         return ResponseEntity.ok(book);
     }
 
-    @GetMapping("/search/basic")
-    public ResponseEntity<List<Book>> findBookByTitleAlways(@RequestParam String title) {
+    @GetMapping("/search")
+    public ResponseEntity<List<Book>> findBooksByTitle(@RequestParam String title) {
         return ResponseEntity.ok(bookService.findBooks(title));
     }
 

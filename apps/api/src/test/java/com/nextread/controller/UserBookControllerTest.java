@@ -15,6 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
@@ -26,6 +27,7 @@ import com.nextread.dto.UserBookDTO;
 import com.nextread.entities.Book;
 import com.nextread.entities.User;
 import com.nextread.services.UserBookService;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 
 @ExtendWith(MockitoExtension.class)
 class UserBookControllerTest {
@@ -42,10 +44,25 @@ class UserBookControllerTest {
         return UserBookDTO.builder().id(1L).rating(4f).build();
     }
 
+    private Book createValidBook(String title) {
+        return Book.builder()
+                .title(title)
+                .isbn10("1234567890")
+                .isbn13("1234567890123")
+                .publisher("Test Publisher")
+                .coverUrl("https://example.com/cover.jpg")
+                .synopsis("Test synopsis")
+                .pages(100)
+                .publishedYear("2024")
+                .build();
+    }
+
     @BeforeEach
     void setup() {
         UserBookController ctrl = new UserBookController(userBookService);
-        mockMvc = MockMvcBuilders.standaloneSetup(ctrl).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(ctrl)
+                .setMessageConverters(new MappingJackson2HttpMessageConverter(new ObjectMapper()))
+                .build();
         userPrincipal = new User();
         SecurityContextHolder.getContext().setAuthentication(
                 new UsernamePasswordAuthenticationToken(userPrincipal, null, List.of()));
@@ -91,17 +108,59 @@ class UserBookControllerTest {
     }
 
     @Test
-    @DisplayName("POST /userbooks/add")
-    void addBook() throws Exception {
+    @DisplayName("POST /userbooks")
+    void addBookToUserList() throws Exception {
         AddBookRequestDTO req = AddBookRequestDTO.builder()
-                .book(Book.builder().title("t").build())
+                .book(createValidBook("Test Book"))
                 .userBookDTO(UserBookDTO.builder().rating(3f).build())
                 .build();
+
         when(userBookService.addBookSelected(any(), any(), eq(userPrincipal))).thenReturn(dto());
-        mockMvc.perform(post("/userbooks/add")
+
+        mockMvc.perform(post("/userbooks")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(req)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(1)));
+
+        verify(userBookService).addBookSelected(any(), any(), eq(userPrincipal));
+    }
+
+    @Test
+    @DisplayName("POST /userbooks - should call service with data")
+    void addBookToUserListCallsService() throws Exception {
+        AddBookRequestDTO req = AddBookRequestDTO.builder()
+                .book(createValidBook("Another Book"))
+                .userBookDTO(UserBookDTO.builder().rating(4.5f).build())
+                .build();
+
+        when(userBookService.addBookSelected(any(), any(), eq(userPrincipal))).thenReturn(dto());
+
+        mockMvc.perform(post("/userbooks")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(req)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(1)));
+
+        verify(userBookService).addBookSelected(any(), any(), eq(userPrincipal));
+    }
+
+    @Test
+    @DisplayName("POST /userbooks - should call service correctly")
+    void addBookToUserListCallsServiceCorrectly() throws Exception {
+        AddBookRequestDTO req = AddBookRequestDTO.builder()
+                .book(createValidBook("Different Book"))
+                .userBookDTO(UserBookDTO.builder().rating(2.5f).build())
+                .build();
+
+        when(userBookService.addBookSelected(any(), any(), eq(userPrincipal))).thenReturn(dto());
+
+        mockMvc.perform(post("/userbooks")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(req)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(1)));
+
+        verify(userBookService).addBookSelected(any(), any(), eq(userPrincipal));
     }
 }

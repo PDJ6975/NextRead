@@ -28,4 +28,20 @@ public class UserService {
         return user.getAvatarUrl();
 
     }
+
+    @Transactional
+    public String updateNickname(String nickname, User current) {
+
+        User user = userRepository.findByEmail(current.getEmail())
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        // Verificar que el nickname no esté en uso por otro usuario
+        if (userRepository.findByNickname(nickname).isPresent()) {
+            throw new RuntimeException("El nickname ya está en uso");
+        }
+
+        user.setNickname(nickname);
+        userRepository.save(user);
+        return user.getNickname();
+    }
 }

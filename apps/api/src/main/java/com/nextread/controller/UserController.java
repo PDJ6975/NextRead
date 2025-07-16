@@ -36,8 +36,8 @@ public class UserController {
         return ResponseEntity.ok(userDTO);
     }
 
-    @PutMapping("/update")
-    public ResponseEntity<String> changeAvatar(@RequestBody String avatar) {
+    @PutMapping("/avatar")
+    public ResponseEntity<String> updateAvatar(@RequestBody String avatar) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
@@ -45,5 +45,16 @@ public class UserController {
         String updatedAvatar = userService.updateAvatar(avatar, currentUser);
 
         return ResponseEntity.ok(updatedAvatar);
+    }
+
+    @PutMapping("/nickname")
+    public ResponseEntity<String> updateNickname(@RequestBody String nickname) {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = (User) authentication.getPrincipal();
+
+        String updatedNickname = userService.updateNickname(nickname, currentUser);
+
+        return ResponseEntity.ok(updatedNickname);
     }
 }

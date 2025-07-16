@@ -73,10 +73,10 @@ class BookControllerTest {
     }
 
     @Test
-    @DisplayName("GET /books/search/basic")
-    void searchBasic() throws Exception {
+    @DisplayName("GET /books/search")
+    void searchBooks() throws Exception {
         when(bookService.findBooks("java")).thenReturn(List.of(sampleBook()));
-        mockMvc.perform(get("/books/search/basic").param("title", "java"))
+        mockMvc.perform(get("/books/search").param("title", "java"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].title", is("Title")));
     }

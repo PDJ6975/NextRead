@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,7 +29,7 @@ public class SurveyController {
     }
 
     @GetMapping("/find")
-    public ResponseEntity<SurveyResponseDTO> findSurveyByUser() {
+    public ResponseEntity<SurveyResponseDTO> getSurvey() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
         return ResponseEntity.ok(surveyService.findByUserOrCreate(currentUser));
@@ -44,9 +45,11 @@ public class SurveyController {
                 .ok(surveyService.updatePaceGenreSurvey(request.getPace(), request.getGenresIds(), currentUser));
     }
 
-    // TODO: Actualizar para restricción con rol para admin
-    @DeleteMapping
-    public ResponseEntity<String> deleteSurvey() {
+    // TODO: Actualizar para restricción con rol para admin. Vamos que debe usar el
+    // id de la encuesta del usuario y validar que el user es admin, nada de
+    // currentUser
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteSurvey(@PathVariable Long id) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();

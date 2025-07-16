@@ -24,6 +24,7 @@ import com.nextread.entities.Survey;
 import com.nextread.entities.User;
 import com.nextread.entities.UserBook;
 import com.nextread.repositories.SurveyRepository;
+import com.nextread.repositories.UserBookRepository;
 
 @ExtendWith(MockitoExtension.class)
 class SurveyServiceTest {
@@ -31,7 +32,7 @@ class SurveyServiceTest {
     @Mock
     private SurveyRepository surveyRepository;
     @Mock
-    private UserBookService userBookService;
+    private UserBookRepository userBookRepository;
     @Mock
     private GenreService genreService;
 
@@ -165,9 +166,9 @@ class SurveyServiceTest {
     @Test
     void hasUserBooks_returnsBoolean() {
         User u = newUser();
-        when(userBookService.findUserBooks(u)).thenReturn(List.of(new UserBook()));
+        when(userBookRepository.findByUser(u)).thenReturn(List.of(new UserBook()));
         assertTrue(surveyService.hasUserBooks(u));
-        when(userBookService.findUserBooks(u)).thenReturn(new ArrayList<>());
+        when(userBookRepository.findByUser(u)).thenReturn(new ArrayList<>());
         assertFalse(surveyService.hasUserBooks(u));
     }
 

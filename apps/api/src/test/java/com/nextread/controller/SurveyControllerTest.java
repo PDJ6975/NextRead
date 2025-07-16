@@ -86,10 +86,10 @@ class SurveyControllerTest {
     }
 
     @Test
-    @DisplayName("DELETE /surveys")
+    @DisplayName("DELETE /surveys/{id}")
     void deleteSurvey() throws Exception {
         setAuth();
-        mockMvc.perform(delete("/surveys"))
+        mockMvc.perform(delete("/surveys/1"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("Encuesta eliminada correctamente")));
         verify(surveyService).deleteSurvey(any());

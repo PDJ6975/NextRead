@@ -13,6 +13,7 @@ import com.nextread.entities.Genre;
 import com.nextread.entities.PaceSelection;
 import com.nextread.entities.UserBook;
 import com.nextread.repositories.SurveyRepository;
+import com.nextread.repositories.UserBookRepository;
 
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,15 +21,15 @@ import org.springframework.transaction.annotation.Transactional;
 public class SurveyService {
 
     private final SurveyRepository surveryRepository;
-    private final UserBookService userBookService;
+    private final UserBookRepository userBookRepository;
     private final GenreService genreService;
 
     @Autowired
     public SurveyService(SurveyRepository surveryRepository,
-            UserBookService userBookService,
+            UserBookRepository userBookRepository,
             GenreService genreService) {
         this.surveryRepository = surveryRepository;
-        this.userBookService = userBookService;
+        this.userBookRepository = userBookRepository;
         this.genreService = genreService;
     }
 
@@ -116,7 +117,7 @@ public class SurveyService {
      */
     @Transactional(readOnly = true)
     public boolean hasUserBooks(User user) {
-        List<UserBook> userBooks = userBookService.findUserBooks(user);
+        List<UserBook> userBooks = userBookRepository.findByUser(user);
         return !userBooks.isEmpty();
     }
 

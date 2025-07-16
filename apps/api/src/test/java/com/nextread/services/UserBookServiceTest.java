@@ -114,6 +114,11 @@ class UserBookServiceTest {
             Survey survey = Survey.builder().firstTime(true).build();
             when(surveyService.findSurveyByUser(user)).thenReturn(survey);
             when(surveyService.saveSurvey(survey)).thenReturn(survey);
+
+            // Mock para la llamada interna a updateUserBook
+            UserBook savedUserBook = entity(50L);
+            when(userBookRepository.findByIdAndUser(50L, user)).thenReturn(Optional.of(savedUserBook));
+
             UserBookDTO dto = UserBookDTO.builder().status(ReadingStatus.TO_READ).build();
 
             UserBookDTO res = service.addBookSelected(bookNoId, dto, user);
@@ -132,9 +137,18 @@ class UserBookServiceTest {
         @Test
         void addsExistingBook_notFirstTime() {
             when(userBookRepository.findByUser(user)).thenReturn(new ArrayList<>());
-            when(userBookRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+            when(userBookRepository.save(any())).thenAnswer(inv -> {
+                UserBook saved = (UserBook) inv.getArgument(0);
+                saved.setId(60L);
+                return saved;
+            });
             Survey s = Survey.builder().firstTime(false).build();
             when(surveyService.findSurveyByUser(user)).thenReturn(s);
+
+            // Mock para la llamada interna a updateUserBook
+            UserBook savedUserBook = entity(60L);
+            when(userBookRepository.findByIdAndUser(60L, user)).thenReturn(Optional.of(savedUserBook));
+
             UserBookDTO result = service.addBookSelected(bookWithId, new UserBookDTO(), user);
             assertNotNull(result.getId());
         }

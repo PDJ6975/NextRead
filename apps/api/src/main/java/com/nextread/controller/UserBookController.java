@@ -91,8 +91,8 @@ public class UserBookController {
         return ResponseEntity.ok("Libro eliminado de tu lista correctamente");
     }
 
-    @PostMapping("/add")
-    public ResponseEntity<UserBookDTO> addBookForUserList(@RequestBody AddBookRequestDTO request) {
+    @PostMapping
+    public ResponseEntity<UserBookDTO> addBookToUserList(@RequestBody AddBookRequestDTO request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
 
