@@ -1,2 +1,3 @@
 # Ignorar variables de entorno específicas de la API
 /apps/api/.env
+apps/api/target/

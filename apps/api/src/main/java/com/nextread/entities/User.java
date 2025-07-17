@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
+import org.hibernate.validator.constraints.URL;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -38,6 +39,11 @@ public class User implements UserDetails {
     @NotBlank
     @Column(nullable = false, unique = true)
     private String email;
+
+    @URL
+    @NotBlank
+    @Column(nullable = false)
+    private String avatarUrl;
 
     @NotBlank
     @Column(nullable = false)

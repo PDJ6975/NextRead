@@ -5,10 +5,8 @@ import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.hibernate.validator.constraints.ISBN;
 import org.hibernate.validator.constraints.URL;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -18,40 +16,44 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Table;
-import jakarta.persistence.Index;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.EqualsAndHashCode;
 
 @Entity
-@Table(name = "book", indexes = { @Index(columnList = "title"), @Index(columnList = "isbn", unique = true) })
+@Table(name = "books")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@Builder
 public class Book {
-    
-    @EqualsAndHashCode.Include
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @NotBlank
     @Column(nullable = false, length = 100)
     private String title;
 
-    @ISBN
     @NotBlank
-    @Column(nullable = false, length = 13, unique = true)
-    private String isbn;
+    @Column(name = "isbn_10", nullable = false, length = 10, unique = true)
+    private String isbn10;
+
+    @NotBlank
+    @Column(name = "isbn_13", nullable = false, length = 13, unique = true)
+    private String isbn13;
+
+    @NotBlank
+    @Column(nullable = false, unique = true)
+    private String publisher;
 
     @URL(protocol = "https")
     @NotBlank
@@ -67,8 +69,8 @@ public class Book {
     @Column(nullable = false)
     private int pages;
 
-    @Column(nullable = false)
-    private int publishedYear;
+    @Column(nullable = false, length = 10)
+    private String publishedYear;
 
     @CreationTimestamp
     private Instant createdAt;
@@ -79,12 +81,7 @@ public class Book {
     // Relationships
 
     // Relación Autor-Libro. Libro es en este caso la dueña de la relación
-    @JsonManagedReference
-    @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
-    @JoinTable(
-        name = "book_author",
-        joinColumns = @JoinColumn(name = "book_id"),
-        inverseJoinColumns = @JoinColumn(name = "author_id")
-    )
-    private List<Author> authors; 
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "book_author", joinColumns = @JoinColumn(name = "book_id"), inverseJoinColumns = @JoinColumn(name = "author_id"))
+    private List<Author> authors;
 }
