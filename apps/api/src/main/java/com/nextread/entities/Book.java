@@ -7,7 +7,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.validator.constraints.URL;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -82,7 +81,6 @@ public class Book {
     // Relationships
 
     // Relación Autor-Libro. Libro es en este caso la dueña de la relación
-    @JsonManagedReference
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "book_author", joinColumns = @JoinColumn(name = "book_id"), inverseJoinColumns = @JoinColumn(name = "author_id"))
     private List<Author> authors;

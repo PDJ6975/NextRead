@@ -286,7 +286,6 @@ public class RecommendationControllerTest {
 4. ✅ Integrar API de ChatGPT para generar recomendaciones
 5. ✅ Completar endpoints pendientes en controladores existentes
 6. ✅ Desarrollar pruebas unitarias para nuevos componentes
-7. Completar pruebas unitarias para componentes existentes
-8. Realizar pruebas de integración
-9. Validar seguridad y permisos
-10. Documentar API
+7. Realizar pruebas de integración (más tarde)
+9. Validar seguridad y permisos (más tarde)
+10. Documentar API (más tarde)

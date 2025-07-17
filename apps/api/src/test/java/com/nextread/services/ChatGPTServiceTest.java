@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import java.util.List;
+import java.util.ArrayList;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -15,11 +16,20 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nextread.dto.GeneratedRecommendationDTO;
 import com.nextread.entities.GenreSelection;
 import com.nextread.entities.PaceSelection;
+import com.nextread.entities.ReadingStatus;
 import com.nextread.entities.Survey;
 import com.nextread.entities.User;
+import com.nextread.entities.UserBook;
+import com.nextread.entities.Book;
 import com.nextread.entities.Genre;
 
 @ExtendWith(MockitoExtension.class)
@@ -31,12 +41,19 @@ public class ChatGPTServiceTest {
     @Mock
     private UserBookService userBookService;
 
+    @Mock
+    private RestTemplate restTemplate;
+
     @InjectMocks
     private ChatGPTService chatGPTService;
+
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     private User testUser;
     private Survey testSurvey;
     private Genre testGenre;
+    private Book testBook;
+    private UserBook testUserBook;
 
     @BeforeEach
     void setUp() {
@@ -49,6 +66,26 @@ public class ChatGPTServiceTest {
         testGenre.setId(1L);
         testGenre.setSelectedGenre(GenreSelection.FANTASY);
 
+        testBook = Book.builder()
+                .id(1L)
+                .title("Test Book")
+                .isbn10("1234567890")
+                .isbn13("1234567890123")
+                .publisher("Test Publisher")
+                .coverUrl("https://example.com/cover.jpg")
+                .synopsis("Test synopsis")
+                .pages(200)
+                .publishedYear("2023")
+                .build();
+
+        testUserBook = UserBook.builder()
+                .id(1L)
+                .user(testUser)
+                .book(testBook)
+                .rating(4.5f)
+                .status(ReadingStatus.READ)
+                .build();
+
         testSurvey = Survey.builder()
                 .id(1L)
                 .user(testUser)
@@ -60,6 +97,7 @@ public class ChatGPTServiceTest {
         // Set up API key for testing
         ReflectionTestUtils.setField(chatGPTService, "apiKey", "test-api-key");
         ReflectionTestUtils.setField(chatGPTService, "apiUrl", "https://api.openai.com/v1/chat/completions");
+        ReflectionTestUtils.setField(chatGPTService, "objectMapper", objectMapper);
     }
 
     @Nested
@@ -123,17 +161,130 @@ public class ChatGPTServiceTest {
         }
 
         @Test
-        @DisplayName("Should call survey service when conditions are met")
-        void shouldCallSurveyServiceWhenConditionsAreMet() {
+        @DisplayName("Should successfully generate recommendations with valid data")
+        void shouldSuccessfullyGenerateRecommendationsWithValidData() throws Exception {
             // Given
             when(surveyService.findSurveyByUser(testUser)).thenReturn(testSurvey);
-            when(userBookService.findUserBooks(testUser)).thenReturn(List.of());
+            when(userBookService.findUserBooks(testUser)).thenReturn(List.of(testUserBook));
 
-            // When & Then - Expect exception due to missing RestTemplate mocking
-            assertThrows(RuntimeException.class, () -> {
+            String mockApiResponse = """
+                    {
+                        "choices": [{
+                            "message": {
+                                "content": "[{\\"title\\": \\"The Hobbit\\", \\"reason\\": \\"Perfect fantasy book for fast readers\\"}]"
+                            }
+                        }]
+                    }
+                    """;
+
+            ResponseEntity<String> mockResponse = ResponseEntity.ok(mockApiResponse);
+            when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(HttpEntity.class), eq(String.class)))
+                    .thenReturn(mockResponse);
+
+            // When
+            List<GeneratedRecommendationDTO> result = chatGPTService.generateRecommendations(testUser);
+
+            // Then
+            assertNotNull(result);
+            assertEquals(1, result.size());
+            assertEquals("The Hobbit", result.get(0).getTitle());
+            assertEquals("Perfect fantasy book for fast readers", result.get(0).getReason());
+
+            verify(surveyService).findSurveyByUser(testUser);
+            verify(userBookService).findUserBooks(testUser);
+            verify(restTemplate).exchange(anyString(), eq(HttpMethod.POST), any(HttpEntity.class), eq(String.class));
+        }
+
+        @Test
+        @DisplayName("Should handle empty user books list")
+        void shouldHandleEmptyUserBooksList() {
+            // Given
+            when(surveyService.findSurveyByUser(testUser)).thenReturn(testSurvey);
+            when(userBookService.findUserBooks(testUser)).thenReturn(new ArrayList<>());
+
+            String mockApiResponse = """
+                    {
+                        "choices": [{
+                            "message": {
+                                "content": "[{\\"title\\": \\"Book 1\\", \\"reason\\": \\"Reason 1\\"}]"
+                            }
+                        }]
+                    }
+                    """;
+
+            ResponseEntity<String> mockResponse = ResponseEntity.ok(mockApiResponse);
+            when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(HttpEntity.class), eq(String.class)))
+                    .thenReturn(mockResponse);
+
+            // When & Then - Should not throw exception
+            assertDoesNotThrow(() -> {
                 chatGPTService.generateRecommendations(testUser);
             });
 
+            verify(surveyService).findSurveyByUser(testUser);
+            verify(userBookService).findUserBooks(testUser);
+        }
+
+        @Test
+        @DisplayName("Should handle different reading statuses in user books")
+        void shouldHandleDifferentReadingStatusesInUserBooks() {
+            // Given
+            UserBook abandonedBook = UserBook.builder()
+                    .id(2L)
+                    .user(testUser)
+                    .book(Book.builder().title("Abandoned Book").build())
+                    .status(ReadingStatus.ABANDONED)
+                    .build();
+
+            UserBook toReadBook = UserBook.builder()
+                    .id(3L)
+                    .user(testUser)
+                    .book(Book.builder().title("To Read Book").build())
+                    .status(ReadingStatus.TO_READ)
+                    .rating(3.0f)
+                    .build();
+
+            when(surveyService.findSurveyByUser(testUser)).thenReturn(testSurvey);
+            when(userBookService.findUserBooks(testUser)).thenReturn(List.of(testUserBook, abandonedBook, toReadBook));
+
+            String mockApiResponse = """
+                    {
+                        "choices": [{
+                            "message": {
+                                "content": "[{\\"title\\": \\"Book 1\\", \\"reason\\": \\"Reason 1\\"}]"
+                            }
+                        }]
+                    }
+                    """;
+
+            ResponseEntity<String> mockResponse = ResponseEntity.ok(mockApiResponse);
+            when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(HttpEntity.class), eq(String.class)))
+                    .thenReturn(mockResponse);
+
+            // When & Then
+            assertDoesNotThrow(() -> {
+                chatGPTService.generateRecommendations(testUser);
+            });
+
+            verify(surveyService).findSurveyByUser(testUser);
+            verify(userBookService).findUserBooks(testUser);
+        }
+
+        @Test
+        @DisplayName("Should handle RestTemplate exceptions")
+        void shouldHandleRestTemplateExceptions() {
+            // Given
+            when(surveyService.findSurveyByUser(testUser)).thenReturn(testSurvey);
+            when(userBookService.findUserBooks(testUser)).thenReturn(List.of());
+            when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(HttpEntity.class), eq(String.class)))
+                    .thenThrow(new RuntimeException("Network error"));
+
+            // When & Then
+            RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+                chatGPTService.generateRecommendations(testUser);
+            });
+
+            assertTrue(exception.getMessage().contains("Error al generar recomendaciones"));
             verify(surveyService).findSurveyByUser(testUser);
             verify(userBookService).findUserBooks(testUser);
         }
@@ -164,6 +315,344 @@ public class ChatGPTServiceTest {
                     exception.getMessage());
             verify(surveyService).findSurveyByUser(testUser);
             verify(userBookService).findUserBooks(testUser);
+        }
+    }
+
+    @Nested
+    @DisplayName("Format Methods Tests")
+    class FormatMethodsTests {
+
+        @Test
+        @DisplayName("Should format FAST pace correctly")
+        void shouldFormatFastPaceCorrectly() {
+            // Given
+            PaceSelection pace = PaceSelection.FAST;
+
+            // When
+            String result = (String) ReflectionTestUtils.invokeMethod(chatGPTService, "formatPace", pace);
+
+            // Then
+            assertNotNull(result);
+            assertTrue(result.contains("Rápido"));
+            assertTrue(result.contains("dinámicos"));
+        }
+
+        @SuppressWarnings("null")
+        @Test
+        @DisplayName("Should format SLOW pace correctly")
+        void shouldFormatSlowPaceCorrectly() {
+            // Given
+            PaceSelection pace = PaceSelection.SLOW;
+
+            // When
+            String result = (String) ReflectionTestUtils.invokeMethod(chatGPTService, "formatPace", pace);
+
+            // Then
+            assertTrue(result.contains("Lento"));
+            assertTrue(result.contains("tranquilamente"));
+        }
+
+        @Test
+        @DisplayName("Should format FANTASY genre correctly")
+        void shouldFormatFantasyGenreCorrectly() {
+            // Given
+            GenreSelection genre = GenreSelection.FANTASY;
+
+            // When
+            String result = (String) ReflectionTestUtils.invokeMethod(chatGPTService, "formatGenre", genre);
+
+            // Then
+            assertEquals("Fantasía", result);
+        }
+
+        @Test
+        @DisplayName("Should format SCIENCE_FICTION genre correctly")
+        void shouldFormatScienceFictionGenreCorrectly() {
+            // Given
+            GenreSelection genre = GenreSelection.SCIENCE_FICTION;
+
+            // When
+            String result = (String) ReflectionTestUtils.invokeMethod(chatGPTService, "formatGenre", genre);
+
+            // Then
+            assertEquals("Ciencia Ficción", result);
+        }
+
+        @Test
+        @DisplayName("Should format ROMANCE genre correctly")
+        void shouldFormatRomanceGenreCorrectly() {
+            // Given
+            GenreSelection genre = GenreSelection.ROMANCE;
+
+            // When
+            String result = (String) ReflectionTestUtils.invokeMethod(chatGPTService, "formatGenre", genre);
+
+            // Then
+            assertEquals("Romance", result);
+        }
+
+        @Test
+        @DisplayName("Should format THRILLER genre correctly")
+        void shouldFormatThrillerGenreCorrectly() {
+            // Given
+            GenreSelection genre = GenreSelection.THRILLER;
+
+            // When
+            String result = (String) ReflectionTestUtils.invokeMethod(chatGPTService, "formatGenre", genre);
+
+            // Then
+            assertEquals("Thriller", result);
+        }
+
+        @Test
+        @DisplayName("Should format MYSTERY genre correctly")
+        void shouldFormatMysteryGenreCorrectly() {
+            // Given
+            GenreSelection genre = GenreSelection.MYSTERY;
+
+            // When
+            String result = (String) ReflectionTestUtils.invokeMethod(chatGPTService, "formatGenre", genre);
+
+            // Then
+            assertEquals("Misterio", result);
+        }
+
+        @Test
+        @DisplayName("Should format HORROR genre correctly")
+        void shouldFormatHorrorGenreCorrectly() {
+            // Given
+            GenreSelection genre = GenreSelection.HORROR;
+
+            // When
+            String result = (String) ReflectionTestUtils.invokeMethod(chatGPTService, "formatGenre", genre);
+
+            // Then
+            assertEquals("Terror", result);
+        }
+
+        @Test
+        @DisplayName("Should format NON_FICTION genre correctly")
+        void shouldFormatNonFictionGenreCorrectly() {
+            // Given
+            GenreSelection genre = GenreSelection.NON_FICTION;
+
+            // When
+            String result = (String) ReflectionTestUtils.invokeMethod(chatGPTService, "formatGenre", genre);
+
+            // Then
+            assertEquals("No Ficción", result);
+        }
+
+        @Test
+        @DisplayName("Should format YOUNG_ADULT genre correctly")
+        void shouldFormatYoungAdultGenreCorrectly() {
+            // Given
+            GenreSelection genre = GenreSelection.YOUNG_ADULT;
+
+            // When
+            String result = (String) ReflectionTestUtils.invokeMethod(chatGPTService, "formatGenre", genre);
+
+            // Then
+            assertEquals("Juvenil", result);
+        }
+    }
+
+    @Nested
+    @DisplayName("Prompt Building Tests")
+    class PromptBuildingTests {
+
+        @Test
+        @DisplayName("Should build prompt with survey data and no user books")
+        void shouldBuildPromptWithSurveyDataAndNoUserBooks() {
+            // Given
+            Survey survey = Survey.builder()
+                    .pace(PaceSelection.FAST)
+                    .selectedGenres(List.of(testGenre))
+                    .build();
+
+            // When
+            String prompt = (String) ReflectionTestUtils.invokeMethod(chatGPTService, "buildPrompt", survey,
+                    new ArrayList<UserBook>());
+
+            // Then
+            assertNotNull(prompt);
+            assertTrue(prompt.contains("Rápido"));
+            assertTrue(prompt.contains("Fantasía"));
+            assertTrue(prompt.contains("JSON válido"));
+            assertTrue(prompt.contains("exactamente 3 libros"));
+        }
+
+        @Test
+        @DisplayName("Should build prompt with user books history")
+        void shouldBuildPromptWithUserBooksHistory() {
+            // Given
+            Survey survey = Survey.builder()
+                    .pace(PaceSelection.SLOW)
+                    .selectedGenres(List.of(testGenre))
+                    .build();
+
+            List<UserBook> userBooks = List.of(testUserBook);
+
+            // When
+            String prompt = (String) ReflectionTestUtils.invokeMethod(chatGPTService, "buildPrompt", survey, userBooks);
+
+            // Then
+            assertNotNull(prompt);
+            assertTrue(prompt.contains("Historial de libros"));
+            assertTrue(prompt.contains("Test Book"));
+            assertTrue(prompt.contains("LEÍDO COMPLETAMENTE"));
+            assertTrue(prompt.contains("Valoración: 4.5/5"));
+        }
+
+        @Test
+        @DisplayName("Should build prompt with abandoned books")
+        void shouldBuildPromptWithAbandonedBooks() {
+            // Given
+            UserBook abandonedBook = UserBook.builder()
+                    .user(testUser)
+                    .book(Book.builder().title("Abandoned Book").build())
+                    .status(ReadingStatus.ABANDONED)
+                    .build();
+
+            List<UserBook> userBooks = List.of(abandonedBook);
+
+            // When
+            String prompt = (String) ReflectionTestUtils.invokeMethod(chatGPTService, "buildPrompt", testSurvey,
+                    userBooks);
+
+            // Then
+            assertNotNull(prompt);
+            assertTrue(prompt.contains("NO TERMINADO"));
+            assertTrue(prompt.contains("abandonó"));
+            assertTrue(prompt.contains("NO le gustaron"));
+        }
+
+        @Test
+        @DisplayName("Should build prompt with multiple genres")
+        void shouldBuildPromptWithMultipleGenres() {
+            // Given
+            Genre genre1 = new Genre();
+            genre1.setSelectedGenre(GenreSelection.FANTASY);
+            Genre genre2 = new Genre();
+            genre2.setSelectedGenre(GenreSelection.SCIENCE_FICTION);
+
+            Survey survey = Survey.builder()
+                    .pace(PaceSelection.FAST)
+                    .selectedGenres(List.of(genre1, genre2))
+                    .build();
+
+            // When
+            String prompt = (String) ReflectionTestUtils.invokeMethod(chatGPTService, "buildPrompt", survey,
+                    new ArrayList<UserBook>());
+
+            // Then
+            assertNotNull(prompt);
+            assertTrue(prompt.contains("Fantasía"));
+            assertTrue(prompt.contains("Ciencia Ficción"));
+        }
+    }
+
+    @Nested
+    @DisplayName("Response Parsing Tests")
+    class ResponseParsingTests {
+
+        @Test
+        @DisplayName("Should parse valid JSON recommendations")
+        void shouldParseValidJsonRecommendations() {
+            // Given
+            String jsonResponse = """
+                    [
+                        {
+                            "title": "The Hobbit",
+                            "reason": "Perfect fantasy adventure"
+                        },
+                        {
+                            "title": "Dune",
+                            "reason": "Epic science fiction"
+                        }
+                    ]
+                    """;
+
+            // When
+            @SuppressWarnings("unchecked")
+            List<GeneratedRecommendationDTO> result = (List<GeneratedRecommendationDTO>) ReflectionTestUtils
+                    .invokeMethod(
+                            chatGPTService, "parseRecommendations", jsonResponse);
+
+            // Then
+            assertNotNull(result);
+            assertEquals(2, result.size());
+            assertEquals("The Hobbit", result.get(0).getTitle());
+            assertEquals("Perfect fantasy adventure", result.get(0).getReason());
+            assertEquals("Dune", result.get(1).getTitle());
+            assertEquals("Epic science fiction", result.get(1).getReason());
+        }
+
+        @Test
+        @DisplayName("Should handle empty JSON array")
+        void shouldHandleEmptyJsonArray() {
+            // Given
+            String jsonResponse = "[]";
+
+            // When
+            @SuppressWarnings("unchecked")
+            List<GeneratedRecommendationDTO> result = (List<GeneratedRecommendationDTO>) ReflectionTestUtils
+                    .invokeMethod(
+                            chatGPTService, "parseRecommendations", jsonResponse);
+
+            // Then
+            assertNotNull(result);
+            assertTrue(result.isEmpty());
+        }
+
+        @Test
+        @DisplayName("Should throw exception for invalid JSON")
+        void shouldThrowExceptionForInvalidJson() {
+            // Given
+            String invalidJson = "invalid json";
+
+            // When & Then
+            RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+                ReflectionTestUtils.invokeMethod(chatGPTService, "parseRecommendations", invalidJson);
+            });
+
+            assertTrue(exception.getMessage().contains("Error al parsear recomendaciones"));
+        }
+
+        @Test
+        @DisplayName("Should extract content from ChatGPT response")
+        void shouldExtractContentFromChatGPTResponse() {
+            // Given
+            String apiResponse = """
+                    {
+                        "choices": [{
+                            "message": {
+                                "content": "This is the content"
+                            }
+                        }]
+                    }
+                    """;
+
+            // When
+            String result = (String) ReflectionTestUtils.invokeMethod(chatGPTService, "extractContentFromResponse",
+                    apiResponse);
+
+            // Then
+            assertEquals("This is the content", result);
+        }
+
+        @Test
+        @DisplayName("Should throw exception for invalid API response")
+        void shouldThrowExceptionForInvalidApiResponse() {
+            // Given
+            String invalidResponse = "invalid response";
+
+            // When & Then
+            RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+                ReflectionTestUtils.invokeMethod(chatGPTService, "extractContentFromResponse", invalidResponse);
+            });
+
+            assertTrue(exception.getMessage().contains("Error al parsear respuesta de ChatGPT"));
         }
     }
 }

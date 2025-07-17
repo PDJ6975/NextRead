@@ -72,12 +72,13 @@ class GenreServiceTest {
             verify(genreRepository).findById(genreId);
         }
 
+        @SuppressWarnings("null")
         @Test
         @DisplayName("Should handle null ID")
         void shouldHandleNullId() {
             // Given
             Long nullId = null;
-            when(genreRepository.findById(nullId)).thenReturn(Optional.empty());
+            when(genreRepository.findById(any())).thenReturn(Optional.empty());
 
             // When & Then
             RuntimeException exception = assertThrows(RuntimeException.class,
