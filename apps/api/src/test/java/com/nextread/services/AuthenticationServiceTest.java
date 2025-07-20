@@ -43,6 +43,9 @@ class AuthenticationServiceTest {
     @Mock
     private EmailService emailService;
 
+    @Mock
+    private SurveyService surveyService;
+
     @InjectMocks
     private AuthenticationService authenticationService;
 
