@@ -14,7 +14,7 @@ export default function HomePage() {
                 <div className="max-w-4xl mx-auto">
                     <div className="mb-8 flex justify-between items-center">
                         <div>
-                            <h1 className="text-3xl font-bold text-gray-900">¡Bienvenido, {user?.fullName}!</h1>
+                            <h1 className="text-3xl font-bold text-gray-900">¡Bienvenido!</h1>
                             <p className="text-gray-600">Tu dashboard de NextRead</p>
                         </div>
                         <Button variant="outline" onClick={logout}>

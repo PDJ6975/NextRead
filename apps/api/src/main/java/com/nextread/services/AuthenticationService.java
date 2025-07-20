@@ -25,26 +25,37 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final EmailService emailService;
+    private final SurveyService surveyService;
 
     @Autowired
     public AuthenticationService(UserRepository userRepository,
             PasswordEncoder passwordEncoder,
             AuthenticationManager authenticationManager,
-            EmailService emailService) {
+            EmailService emailService,
+            SurveyService surveyService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.emailService = emailService;
+        this.surveyService = surveyService;
     }
 
     public User signUp(RegisterUserDTO input) {
         User user = new User(input.getEmail(), input.getUsername(), passwordEncoder.encode(input.getPassword()));
+        user.setAvatarUrl("https://via.placeholder.com/150/cccccc/ffffff?text=" + input.getUsername().charAt(0));
         user.setVerificationCode(generateVerificationCode());
         user.setVerificationCodeExpiresAt(LocalDateTime.now().plusMinutes(15)); // Caduca a los 15 minutos, lo podemos
                                                                                 // cambiar
         user.setEnabled(false);
         sendVerificationEmail(user);
-        return userRepository.save(user);
+
+        // Guardar el usuario primero
+        User savedUser = userRepository.save(user);
+
+        // Crear encuesta por defecto para el nuevo usuario
+        surveyService.findByUserOrCreate(savedUser);
+
+        return savedUser;
     }
 
     public User authenticate(LoginUserDTO input) {

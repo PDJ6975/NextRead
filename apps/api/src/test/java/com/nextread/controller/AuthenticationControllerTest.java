@@ -21,8 +21,11 @@ import com.nextread.dto.LoginUserDTO;
 import com.nextread.dto.RegisterUserDTO;
 import com.nextread.dto.VerifyUserDTO;
 import com.nextread.entities.User;
+import com.nextread.entities.Survey;
+import com.nextread.entities.PaceSelection;
 import com.nextread.services.AuthenticationService;
 import com.nextread.services.JwtService;
+import com.nextread.services.SurveyService;
 
 @ExtendWith(MockitoExtension.class)
 public class AuthenticationControllerTest {
@@ -33,12 +36,16 @@ public class AuthenticationControllerTest {
     @Mock
     private JwtService jwtService;
 
+    @Mock
+    private SurveyService surveyService;
+
     private MockMvc mockMvc;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeEach
     void setUp() {
-        AuthenticationController controller = new AuthenticationController(jwtService, authenticationService);
+        AuthenticationController controller = new AuthenticationController(jwtService, authenticationService,
+                surveyService);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
 
@@ -119,10 +126,18 @@ public class AuthenticationControllerTest {
             authenticatedUser.setId(1L);
             authenticatedUser.setEmail("test@example.com");
 
+            Survey userSurvey = Survey.builder()
+                    .id(1L)
+                    .user(authenticatedUser)
+                    .pace(PaceSelection.SLOW)
+                    .firstTime(true)
+                    .build();
+
             String jwtToken = "jwt-token-123";
             long expirationTime = 3600000L;
 
             when(authenticationService.authenticate(any(LoginUserDTO.class))).thenReturn(authenticatedUser);
+            when(surveyService.findSurveyByUser(authenticatedUser)).thenReturn(userSurvey);
             when(jwtService.generateToken(authenticatedUser)).thenReturn(jwtToken);
             when(jwtService.getExpirationTime()).thenReturn(expirationTime);
 
@@ -132,9 +147,11 @@ public class AuthenticationControllerTest {
                     .content(objectMapper.writeValueAsString(loginDTO)))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.token").value(jwtToken))
-                    .andExpect(jsonPath("$.expiresIn").value(expirationTime));
+                    .andExpect(jsonPath("$.expiresIn").value(expirationTime))
+                    .andExpect(jsonPath("$.firstTime").value(true));
 
             verify(authenticationService).authenticate(any(LoginUserDTO.class));
+            verify(surveyService).findSurveyByUser(authenticatedUser);
             verify(jwtService).generateToken(authenticatedUser);
             verify(jwtService).getExpirationTime();
         }
@@ -151,10 +168,18 @@ public class AuthenticationControllerTest {
             authenticatedUser.setId(2L);
             authenticatedUser.setEmail("another@example.com");
 
+            Survey userSurvey = Survey.builder()
+                    .id(2L)
+                    .user(authenticatedUser)
+                    .pace(PaceSelection.FAST)
+                    .firstTime(false)
+                    .build();
+
             String jwtToken = "jwt-token-456";
             long expirationTime = 7200000L;
 
             when(authenticationService.authenticate(any(LoginUserDTO.class))).thenReturn(authenticatedUser);
+            when(surveyService.findSurveyByUser(authenticatedUser)).thenReturn(userSurvey);
             when(jwtService.generateToken(authenticatedUser)).thenReturn(jwtToken);
             when(jwtService.getExpirationTime()).thenReturn(expirationTime);
 
@@ -164,9 +189,11 @@ public class AuthenticationControllerTest {
                     .content(objectMapper.writeValueAsString(loginDTO)))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.token").value(jwtToken))
-                    .andExpect(jsonPath("$.expiresIn").value(expirationTime));
+                    .andExpect(jsonPath("$.expiresIn").value(expirationTime))
+                    .andExpect(jsonPath("$.firstTime").value(false));
 
             verify(authenticationService).authenticate(any(LoginUserDTO.class));
+            verify(surveyService).findSurveyByUser(authenticatedUser);
             verify(jwtService).generateToken(authenticatedUser);
             verify(jwtService).getExpirationTime();
         }

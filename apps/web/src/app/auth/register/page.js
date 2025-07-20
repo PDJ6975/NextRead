@@ -11,7 +11,7 @@ import { registerSchema } from '../../../lib/validationSchemas';
 
 export default function RegisterPage() {
     const [formData, setFormData] = useState({
-        fullName: '',
+        username: '',
         email: '',
         password: '',
         confirmPassword: ''
@@ -48,7 +48,7 @@ export default function RegisterPage() {
 
         try {
             await register({
-                fullName: formData.fullName,
+                username: formData.username,
                 email: formData.email,
                 password: formData.password
             });
@@ -85,13 +85,13 @@ export default function RegisterPage() {
                         )}
 
                         <Input
-                            label="Nombre completo"
-                            name="fullName"
+                            label="Nombre de usuario"
+                            name="username"
                             type="text"
-                            value={formData.fullName}
+                            value={formData.username}
                             onChange={handleChange}
-                            error={errors.fullName}
-                            placeholder="Tu nombre completo"
+                            error={errors.username}
+                            placeholder="Tu nombre de usuario"
                             required
                         />
 

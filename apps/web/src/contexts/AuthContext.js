@@ -28,7 +28,7 @@ export function AuthProvider({ children }) {
             setUser({
                 id: payload.sub,
                 email: payload.email,
-                fullName: payload.fullName,
+                userName: payload.userName,
                 firstTime: payload.firstTime || false
             });
         } catch (error) {
@@ -41,9 +41,12 @@ export function AuthProvider({ children }) {
     const login = async (credentials) => {
         try {
             const response = await authService.login(credentials);
-            const { token, user: userData } = response.data;
+            const { token, firstTime } = response.data;
 
             localStorage.setItem('token', token);
+
+            // Crear objeto usuario con la información necesaria
+            const userData = { firstTime };
             setUser(userData);
 
             return userData;

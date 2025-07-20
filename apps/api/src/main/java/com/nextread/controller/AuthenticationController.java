@@ -15,6 +15,7 @@ import com.nextread.entities.User;
 import com.nextread.responses.LoginResponse;
 import com.nextread.services.AuthenticationService;
 import com.nextread.services.JwtService;
+import com.nextread.services.SurveyService;
 
 @RequestMapping("/auth")
 @RestController
@@ -22,11 +23,14 @@ public class AuthenticationController {
 
     private final JwtService jwtService;
     private final AuthenticationService authenticationService;
+    private final SurveyService surveyService;
 
     @Autowired
-    public AuthenticationController(JwtService jwtService, AuthenticationService authenticationService) {
+    public AuthenticationController(JwtService jwtService, AuthenticationService authenticationService,
+            SurveyService surveyService) {
         this.jwtService = jwtService;
         this.authenticationService = authenticationService;
+        this.surveyService = surveyService;
     }
 
     @PostMapping("/signup")
@@ -39,7 +43,12 @@ public class AuthenticationController {
     public ResponseEntity<LoginResponse> authenticate(@RequestBody LoginUserDTO loginUserDto) {
         User authenticatedUser = authenticationService.authenticate(loginUserDto);
         String jwtToken = jwtService.generateToken(authenticatedUser);
-        LoginResponse loginResponse = new LoginResponse(jwtToken, jwtService.getExpirationTime());
+
+        // Obtener el estado firstTime de la encuesta del usuario
+        var survey = surveyService.findSurveyByUser(authenticatedUser);
+        boolean isFirstTime = survey.getFirstTime() != null ? survey.getFirstTime() : false;
+
+        LoginResponse loginResponse = new LoginResponse(jwtToken, jwtService.getExpirationTime(), isFirstTime);
         return ResponseEntity.ok(loginResponse);
     }
 
