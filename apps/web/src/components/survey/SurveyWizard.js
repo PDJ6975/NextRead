@@ -90,6 +90,13 @@ export function SurveyWizard({ initialSurvey = null, isFirstTime = true }) {
         setError('');
 
         try {
+            // Constantes para los valores del enum ReadingStatus
+            const READING_STATUS = {
+                READ: 'READ',
+                ABANDONED: 'ABANDONED',
+                TO_READ: 'TO_READ'
+            };
+
             // Actualizar preferencias básicas (pace y genres)
             const { surveyService } = await import('../../services/surveyService');
 
@@ -103,15 +110,43 @@ export function SurveyWizard({ initialSurvey = null, isFirstTime = true }) {
                 const { userBookService } = await import('../../services/userBookService');
 
                 for (const book of finalData.readBooks) {
+                    // Crear el objeto Book separado del UserBookDTO
+                    const bookData = {
+                        id: book.id,
+                        title: book.title,
+                        authors: book.authors,
+                        isbn13: book.isbn13,
+                        coverUrl: book.coverUrl,
+                        pages: book.pages,
+                        publishedYear: book.publishedYear,
+                        synopsis: book.synopsis
+                    };
+
+                    const userBookData = {
+                        rating: book.rating,
+                        status: READING_STATUS.READ
+                    };
+
                     try {
+                        console.log('Enviando libro leído:', {
+                            bookTitle: book.title,
+                            status: userBookData.status,
+                            rating: userBookData.rating
+                        });
+
                         await userBookService.addBook({
-                            ...book,
-                            rating: book.rating,
-                            status: 'READ'
+                            book: bookData,
+                            userBookDTO: userBookData
                         });
                     } catch (error) {
-                        // Continuar con el siguiente libro si hay error
-                        console.warn('Error al añadir libro:', book.title, error);
+                        // Log detallado del error para depuración
+                        console.error('Error detallado al añadir libro:', {
+                            bookTitle: book.title,
+                            error: error.response?.data || error.message,
+                            status: userBookData.status,
+                            rating: userBookData.rating
+                        });
+                        throw error; // Re-lanzar para detener el proceso y ver el error
                     }
                 }
             }
@@ -121,14 +156,41 @@ export function SurveyWizard({ initialSurvey = null, isFirstTime = true }) {
                 const { userBookService } = await import('../../services/userBookService');
 
                 for (const book of finalData.abandonedBooks) {
+                    // Crear el objeto Book separado del UserBookDTO
+                    const bookData = {
+                        id: book.id,
+                        title: book.title,
+                        authors: book.authors,
+                        isbn13: book.isbn13,
+                        coverUrl: book.coverUrl,
+                        pages: book.pages,
+                        publishedYear: book.publishedYear,
+                        synopsis: book.synopsis
+                    };
+
+                    const userBookData = {
+                        rating: null,
+                        status: READING_STATUS.ABANDONED
+                    };
+
                     try {
+                        console.log('Enviando libro abandonado:', {
+                            bookTitle: book.title,
+                            status: userBookData.status
+                        });
+
                         await userBookService.addBook({
-                            ...book,
-                            status: 'ABANDONED'
+                            book: bookData,
+                            userBookDTO: userBookData
                         });
                     } catch (error) {
-                        // Continuar con el siguiente libro si hay error
-                        console.warn('Error al añadir libro abandonado:', book.title, error);
+                        // Log detallado del error para depuración
+                        console.error('Error detallado al añadir libro abandonado:', {
+                            bookTitle: book.title,
+                            error: error.response?.data || error.message,
+                            status: userBookData.status
+                        });
+                        throw error; // Re-lanzar para detener el proceso y ver el error
                     }
                 }
             }

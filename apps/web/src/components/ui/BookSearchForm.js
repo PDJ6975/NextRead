@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Input } from './Input';
 import { Button } from './Button';
 import { BookCard } from './BookCard';
+import { useDebounce } from '../../hooks/useDebounce';
 
 export function BookSearchForm({
     onBookSelect,
@@ -15,17 +16,23 @@ export function BookSearchForm({
     const [searchResults, setSearchResults] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
+    const [hasSearched, setHasSearched] = useState(false);
 
-    const handleSearch = async (e) => {
-        e.preventDefault();
+    // Debounce la query de búsqueda para búsqueda dinámica
+    const debouncedSearchQuery = useDebounce(searchQuery, 500);
 
-        if (!searchQuery.trim()) {
-            setError('Por favor ingresa un término de búsqueda');
+    // Función de búsqueda optimizada
+    const performSearch = useCallback(async (query) => {
+        if (!query || query.length < 2) {
+            setSearchResults([]);
+            setError('');
+            setHasSearched(false);
             return;
         }
 
         setIsLoading(true);
         setError('');
+        setHasSearched(true);
 
         try {
             // Importar dinámicamente el servicio para evitar problemas de SSR
@@ -33,9 +40,9 @@ export function BookSearchForm({
 
             let response;
             if (searchType === 'survey') {
-                response = await bookService.searchForSurvey(searchQuery.trim());
+                response = await bookService.searchForSurvey(query.trim());
             } else {
-                response = await bookService.searchBooks(searchQuery.trim());
+                response = await bookService.searchBooks(query.trim());
             }
 
             setSearchResults(response.data || []);
@@ -46,8 +53,21 @@ export function BookSearchForm({
         } catch (error) {
             console.error('Error al buscar libros:', error);
             setError('Error al buscar libros. Inténtalo de nuevo.');
+            setSearchResults([]);
         } finally {
             setIsLoading(false);
+        }
+    }, [searchType]);
+
+    // Efecto para búsqueda dinámica
+    useEffect(() => {
+        performSearch(debouncedSearchQuery);
+    }, [debouncedSearchQuery, performSearch]);
+
+    const handleSearch = async (e) => {
+        e.preventDefault();
+        if (searchQuery.trim()) {
+            performSearch(searchQuery.trim());
         }
     };
 
@@ -57,26 +77,53 @@ export function BookSearchForm({
         }
     };
 
-    const isBookSelected = (book) => {
-        return selectedBooks.some(selected =>
-            selected.id === book.id ||
-            (selected.isbn13 && book.isbn13 && selected.isbn13 === book.isbn13) ||
-            (selected.title === book.title && selected.authors?.[0]?.name === book.authors?.[0]?.name)
-        );
-    };
+    const isBookSelected = useCallback((book) => {
+        if (!selectedBooks || selectedBooks.length === 0) return false;
+
+        return selectedBooks.some(selected => {
+            // Comparación por ID si ambos lo tienen y son números válidos
+            if (selected.id && book.id && typeof selected.id === typeof book.id) {
+                return selected.id === book.id;
+            }
+
+            // Comparación por ISBN13 si ambos lo tienen
+            if (selected.isbn13 && book.isbn13 && selected.isbn13.trim() === book.isbn13.trim()) {
+                return true;
+            }
+
+            // Comparación por título y primer autor como último recurso
+            const selectedTitle = selected.title?.toLowerCase().trim();
+            const bookTitle = book.title?.toLowerCase().trim();
+
+            if (selectedTitle && bookTitle && selectedTitle === bookTitle) {
+                const selectedAuthor = selected.authors?.[0]?.name?.toLowerCase().trim();
+                const bookAuthor = book.authors?.[0]?.name?.toLowerCase().trim();
+
+                // Si ambos tienen autor, compararlos; si no, considerar solo el título
+                if (selectedAuthor && bookAuthor) {
+                    return selectedAuthor === bookAuthor;
+                } else if (!selectedAuthor && !bookAuthor) {
+                    return true; // Mismo título y ambos sin autor
+                }
+            }
+
+            return false;
+        });
+    }, [selectedBooks]);
 
     const clearSearch = () => {
         setSearchQuery('');
         setSearchResults([]);
         setError('');
+        setHasSearched(false);
     };
 
     return (
         <div className="space-y-6">
             {/* Search Form */}
-            <form onSubmit={handleSearch} className="space-y-4">
+            <div className="space-y-4">
                 <div className="flex gap-3">
-                    <div className="flex-1">
+                    <div className="flex-1 relative">
                         <Input
                             type="text"
                             placeholder={placeholder}
@@ -84,15 +131,13 @@ export function BookSearchForm({
                             onChange={(e) => setSearchQuery(e.target.value)}
                             error={error}
                         />
+                        {isLoading && (
+                            <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                            </div>
+                        )}
                     </div>
-                    <Button
-                        type="submit"
-                        loading={isLoading}
-                        disabled={!searchQuery.trim()}
-                    >
-                        {isLoading ? 'Buscando...' : 'Buscar'}
-                    </Button>
-                    {(searchResults.length > 0 || error) && (
+                    {(searchResults.length > 0 || error || hasSearched) && (
                         <Button
                             type="button"
                             variant="outline"
@@ -102,7 +147,12 @@ export function BookSearchForm({
                         </Button>
                     )}
                 </div>
-            </form>
+                {searchQuery.length > 0 && searchQuery.length < 2 && (
+                    <p className="text-sm text-gray-500">
+                        Escribe al menos 2 caracteres para buscar...
+                    </p>
+                )}
+            </div>
 
             {/* Search Results */}
             {searchResults.length > 0 && (
@@ -153,7 +203,7 @@ export function BookSearchForm({
             )}
 
             {/* Empty State */}
-            {!isLoading && searchResults.length === 0 && !error && searchQuery && (
+            {!isLoading && searchResults.length === 0 && hasSearched && searchQuery.length >= 2 && (
                 <div className="text-center py-8">
                     <div className="text-gray-500">
                         <svg className="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -176,7 +226,7 @@ export function BookSearchForm({
                         </svg>
                         <h3 className="text-lg font-medium text-gray-900 mb-2">Busca tus libros</h3>
                         <p className="text-gray-500">
-                            Escribe el título del libro que quieres encontrar y presiona buscar.
+                            Comienza a escribir el título del libro y los resultados aparecerán automáticamente.
                         </p>
                     </div>
                 </div>

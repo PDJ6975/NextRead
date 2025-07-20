@@ -2,6 +2,21 @@ import { StarRating } from './StarRating';
 import { Button } from './Button';
 import { clsx } from 'clsx';
 
+// Componente de icono por defecto para libros
+const DefaultBookIcon = ({ className = "w-full h-full" }) => (
+    <div className={clsx("flex items-center justify-center bg-gradient-to-br from-blue-100 to-indigo-200", className)}>
+        <svg
+            className="w-16 h-16 text-blue-600"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+        >
+            <path d="M6 2c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6H6zm7 7V3.5L18.5 9H13z" />
+            <path d="M8 12h8v1H8v-1zm0 2h8v1H8v-1zm0 2h5v1H8v-1z" />
+        </svg>
+    </div>
+);
+
 export function BookCard({
     book,
     onSelect,
@@ -38,11 +53,20 @@ export function BookCard({
                     'border-gray-200 bg-white': !isSelected
                 }
             )}>
-                <img
-                    src={book.coverUrl || '/placeholder-book.jpg'}
-                    alt={book.title}
-                    className="w-12 h-16 object-cover rounded flex-shrink-0"
-                />
+                <div className="w-12 h-16 rounded flex-shrink-0 overflow-hidden">
+                    {book.coverUrl ? (
+                        <img
+                            src={book.coverUrl}
+                            alt={book.title}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                                e.target.style.display = 'none';
+                                e.target.nextSibling.style.display = 'block';
+                            }}
+                        />
+                    ) : null}
+                    <DefaultBookIcon className={book.coverUrl ? "hidden" : "w-full h-full rounded"} />
+                </div>
                 <div className="ml-3 flex-1 min-w-0">
                     <h4 className="text-sm font-medium text-gray-900 truncate">
                         {book.title}
@@ -82,12 +106,19 @@ export function BookCard({
                 'border-gray-200': !isSelected
             }
         )}>
-            <div className="aspect-w-3 aspect-h-4 bg-gray-100">
-                <img
-                    src={book.coverUrl || '/placeholder-book.jpg'}
-                    alt={book.title}
-                    className="w-full h-48 object-cover"
-                />
+            <div className="aspect-w-3 aspect-h-4 bg-gray-100 h-48 relative overflow-hidden">
+                {book.coverUrl ? (
+                    <img
+                        src={book.coverUrl}
+                        alt={book.title}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                            e.target.style.display = 'none';
+                            e.target.nextSibling.style.display = 'flex';
+                        }}
+                    />
+                ) : null}
+                <DefaultBookIcon className={book.coverUrl ? "hidden absolute inset-0" : "w-full h-full"} />
             </div>
 
             <div className="p-4">

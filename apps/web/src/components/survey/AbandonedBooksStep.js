@@ -2,6 +2,22 @@ import { useState } from 'react';
 import { Button } from '../ui/Button';
 import { Card, CardContent, CardHeader } from '../ui/Card';
 import { BookSearchForm } from '../ui/BookSearchForm';
+import { clsx } from 'clsx';
+
+// Componente de icono por defecto para libros
+const DefaultBookIcon = ({ className = "w-full h-full" }) => (
+    <div className={clsx("flex items-center justify-center bg-gradient-to-br from-blue-100 to-indigo-200", className)}>
+        <svg
+            className="w-8 h-8 text-blue-600"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+        >
+            <path d="M6 2c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6H6zm7 7V3.5L18.5 9H13z" />
+            <path d="M8 12h8v1H8v-1zm0 2h8v1H8v-1zm0 2h5v1H8v-1z" />
+        </svg>
+    </div>
+);
 
 export function AbandonedBooksStep({
     onNext,
@@ -12,11 +28,35 @@ export function AbandonedBooksStep({
     const [abandonedBooks, setAbandonedBooks] = useState(initialData.abandonedBooks || []);
 
     const handleBookSelect = (book) => {
-        const isAlreadySelected = abandonedBooks.some(b =>
-            b.id === book.id ||
-            (b.isbn13 && book.isbn13 && b.isbn13 === book.isbn13) ||
-            (b.title === book.title && b.authors?.[0]?.name === book.authors?.[0]?.name)
-        );
+        const isAlreadySelected = abandonedBooks.some(selected => {
+            // Comparación por ID si ambos lo tienen y son del mismo tipo
+            if (selected.id && book.id && typeof selected.id === typeof book.id) {
+                return selected.id === book.id;
+            }
+
+            // Comparación por ISBN13 si ambos lo tienen
+            if (selected.isbn13 && book.isbn13 && selected.isbn13.trim() === book.isbn13.trim()) {
+                return true;
+            }
+
+            // Comparación por título y primer autor como último recurso
+            const selectedTitle = selected.title?.toLowerCase().trim();
+            const bookTitle = book.title?.toLowerCase().trim();
+
+            if (selectedTitle && bookTitle && selectedTitle === bookTitle) {
+                const selectedAuthor = selected.authors?.[0]?.name?.toLowerCase().trim();
+                const bookAuthor = book.authors?.[0]?.name?.toLowerCase().trim();
+
+                // Si ambos tienen autor, compararlos; si no, considerar solo el título
+                if (selectedAuthor && bookAuthor) {
+                    return selectedAuthor === bookAuthor;
+                } else if (!selectedAuthor && !bookAuthor) {
+                    return true; // Mismo título y ambos sin autor
+                }
+            }
+
+            return false;
+        });
 
         if (!isAlreadySelected) {
             setAbandonedBooks(prev => [...prev, {
@@ -106,11 +146,20 @@ export function AbandonedBooksStep({
                                 <div key={`${book.id || book.title}-${index}`}
                                     className="flex items-start space-x-4 p-4 border border-gray-200 rounded-lg">
                                     {/* Book Info */}
-                                    <img
-                                        src={book.coverUrl || '/placeholder-book.jpg'}
-                                        alt={book.title}
-                                        className="w-16 h-20 object-cover rounded flex-shrink-0"
-                                    />
+                                    <div className="w-16 h-20 rounded flex-shrink-0 overflow-hidden">
+                                        {book.coverUrl ? (
+                                            <img
+                                                src={book.coverUrl}
+                                                alt={book.title}
+                                                className="w-full h-full object-cover"
+                                                onError={(e) => {
+                                                    e.target.style.display = 'none';
+                                                    e.target.nextSibling.style.display = 'flex';
+                                                }}
+                                            />
+                                        ) : null}
+                                        <DefaultBookIcon className={book.coverUrl ? "hidden" : "w-full h-full rounded"} />
+                                    </div>
 
                                     <div className="flex-1 min-w-0">
                                         <h4 className="text-sm font-medium text-gray-900 line-clamp-2">
