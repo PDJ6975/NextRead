@@ -1,29 +1,49 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+import { useAuth } from '../../contexts/AuthContext';
+import { SurveyWizard } from '../../components/survey/SurveyWizard';
 import ProtectedRoute from '../../components/ProtectedRoute';
-import { Card, CardContent, CardHeader } from '../../components/ui/Card';
 
 export default function SurveyPage() {
+    const { user } = useAuth();
+    const [initialSurvey, setInitialSurvey] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        loadInitialSurvey();
+    }, []);
+
+    const loadInitialSurvey = async () => {
+        try {
+            const { surveyService } = await import('../../services/surveyService');
+            const response = await surveyService.getSurvey();
+            setInitialSurvey(response.data);
+        } catch (error) {
+            console.error('Error al cargar encuesta inicial:', error);
+            // No mostrar error, la encuesta se creará automáticamente
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    if (isLoading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                    <p className="text-gray-600">Cargando encuesta...</p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <ProtectedRoute requiresFirstTime={true}>
-            <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-                <Card className="w-full max-w-2xl">
-                    <CardHeader className="text-center">
-                        <h1 className="text-3xl font-bold text-gray-900 mb-2">Encuesta de Preferencias</h1>
-                        <p className="text-gray-600">Esta página será desarrollada en la siguiente fase</p>
-                    </CardHeader>
-                    <CardContent className="text-center">
-                        <p className="text-gray-500 mb-4">
-                            Aquí implementaremos el wizard de encuestas para usuarios nuevos
-                        </p>
-                        <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
-                            <p className="text-sm text-yellow-800">
-                                🚧 Página en desarrollo - Fase 3 del plan de acción
-                            </p>
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
+            <SurveyWizard
+                initialSurvey={initialSurvey}
+                isFirstTime={user?.firstTime !== false}
+            />
         </ProtectedRoute>
     );
 } 
