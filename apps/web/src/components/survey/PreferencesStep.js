@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '../ui/Button';
 import { Card, CardContent, CardHeader } from '../ui/Card';
 import { clsx } from 'clsx';
+import { translateGenre } from '../../lib/genreTranslations';
 
 export function PreferencesStep({
     onNext,
@@ -186,7 +187,7 @@ export function PreferencesStep({
                                     }
                                 )}
                             >
-                                {genre.selectedGenre}
+                                {translateGenre(genre.selectedGenre)}
                             </button>
                         ))}
                     </div>
