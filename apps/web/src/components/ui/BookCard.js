@@ -74,6 +74,28 @@ export function BookCard({
                     <p className="text-xs text-gray-600 truncate">
                         {book.authors?.map(author => author.name).join(', ') || 'Autor desconocido'}
                     </p>
+
+                    {/* Información de edición para distinguir versiones */}
+                    <div className="mt-1 space-y-1">
+                        {book.publisher && (
+                            <p className="text-xs text-gray-500 truncate">
+                                📚 {book.publisher}
+                            </p>
+                        )}
+                        <div className="flex items-center justify-between text-xs text-gray-500">
+                            {book.publishedYear && (
+                                <span>📅 {book.publishedYear}</span>
+                            )}
+                            {book.pages && book.pages > 0 && (
+                                <span>📄 {book.pages}p</span>
+                            )}
+                        </div>
+                        {book.isbn13 && (
+                            <p className="text-xs text-gray-400 truncate font-mono">
+                                ISBN: {book.isbn13}
+                            </p>
+                        )}
+                    </div>
                     {showRating && (
                         <div className="mt-1">
                             <StarRating
@@ -130,6 +152,20 @@ export function BookCard({
                         <p className="text-sm text-gray-600 mt-1">
                             {book.authors?.map(author => author.name).join(', ') || 'Autor desconocido'}
                         </p>
+
+                        {/* Información de edición mejorada */}
+                        <div className="mt-2 space-y-1">
+                            {book.publisher && (
+                                <p className="text-xs text-gray-500 truncate">
+                                    📚 {book.publisher}
+                                </p>
+                            )}
+                            {book.isbn13 && (
+                                <p className="text-xs text-gray-400 truncate font-mono">
+                                    ISBN: {book.isbn13}
+                                </p>
+                            )}
+                        </div>
                     </div>
 
                     {showStatus && currentStatus && (

@@ -3,6 +3,7 @@ package com.nextread.services;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -82,23 +83,86 @@ public class BookService {
     }
 
     /**
-     * Busca libros por título:
-     * 1. Devuelve todos los libros locales cuyo título coincide (ignore case).
-     * 2. Si no hay coincidencias en BD, consulta Google Books y devuelve
-     * todos los items encontrados (mapeados a BookDTO).
+     * Busca libros por título usando estrategia híbrida:
+     * 1. Busca en BD local (libros ya conocidos/utilizados)
+     * 2. Busca en Google Books (nuevas ediciones/libros)
+     * 3. Combina y deduplica por ISBN13
+     * 4. Prioriza resultados locales al inicio
      */
     @Transactional(readOnly = true)
     public List<Book> findBooks(String title) throws RuntimeException {
+        System.out.println("🔍 Búsqueda híbrida para: " + title);
 
-        // 1) resultados locales
+        List<Book> results = new ArrayList<>();
+
+        // 1. Buscar en BD local primero
         List<Book> localMatches = bookRepository.findByTitleIgnoreCase(title);
+        System.out.println("📚 Libros locales encontrados: " + localMatches.size());
 
-        if (!localMatches.isEmpty()) {
-            return localMatches;
-        } else {
-            List<Book> books = findGoogleBooks(title);
-            return books;
+        // Añadir libros locales (tienen prioridad)
+        results.addAll(localMatches);
+
+        // 2. Buscar en Google Books para encontrar más ediciones
+        try {
+            List<Book> googleBooks = findGoogleBooks(title);
+            System.out.println("🌐 Libros de Google Books encontrados: " + googleBooks.size());
+
+            // 3. Añadir libros de Google Books que no estén duplicados
+            Set<String> existingISBNs = results.stream()
+                    .map(Book::getIsbn13)
+                    .filter(isbn -> isbn != null && !isbn.trim().isEmpty())
+                    .collect(Collectors.toSet());
+
+            for (Book googleBook : googleBooks) {
+                boolean isDuplicate = false;
+
+                // Verificar por ISBN13
+                if (googleBook.getIsbn13() != null && !googleBook.getIsbn13().trim().isEmpty()) {
+                    if (existingISBNs.contains(googleBook.getIsbn13())) {
+                        isDuplicate = true;
+                        System.out.println("📖 Libro duplicado por ISBN13: " + googleBook.getIsbn13());
+                    }
+                }
+
+                // Si no es duplicado, verificar por título+autor (para libros sin ISBN)
+                if (!isDuplicate && (googleBook.getIsbn13() == null || googleBook.getIsbn13().trim().isEmpty())) {
+                    String googleFirstAuthor = googleBook.getAuthors() != null && !googleBook.getAuthors().isEmpty()
+                            ? googleBook.getAuthors().get(0).getName().toLowerCase().trim()
+                            : "";
+
+                    for (Book existing : results) {
+                        String existingFirstAuthor = existing.getAuthors() != null && !existing.getAuthors().isEmpty()
+                                ? existing.getAuthors().get(0).getName().toLowerCase().trim()
+                                : "";
+
+                        if (!googleFirstAuthor.isEmpty() &&
+                                googleFirstAuthor.equals(existingFirstAuthor) &&
+                                googleBook.getTitle().toLowerCase().trim()
+                                        .equals(existing.getTitle().toLowerCase().trim())) {
+                            isDuplicate = true;
+                            System.out.println("📖 Libro duplicado por título+autor: " + googleBook.getTitle());
+                            break;
+                        }
+                    }
+                }
+
+                if (!isDuplicate) {
+                    results.add(googleBook);
+                    if (googleBook.getIsbn13() != null && !googleBook.getIsbn13().trim().isEmpty()) {
+                        existingISBNs.add(googleBook.getIsbn13());
+                    }
+                    System.out.println(
+                            "✅ Nuevo libro añadido: " + googleBook.getTitle() + " (" + googleBook.getPublisher() + ")");
+                }
+            }
+
+        } catch (Exception e) {
+            System.out.println("⚠️ Error al buscar en Google Books: " + e.getMessage());
+            // Continuar con solo resultados locales si Google Books falla
         }
+
+        System.out.println("🎯 Total de resultados únicos: " + results.size());
+        return results;
     }
 
     /**
@@ -264,14 +328,52 @@ public class BookService {
             book.setAuthors(persistedAuthors);
         }
 
-        // Verificar si el libro ya existe por ISBN13
-        if (book.getIsbn13() != null) {
-            var existingBook = bookRepository.findByIsbn13(book.getIsbn13());
-            if (existingBook.isPresent()) {
+        // Verificar si el libro ya existe - Estrategia mejorada
+        System.out.println("🔍 Verificando si el libro ya existe...");
+
+        // Prioridad 1: Buscar por ISBN13 (más confiable)
+        if (book.getIsbn13() != null && !book.getIsbn13().trim().isEmpty()) {
+            var existingByIsbn13 = bookRepository.findByIsbn13(book.getIsbn13());
+            if (existingByIsbn13.isPresent()) {
                 System.out.println("📖 Libro existente encontrado por ISBN13: " + book.getIsbn13());
-                return existingBook.get();
+                System.out.println("📖 Reutilizando libro existente: " + existingByIsbn13.get().getTitle() + " (ID: "
+                        + existingByIsbn13.get().getId() + ")");
+                return existingByIsbn13.get();
             }
         }
+
+        // Prioridad 2: Si no hay ISBN13, buscar por título exacto + primer autor
+        // SOLO si el libro no tiene ISBN13, consideramos el título+autor como posible
+        // duplicado
+        if (book.getIsbn13() == null || book.getIsbn13().trim().isEmpty()) {
+            System.out.println("⚠️ Libro sin ISBN13, verificando por título+autor...");
+            var existingByTitle = bookRepository.findByTitleIgnoreCase(book.getTitle());
+
+            if (!existingByTitle.isEmpty()) {
+                // Si hay libros con el mismo título, verificar si alguno tiene el mismo primer
+                // autor
+                String newBookFirstAuthor = book.getAuthors() != null && !book.getAuthors().isEmpty()
+                        ? book.getAuthors().get(0).getName().toLowerCase().trim()
+                        : "";
+
+                for (Book existing : existingByTitle) {
+                    String existingFirstAuthor = existing.getAuthors() != null && !existing.getAuthors().isEmpty()
+                            ? existing.getAuthors().get(0).getName().toLowerCase().trim()
+                            : "";
+
+                    if (!newBookFirstAuthor.isEmpty() && newBookFirstAuthor.equals(existingFirstAuthor)) {
+                        System.out.println("📖 Libro existente encontrado por título+autor: " + existing.getTitle()
+                                + " - " + existingFirstAuthor);
+                        System.out.println("📖 Reutilizando libro existente: (ID: " + existing.getId() + ")");
+                        return existing;
+                    }
+                }
+                System.out
+                        .println("📖 Títulos similares encontrados pero con autores diferentes - creando nuevo libro");
+            }
+        }
+
+        System.out.println("📖 Es un libro nuevo, procediendo a guardar...");
 
         // Guardar el libro con autores persistidos
         Book savedBook = bookRepository.save(book);

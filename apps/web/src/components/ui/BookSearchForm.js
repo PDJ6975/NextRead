@@ -157,9 +157,26 @@ export function BookSearchForm({
             {/* Search Results */}
             {searchResults.length > 0 && (
                 <div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-4">
-                        Resultados de búsqueda ({searchResults.length})
-                    </h3>
+                    <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-medium text-gray-900">
+                            Resultados de búsqueda ({searchResults.length})
+                        </h3>
+                        {searchResults.length > 1 && (
+                            <div className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">
+                                💡 Varias ediciones disponibles
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Nota educativa para múltiples ediciones */}
+                    {searchResults.length > 1 && (
+                        <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                            <p className="text-sm text-amber-800">
+                                <span className="font-medium">📚 Diferentes ediciones:</span> Los libros pueden tener múltiples ediciones con diferentes editoriales, años o portadas. Elige la edición que más se parezca a la que leíste.
+                            </p>
+                        </div>
+                    )}
+
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                         {searchResults.map((book, index) => (
                             <BookCard

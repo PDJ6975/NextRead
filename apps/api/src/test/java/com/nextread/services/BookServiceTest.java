@@ -24,6 +24,7 @@ import com.nextread.entities.Author;
 import com.nextread.entities.Book;
 import com.nextread.entities.Survey;
 import com.nextread.entities.User;
+import com.nextread.repositories.AuthorRepository;
 import com.nextread.repositories.BookRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -35,6 +36,9 @@ class BookServiceTest {
     private RestTemplate restTemplate;
     @Mock
     private SurveyService surveyService;
+
+    @Mock
+    private AuthorRepository authorRepository;
 
     @InjectMocks
     private BookService bookService;
