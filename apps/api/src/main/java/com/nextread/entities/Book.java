@@ -39,8 +39,9 @@ public class Book {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @Size(max = 1000)
     @NotBlank
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, length = 1000)
     private String title;
 
     @NotBlank

@@ -179,9 +179,21 @@ class BookServiceTest {
     @Test
     void saveBook_callsRepository() {
         Book b = sampleBook();
+
+        // Mock del AuthorRepository para manejar el autor
+        Author sampleAuthor = b.getAuthors().get(0);
+        when(authorRepository.findByName(sampleAuthor.getName())).thenReturn(Optional.of(sampleAuthor));
+
+        // Mock del BookRepository para verificar que no existe por ISBN13
+        when(bookRepository.findByIsbn13(b.getIsbn13())).thenReturn(Optional.empty());
+
+        // Mock del save
         when(bookRepository.save(b)).thenReturn(b);
+
         Book saved = bookService.saveBook(b);
+
         assertEquals(b, saved);
         verify(bookRepository).save(b);
+        verify(authorRepository).findByName(sampleAuthor.getName());
     }
 }

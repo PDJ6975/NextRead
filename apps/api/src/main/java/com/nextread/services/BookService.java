@@ -91,13 +91,10 @@ public class BookService {
      */
     @Transactional(readOnly = true)
     public List<Book> findBooks(String title) throws RuntimeException {
-        System.out.println("🔍 Búsqueda híbrida para: " + title);
-
         List<Book> results = new ArrayList<>();
 
         // 1. Buscar en BD local primero
         List<Book> localMatches = bookRepository.findByTitleIgnoreCase(title);
-        System.out.println("📚 Libros locales encontrados: " + localMatches.size());
 
         // Añadir libros locales (tienen prioridad)
         results.addAll(localMatches);
@@ -105,7 +102,6 @@ public class BookService {
         // 2. Buscar en Google Books para encontrar más ediciones
         try {
             List<Book> googleBooks = findGoogleBooks(title);
-            System.out.println("🌐 Libros de Google Books encontrados: " + googleBooks.size());
 
             // 3. Añadir libros de Google Books que no estén duplicados
             Set<String> existingISBNs = results.stream()
@@ -120,7 +116,6 @@ public class BookService {
                 if (googleBook.getIsbn13() != null && !googleBook.getIsbn13().trim().isEmpty()) {
                     if (existingISBNs.contains(googleBook.getIsbn13())) {
                         isDuplicate = true;
-                        System.out.println("📖 Libro duplicado por ISBN13: " + googleBook.getIsbn13());
                     }
                 }
 
@@ -140,7 +135,6 @@ public class BookService {
                                 googleBook.getTitle().toLowerCase().trim()
                                         .equals(existing.getTitle().toLowerCase().trim())) {
                             isDuplicate = true;
-                            System.out.println("📖 Libro duplicado por título+autor: " + googleBook.getTitle());
                             break;
                         }
                     }
@@ -151,17 +145,13 @@ public class BookService {
                     if (googleBook.getIsbn13() != null && !googleBook.getIsbn13().trim().isEmpty()) {
                         existingISBNs.add(googleBook.getIsbn13());
                     }
-                    System.out.println(
-                            "✅ Nuevo libro añadido: " + googleBook.getTitle() + " (" + googleBook.getPublisher() + ")");
                 }
             }
 
         } catch (Exception e) {
-            System.out.println("⚠️ Error al buscar en Google Books: " + e.getMessage());
             // Continuar con solo resultados locales si Google Books falla
         }
 
-        System.out.println("🎯 Total de resultados únicos: " + results.size());
         return results;
     }
 
@@ -285,43 +275,17 @@ public class BookService {
 
     @Transactional
     public Book saveBook(Book book) {
-        System.out.println("📖 BookService.saveBook - Iniciando guardado de libro: " + book.getTitle());
-        System.out.println("📖 Datos del libro:");
-        System.out.println("   - Title: " + book.getTitle());
-        System.out.println("   - ISBN10: " + book.getIsbn10());
-        System.out.println("   - ISBN13: " + book.getIsbn13());
-        System.out.println("   - Publisher: " + book.getPublisher());
-        System.out.println("   - CoverUrl: " + book.getCoverUrl());
-        System.out.println(
-                "   - Synopsis length: " + (book.getSynopsis() != null ? book.getSynopsis().length() : "null"));
-        System.out.println("   - Synopsis: " + (book.getSynopsis() != null
-                ? book.getSynopsis().substring(0, Math.min(100, book.getSynopsis().length())) + "..."
-                : "null"));
-        System.out.println("   - Pages: " + book.getPages());
-        System.out.println("   - PublishedYear: " + book.getPublishedYear());
-        System.out.println("   - Authors count: " + (book.getAuthors() != null ? book.getAuthors().size() : 0));
-
-        // Sanitizar datos antes de guardar
-        sanitizeBookData(book);
-
-        // Primero, manejar los autores
+        // First, handle authors
         if (book.getAuthors() != null && !book.getAuthors().isEmpty()) {
             List<Author> persistedAuthors = new ArrayList<>();
-
             for (Author author : book.getAuthors()) {
                 Author persistedAuthor;
-
-                // Buscar si el autor ya existe por nombre
                 var existingAuthor = authorRepository.findByName(author.getName());
                 if (existingAuthor.isPresent()) {
                     persistedAuthor = existingAuthor.get();
-                    System.out.println("📖 Autor existente encontrado: " + persistedAuthor.getName());
                 } else {
-                    // Crear nuevo autor
                     persistedAuthor = authorRepository.save(Author.builder().name(author.getName()).build());
-                    System.out.println("📖 Nuevo autor creado: " + persistedAuthor.getName());
                 }
-
                 persistedAuthors.add(persistedAuthor);
             }
 
@@ -329,15 +293,10 @@ public class BookService {
         }
 
         // Verificar si el libro ya existe - Estrategia mejorada
-        System.out.println("🔍 Verificando si el libro ya existe...");
-
         // Prioridad 1: Buscar por ISBN13 (más confiable)
         if (book.getIsbn13() != null && !book.getIsbn13().trim().isEmpty()) {
             var existingByIsbn13 = bookRepository.findByIsbn13(book.getIsbn13());
             if (existingByIsbn13.isPresent()) {
-                System.out.println("📖 Libro existente encontrado por ISBN13: " + book.getIsbn13());
-                System.out.println("📖 Reutilizando libro existente: " + existingByIsbn13.get().getTitle() + " (ID: "
-                        + existingByIsbn13.get().getId() + ")");
                 return existingByIsbn13.get();
             }
         }
@@ -346,7 +305,6 @@ public class BookService {
         // SOLO si el libro no tiene ISBN13, consideramos el título+autor como posible
         // duplicado
         if (book.getIsbn13() == null || book.getIsbn13().trim().isEmpty()) {
-            System.out.println("⚠️ Libro sin ISBN13, verificando por título+autor...");
             var existingByTitle = bookRepository.findByTitleIgnoreCase(book.getTitle());
 
             if (!existingByTitle.isEmpty()) {
@@ -362,34 +320,23 @@ public class BookService {
                             : "";
 
                     if (!newBookFirstAuthor.isEmpty() && newBookFirstAuthor.equals(existingFirstAuthor)) {
-                        System.out.println("📖 Libro existente encontrado por título+autor: " + existing.getTitle()
-                                + " - " + existingFirstAuthor);
-                        System.out.println("📖 Reutilizando libro existente: (ID: " + existing.getId() + ")");
                         return existing;
                     }
                 }
-                System.out
-                        .println("📖 Títulos similares encontrados pero con autores diferentes - creando nuevo libro");
             }
         }
 
-        System.out.println("📖 Es un libro nuevo, procediendo a guardar...");
-
         // Guardar el libro con autores persistidos
+        sanitizeBookData(book);
         Book savedBook = bookRepository.save(book);
-        System.out.println(
-                "📖 Libro guardado exitosamente: " + savedBook.getTitle() + " (ID: " + savedBook.getId() + ")");
-
         return savedBook;
     }
 
     private void sanitizeBookData(Book book) {
-        System.out.println("🧹 Sanitizando datos del libro...");
 
         // Sanitizar coverUrl
         if (book.getCoverUrl() != null && (book.getCoverUrl().trim().isEmpty() || book.getCoverUrl().equals("null"))) {
             book.setCoverUrl(null);
-            System.out.println("🧹 CoverUrl limpiado (estaba vacío o 'null')");
         }
 
         // Sanitizar synopsis
@@ -397,10 +344,8 @@ public class BookService {
             String synopsis = book.getSynopsis().trim();
             if (synopsis.isEmpty() || synopsis.equals("null")) {
                 book.setSynopsis(null);
-                System.out.println("🧹 Synopsis limpiado (estaba vacío o 'null')");
             } else if (synopsis.length() > 5000) {
                 book.setSynopsis(synopsis.substring(0, 4997) + "...");
-                System.out.println("🧹 Synopsis truncado de " + synopsis.length() + " a 5000 caracteres");
             }
         }
 
@@ -408,15 +353,11 @@ public class BookService {
         if (book.getPublisher() != null
                 && (book.getPublisher().trim().isEmpty() || book.getPublisher().equals("null"))) {
             book.setPublisher("Editorial desconocida");
-            System.out.println("🧹 Publisher establecido a 'Editorial desconocida'");
         }
 
         // Validar pages
         if (book.getPages() <= 0) {
             book.setPages(1);
-            System.out.println("🧹 Pages establecido a 1 (era " + book.getPages() + ")");
         }
-
-        System.out.println("🧹 Sanitización completada");
     }
 }
