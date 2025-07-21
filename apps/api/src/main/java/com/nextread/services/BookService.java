@@ -142,7 +142,7 @@ public class BookService {
                     .title(info.path("title").asText())
                     .isbn10(isbn10)
                     .isbn13(isbn13)
-                    .publisher(info.path("publisher").asText("Editorial desconocida")) // Añadir publisher
+                    .publisher(info.path("publisher").asText("Editorial desconocida"))
                     .coverUrl(imageLinks.path("thumbnail").asText(null))
                     .synopsis(info.path("description").asText(null))
                     .pages(info.path("pageCount").asInt(0))
