@@ -2,15 +2,17 @@
 
 ## Descripción General
 
-El frontend de NextRead será desarrollado con **Next.js 14** y **JavaScript**, proporcionando una interfaz moderna y responsive para el sistema de recomendaciones de libros. La aplicación seguirá el flujo definido en el backend, adaptándose a las necesidades específicas de usuarios nuevos y existentes.
+El frontend de NextRead ha sido desarrollado con **Next.js 15** y **JavaScript**, proporcionando una interfaz moderna y responsive para el sistema de recomendaciones de libros. La aplicación sigue el flujo definido en el backend, adaptándose a las necesidades específicas de usuarios nuevos y existentes.
+
+**Estado actual**: Sistema de autenticación y encuestas completamente funcional. Sistema de búsqueda híbrida implementado para manejo de múltiples ediciones de libros.
 
 ## Arquitectura del Frontend
 
 ### Tecnologías Principales
-- **Framework**: Next.js 14 (App Router)
+- **Framework**: Next.js 15 (App Router)
 - **Lenguaje**: JavaScript (ES6+)
-- **Estilos**: Tailwind CSS + Shadcn/ui
-- **Gestión de Estado**: React Context API + useReducer
+- **Estilos**: Tailwind CSS
+- **Gestión de Estado**: React Context API
 - **Autenticación**: JWT con localStorage
 - **HTTP Client**: Axios
 - **Validación**: Zod
@@ -20,28 +22,91 @@ El frontend de NextRead será desarrollado con **Next.js 14** y **JavaScript**, 
 ```
 apps/web/
 ├── src/
-│   ├── app/                    # App Router (Next.js 14)
-│   │   ├── auth/
-│   │   │   ├── login/
-│   │   │   ├── register/
-│   │   │   └── verify/
-│   │   ├── survey/
-│   │   ├── home/
-│   │   ├── recommendations/
-│   │   └── profile/
-│   ├── components/             # Componentes reutilizables
-│   │   ├── ui/                # Componentes base (Shadcn/ui)
-│   │   ├── forms/             # Formularios específicos
-│   │   ├── layout/            # Componentes de layout
-│   │   └── features/          # Componentes por funcionalidad
-│   ├── contexts/              # Context API
-│   ├── hooks/                 # Custom hooks
-│   ├── lib/                   # Utilidades y configuración
-│   ├── services/              # API calls
-│   └── types/                 # TypeScript types (para futuro)
+│   ├── app/                    # App Router (Next.js 15)
+│   │   ├── auth/               # ✅ COMPLETADO
+│   │   │   ├── login/          # ✅ Login funcional
+│   │   │   ├── register/       # ✅ Registro funcional
+│   │   │   └── verify/         # ✅ Verificación por email
+│   │   ├── survey/             # ✅ COMPLETADO
+│   │   ├── home/               # 🚧 EN DESARROLLO
+│   │   ├── recommendations/    # ⏳ PENDIENTE
+│   │   └── profile/            # ⏳ PENDIENTE
+│   ├── components/             # ✅ Base implementada
+│   │   ├── ui/                # ✅ BookCard, BookSearchForm, Button, Input, etc.
+│   │   ├── survey/            # ✅ SurveyWizard completo
+│   │   └── ProtectedRoute.js  # ✅ Protección de rutas
+│   ├── contexts/              # ✅ AuthContext funcional
+│   ├── hooks/                 # ✅ useDebounce, useValidation
+│   ├── lib/                   # ✅ apiClient, validationSchemas, genreTranslations
+│   ├── services/              # ✅ Todos los servicios API implementados
+│   └── types/                 # ⏳ PENDIENTE (para futuro TypeScript)
 ├── public/                    # Assets estáticos
 └── package.json
 ```
+
+## Estado Actual de Implementación
+
+### ✅ **Funcionalidades Completadas**
+
+#### **Sistema de Autenticación (100%)**
+- ✅ Registro de usuarios con validación
+- ✅ Verificación por código de email
+- ✅ Inicio de sesión con JWT
+- ✅ Protección de rutas con `ProtectedRoute`
+- ✅ Context API para gestión de estado de usuario
+- ✅ Redirección automática según estado del usuario
+
+#### **Sistema de Encuestas (100%)**
+- ✅ Wizard multi-paso completamente funcional
+- ✅ Selección de ritmo de lectura (pace)
+- ✅ Selección múltiple de géneros literarios
+- ✅ Búsqueda y selección de libros leídos con rating
+- ✅ Búsqueda y selección de libros abandonados
+- ✅ Integración completa con backend
+- ✅ Actualización del estado `firstTime` del usuario
+- ✅ Redirección correcta a `/home` tras completar
+
+#### **Sistema de Búsqueda de Libros (100%)**
+- ✅ Búsqueda híbrida (BD local + Google Books API)
+- ✅ Manejo inteligente de múltiples ediciones
+- ✅ Deduplicación por ISBN13
+- ✅ Interfaz educativa para múltiples ediciones
+- ✅ Cards informativos con editorial, año, ISBN
+- ✅ Debounce para optimizar búsquedas
+
+#### **Componentes UI (95%)**
+- ✅ `BookCard` con información detallada de ediciones
+- ✅ `BookSearchForm` con UX educativa
+- ✅ `Button`, `Input`, `Card` components
+- ✅ `StarRating` component funcional
+- ✅ `StepIndicator` para wizard
+- ✅ Responsive design con Tailwind CSS
+
+### 🚧 **En Desarrollo**
+
+#### **Página Principal (20%)**
+- ✅ Estructura básica implementada
+- 🚧 Dashboard de usuario
+- ⏳ Lista de libros del usuario
+- ⏳ Recomendaciones personalizadas
+
+### ⏳ **Pendientes**
+
+#### **Sistema de Recomendaciones (0%)**
+- ⏳ Página de recomendaciones
+- ⏳ Algoritmo de matching frontend
+- ⏳ Interfaz para feedback de recomendaciones
+
+#### **Perfil de Usuario (0%)**
+- ⏳ Página de perfil
+- ⏳ Edición de preferencias
+- ⏳ Historial de lecturas
+
+### 🎯 **Logros Recientes**
+- **Resolución de bug crítico**: Problema de redirección en encuestas solucionado
+- **Mejora en UX**: Sistema híbrido de búsqueda implementado
+- **Optimización**: Manejo inteligente de múltiples ediciones de libros
+- **Robustez**: Sistema de persistencia de datos completamente funcional
 
 ## Flujo de Navegación del Frontend
 
@@ -90,7 +155,7 @@ apps/web/
 - **Funcionalidad**: Búsqueda y valoración de libros leídos
 - **API**: 
   - `GET /books/search/survey?title=X` (búsqueda)
-  - `POST /userbooks/add` (añadir con rating)
+  - `POST /userbooks` (añadir con rating)
 - **Validación**: Mínimo 3 libros, rating obligatorio
 
 **Paso 3: Libros Abandonados**
@@ -98,7 +163,7 @@ apps/web/
 - **Funcionalidad**: Búsqueda de libros no terminados
 - **API**: 
   - `GET /books/search/survey?title=X` (búsqueda)
-  - `POST /userbooks/add` (añadir sin rating)
+  - `POST /userbooks` (añadir sin rating)
 - **Validación**: Opcional, sin rating
 
 **Paso 4: Confirmación**
@@ -844,104 +909,108 @@ export function MobileMenu({ isOpen, onClose }) {
 
 ## Plan de Desarrollo
 
-### Fase 1: Configuración Inicial (Semana 1)
-1. **Configurar proyecto Next.js**
-   - Instalar Next.js 14 con App Router
-   - Configurar Tailwind CSS
-   - Instalar dependencias (Axios, Zod, Lucide React)
-   - Configurar estructura de carpetas
+### ✅ Fase 1: Configuración Inicial - COMPLETADA
+**Estado: 100% Completado**
 
-2. **Configurar servicios base**
-   - Crear `apiClient.js`
-   - Implementar interceptores
-   - Configurar variables de entorno
+1. ✅ **Configurar proyecto Next.js**
+   - ✅ Instalar Next.js 15 con App Router
+   - ✅ Configurar Tailwind CSS
+   - ✅ Instalar dependencias (Axios, Zod, Lucide React)
+   - ✅ Configurar estructura de carpetas
 
-3. **Crear componentes UI base**
-   - Implementar Button, Input, Card
-   - Crear componentes de layout básicos
-   - Configurar sistema de colores y tipografía
+2. ✅ **Configurar servicios base**
+   - ✅ Crear `apiClient.js` con interceptores
+   - ✅ Implementar manejo de errores globales
+   - ✅ Configurar variables de entorno
 
-### Fase 2: Autenticación (Semana 2)
-1. **Implementar sistema de autenticación**
-   - Crear `AuthContext` y `AuthProvider`
-   - Implementar `authService`
-   - Crear componente `ProtectedRoute`
+3. ✅ **Crear componentes UI base**
+   - ✅ Implementar Button, Input, Card
+   - ✅ Crear componentes de layout básicos
+   - ✅ Configurar sistema de colores y tipografía
 
-2. **Desarrollar páginas de autenticación**
-   - Página de bienvenida (`/`)
-   - Formulario de registro (`/auth/register`)
-   - Formulario de verificación (`/auth/verify`)
-   - Formulario de login (`/auth/login`)
+### ✅ Fase 2: Autenticación - COMPLETADA
+**Estado: 100% Completado**
 
-3. **Implementar validación**
-   - Crear esquemas de validación con Zod
-   - Implementar hook `useValidation`
-   - Agregar manejo de errores
+1. ✅ **Implementar sistema de autenticación**
+   - ✅ Crear `AuthContext` y `AuthProvider`
+   - ✅ Implementar `authService` completo
+   - ✅ Crear componente `ProtectedRoute`
 
-### Fase 3: Sistema de Encuestas (Semana 3)
-1. **Desarrollar wizard de encuestas**
-   - Crear componente `SurveyWizard`
-   - Implementar `StepIndicator`
-   - Crear navegación entre pasos
+2. ✅ **Desarrollar páginas de autenticación**
+   - ✅ Página de bienvenida (`/`)
+   - ✅ Formulario de registro (`/auth/register`)
+   - ✅ Formulario de verificación (`/auth/verify`)
+   - ✅ Formulario de login (`/auth/login`)
 
-2. **Implementar pasos de encuesta**
-   - `PreferencesStep` (ritmo y géneros)
-   - `ReadBooksStep` (libros leídos con rating)
-   - `AbandonedBooksStep` (libros abandonados)
-   - `SurveyConfirmation` (resumen)
+3. ✅ **Implementar validación**
+   - ✅ Crear esquemas de validación con Zod
+   - ✅ Implementar hook `useValidation`
+   - ✅ Agregar manejo de errores
 
-3. **Integrar búsqueda de libros**
-   - Crear componente `BookSearchForm`
-   - Implementar `BookCard`
-   - Agregar sistema de valoración
+### ✅ Fase 3: Sistema de Encuestas - COMPLETADA
+**Estado: 100% Completado**
 
-### Fase 4: Página Principal (Semana 4)
-1. **Desarrollar dashboard principal**
-   - Crear layout del home
-   - Implementar navegación principal
-   - Crear secciones del dashboard
+1. ✅ **Desarrollar wizard de encuestas**
+   - ✅ Crear componente `SurveyWizard`
+   - ✅ Implementar `StepIndicator`
+   - ✅ Crear navegación entre pasos
 
-2. **Implementar gestión de libros**
-   - Componente `BookHistory`
-   - Funcionalidad de actualización/eliminación
-   - Búsqueda manual de libros
+2. ✅ **Implementar pasos de encuesta**
+   - ✅ `PreferencesStep` (ritmo y géneros)
+   - ✅ `ReadBooksStep` (libros leídos con rating)
+   - ✅ `AbandonedBooksStep` (libros abandonados)
+   - ✅ `SurveyConfirmation` (resumen)
 
-3. **Crear sistema de recomendaciones**
-   - Componente `RecommendationsSection`
-   - Generación de recomendaciones
-   - Selección y guardado
+3. ✅ **Integrar búsqueda de libros**
+   - ✅ Crear componente `BookSearchForm`
+   - ✅ Implementar `BookCard` con información de ediciones
+   - ✅ Agregar sistema de valoración (`StarRating`)
+   - ✅ **EXTRA**: Sistema híbrido de búsqueda (BD local + Google Books)
+   - ✅ **EXTRA**: Manejo inteligente de múltiples ediciones
 
-### Fase 5: Funcionalidades Avanzadas (Semana 5)
-1. **Implementar perfil de usuario**
-   - Página de perfil (`/profile`)
-   - Actualización de información
-   - Gestión de avatar
+### 🚧 Fase 4: Página Principal - EN DESARROLLO
+**Estado: 20% Completado**
 
-2. **Mejorar UX/UI**
-   - Implementar loading states
-   - Agregar animaciones
-   - Optimizar responsive design
+1. 🚧 **Desarrollar dashboard principal**
+   - ✅ Crear layout básico del home
+   - 🚧 Implementar navegación principal
+   - ⏳ Crear secciones del dashboard
 
-3. **Optimización y performance**
-   - Implementar lazy loading
-   - Optimizar imágenes
-   - Mejorar SEO
+2. ⏳ **Implementar gestión de libros**
+   - ⏳ Componente `BookHistory`
+   - ⏳ Funcionalidad de actualización/eliminación
+   - ⏳ Búsqueda manual de libros
 
-### Fase 6: Testing y Pulido (Semana 6)
-1. **Implementar testing**
-   - Unit tests para componentes
-   - Integration tests para flujos
-   - E2E tests para funcionalidades críticas
+3. ⏳ **Crear sistema de recomendaciones**
+   - ⏳ Componente `RecommendationsSection`
+   - ⏳ Generación de recomendaciones
+   - ⏳ Selección y guardado
 
-2. **Optimización final**
-   - Performance optimization
-   - Accessibility improvements
-   - Cross-browser testing
+### ⏳ Fase 5: Funcionalidades Avanzadas - PENDIENTE
+**Estado: 0% Completado**
 
-3. **Documentación**
-   - Documentar componentes
-   - Crear guía de desarrollo
-   - Preparar deployment
+1. ⏳ **Implementar perfil de usuario**
+   - ⏳ Página de perfil (`/profile`)
+   - ⏳ Actualización de información
+   - ⏳ Gestión de avatar
+
+2. ⏳ **Mejorar UX/UI**
+   - ⏳ Implementar loading states
+   - ⏳ Agregar animaciones
+   - ⏳ Optimizar responsive design
+
+3. ⏳ **Optimización y performance**
+   - ⏳ Implementar lazy loading
+   - ⏳ Optimizar imágenes
+   - ⏳ Mejorar SEO
+
+### ⏳ Fase 6: Testing y Pulido - PENDIENTE
+**Estado: 0% Completado**
+
+1. ⏳ **Implementar testing**
+   - ⏳ Unit tests para componentes
+   - ⏳ Integration tests para flujos
+   - ⏳ E2E tests para funcionalidades críticas
 
 ## Configuración del Proyecto
 

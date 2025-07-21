@@ -93,10 +93,21 @@ public class UserBookController {
 
     @PostMapping
     public ResponseEntity<UserBookDTO> addBookToUserList(@RequestBody AddBookRequestDTO request) {
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
 
-        return ResponseEntity
-                .ok(userBookService.addBookSelected(request.getBook(), request.getUserBookDTO(), currentUser));
+        try {
+            UserBookDTO result = userBookService.addBookSelected(request.getBook(), request.getUserBookDTO(),
+                    currentUser);
+
+            ResponseEntity<UserBookDTO> response = ResponseEntity.ok(result);
+
+            return response;
+        } catch (Exception e) {
+            System.err.println("💥 Error en addBookToUserList: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
     }
 }

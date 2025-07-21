@@ -78,13 +78,33 @@ export function AuthProvider({ children }) {
         setUser(null);
     };
 
+    const updateUser = (updates) => {
+        setUser(prev => ({
+            ...prev,
+            ...updates
+        }));
+    };
+
+    const refreshUser = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            if (token) {
+                await verifyToken(token);
+            }
+        } catch (error) {
+            console.error('Error al refrescar usuario:', error);
+        }
+    };
+
     const value = {
         user,
         isLoading,
         login,
         register,
         verify,
-        logout
+        logout,
+        updateUser,
+        refreshUser
     };
 
     return (

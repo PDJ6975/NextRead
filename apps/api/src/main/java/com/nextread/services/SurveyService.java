@@ -2,6 +2,7 @@ package com.nextread.services;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -92,7 +93,10 @@ public class SurveyService {
 
         if (genresIds != null && !genresIds.isEmpty()) {
 
-            List<Genre> genres = genresIds.stream().filter(g -> g != null).map(g -> genreService.findById(g)).toList();
+            List<Genre> genres = genresIds.stream()
+                    .filter(g -> g != null)
+                    .map(g -> genreService.findById(g))
+                    .collect(Collectors.toList()); // Usar Collectors.toList() en lugar de .toList() para lista mutable
 
             survey.setSelectedGenres(genres);
         }

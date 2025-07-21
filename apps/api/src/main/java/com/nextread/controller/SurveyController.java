@@ -41,8 +41,18 @@ public class SurveyController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
 
-        return ResponseEntity
-                .ok(surveyService.updatePaceGenreSurvey(request.getPace(), request.getGenresIds(), currentUser));
+        try {
+            SurveyResponseDTO result = surveyService.updatePaceGenreSurvey(request.getPace(), request.getGenresIds(),
+                    currentUser);
+
+            ResponseEntity<SurveyResponseDTO> response = ResponseEntity.ok(result);
+
+            return response;
+        } catch (Exception e) {
+            System.err.println("💥 Error en updateSurveyBasics: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     // TODO: Actualizar para restricción con rol para admin. Vamos que debe usar el
