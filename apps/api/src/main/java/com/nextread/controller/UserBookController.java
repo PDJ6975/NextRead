@@ -93,10 +93,30 @@ public class UserBookController {
 
     @PostMapping
     public ResponseEntity<UserBookDTO> addBookToUserList(@RequestBody AddBookRequestDTO request) {
+
+        System.out.println("📚 UserBookController.addBookToUserList - Iniciando adición de libro");
+        System.out.println("📚 Request recibido: " + request);
+        System.out.println("📚 Book: " + request.getBook());
+        System.out.println("📚 UserBookDTO: " + request.getUserBookDTO());
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
 
-        return ResponseEntity
-                .ok(userBookService.addBookSelected(request.getBook(), request.getUserBookDTO(), currentUser));
+        System.out.println("📚 Usuario autenticado: " + currentUser.getEmail());
+
+        try {
+            UserBookDTO result = userBookService.addBookSelected(request.getBook(), request.getUserBookDTO(),
+                    currentUser);
+            System.out.println("📚 Resultado del servicio: " + result);
+
+            ResponseEntity<UserBookDTO> response = ResponseEntity.ok(result);
+            System.out.println("📚 Respuesta a enviar: " + response);
+
+            return response;
+        } catch (Exception e) {
+            System.err.println("💥 Error en addBookToUserList: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
     }
 }

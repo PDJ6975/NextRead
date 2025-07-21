@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '../../contexts/AuthContext';
 import { StepIndicator } from '../ui/StepIndicator';
 import { PreferencesStep } from './PreferencesStep';
 import { ReadBooksStep } from './ReadBooksStep';
@@ -8,6 +9,7 @@ import { SurveyConfirmation } from './SurveyConfirmation';
 
 export function SurveyWizard({ initialSurvey = null, isFirstTime = true }) {
     const router = useRouter();
+    const { updateUser } = useAuth();
     const [currentStep, setCurrentStep] = useState(0);
     const [surveyData, setSurveyData] = useState({
         pace: initialSurvey?.pace || '',
@@ -90,6 +92,8 @@ export function SurveyWizard({ initialSurvey = null, isFirstTime = true }) {
         setError('');
 
         try {
+            console.log('🚀 Iniciando envío de encuesta con datos:', finalData);
+
             // Constantes para los valores del enum ReadingStatus
             const READING_STATUS = {
                 READ: 'READ',
@@ -98,15 +102,28 @@ export function SurveyWizard({ initialSurvey = null, isFirstTime = true }) {
             };
 
             // Actualizar preferencias básicas (pace y genres)
-            const { surveyService } = await import('../../services/surveyService');
-
-            await surveyService.updateSurvey({
+            console.log('📝 Actualizando survey con:', {
                 pace: finalData.pace,
                 genresIds: finalData.genres.map(genre => genre.id || genre)
             });
 
+            const { surveyService } = await import('../../services/surveyService');
+
+            try {
+                const surveyResponse = await surveyService.updateSurvey({
+                    pace: finalData.pace,
+                    genresIds: finalData.genres.map(genre => genre.id || genre)
+                });
+                console.log('✅ Survey actualizado exitosamente:', surveyResponse.data);
+            } catch (surveyError) {
+                console.error('❌ Error al actualizar survey:', surveyError);
+                console.error('❌ Detalles del error survey:', surveyError.response?.data || surveyError.message);
+                throw surveyError;
+            }
+
             // Añadir libros leídos
             if (finalData.readBooks && finalData.readBooks.length > 0) {
+                console.log('📚 Procesando libros leídos:', finalData.readBooks.length);
                 const { userBookService } = await import('../../services/userBookService');
 
                 for (const book of finalData.readBooks) {
@@ -115,7 +132,9 @@ export function SurveyWizard({ initialSurvey = null, isFirstTime = true }) {
                         id: book.id,
                         title: book.title,
                         authors: book.authors,
+                        isbn10: book.isbn10 || book.isbn13?.substring(3) || null, // Generar ISBN10 desde ISBN13 o null
                         isbn13: book.isbn13,
+                        publisher: book.publisher || book.publishedYear || "Editorial desconocida", // Usar publishedYear como fallback si no hay publisher
                         coverUrl: book.coverUrl,
                         pages: book.pages,
                         publishedYear: book.publishedYear,
@@ -131,20 +150,24 @@ export function SurveyWizard({ initialSurvey = null, isFirstTime = true }) {
                         console.log('Enviando libro leído:', {
                             bookTitle: book.title,
                             status: userBookData.status,
-                            rating: userBookData.rating
+                            rating: userBookData.rating,
+                            bookData: bookData,
+                            userBookData: userBookData
                         });
 
-                        await userBookService.addBook({
+                        const response = await userBookService.addBook({
                             book: bookData,
                             userBookDTO: userBookData
                         });
+                        console.log('✅ Libro leído añadido exitosamente:', response.data);
                     } catch (error) {
                         // Log detallado del error para depuración
-                        console.error('Error detallado al añadir libro:', {
+                        console.error('❌ Error detallado al añadir libro:', {
                             bookTitle: book.title,
                             error: error.response?.data || error.message,
                             status: userBookData.status,
-                            rating: userBookData.rating
+                            rating: userBookData.rating,
+                            fullError: error
                         });
                         throw error; // Re-lanzar para detener el proceso y ver el error
                     }
@@ -153,6 +176,7 @@ export function SurveyWizard({ initialSurvey = null, isFirstTime = true }) {
 
             // Añadir libros abandonados
             if (finalData.abandonedBooks && finalData.abandonedBooks.length > 0) {
+                console.log('📚 Procesando libros abandonados:', finalData.abandonedBooks.length);
                 const { userBookService } = await import('../../services/userBookService');
 
                 for (const book of finalData.abandonedBooks) {
@@ -161,7 +185,9 @@ export function SurveyWizard({ initialSurvey = null, isFirstTime = true }) {
                         id: book.id,
                         title: book.title,
                         authors: book.authors,
+                        isbn10: book.isbn10 || book.isbn13?.substring(3) || null, // Generar ISBN10 desde ISBN13 o null
                         isbn13: book.isbn13,
+                        publisher: book.publisher || book.publishedYear || "Editorial desconocida", // Usar publishedYear como fallback si no hay publisher
                         coverUrl: book.coverUrl,
                         pages: book.pages,
                         publishedYear: book.publishedYear,
@@ -176,30 +202,42 @@ export function SurveyWizard({ initialSurvey = null, isFirstTime = true }) {
                     try {
                         console.log('Enviando libro abandonado:', {
                             bookTitle: book.title,
-                            status: userBookData.status
+                            status: userBookData.status,
+                            bookData: bookData,
+                            userBookData: userBookData
                         });
 
-                        await userBookService.addBook({
+                        const response = await userBookService.addBook({
                             book: bookData,
                             userBookDTO: userBookData
                         });
+                        console.log('✅ Libro abandonado añadido exitosamente:', response.data);
                     } catch (error) {
                         // Log detallado del error para depuración
-                        console.error('Error detallado al añadir libro abandonado:', {
+                        console.error('❌ Error detallado al añadir libro abandonado:', {
                             bookTitle: book.title,
                             error: error.response?.data || error.message,
-                            status: userBookData.status
+                            status: userBookData.status,
+                            fullError: error
                         });
                         throw error; // Re-lanzar para detener el proceso y ver el error
                     }
                 }
             }
 
-            // Redirigir al home después de completar
-            router.push('/home');
+            console.log('🎉 Proceso completado exitosamente, redirigiendo a /home');
+
+            // Actualizar el estado del usuario para reflejar que ya no es primera vez
+            updateUser({ firstTime: false });
+
+            // Pequeño delay para asegurar que el estado se actualice antes de redirigir
+            setTimeout(() => {
+                router.push('/home');
+            }, 100);
 
         } catch (error) {
-            console.error('Error al guardar encuesta:', error);
+            console.error('💥 Error general al guardar encuesta:', error);
+            console.error('💥 Detalles completos del error:', error.response?.data || error.message);
             setError('Error al guardar la encuesta. Por favor, inténtalo de nuevo.');
         } finally {
             setIsSubmitting(false);

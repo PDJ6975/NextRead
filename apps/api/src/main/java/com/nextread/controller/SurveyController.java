@@ -38,11 +38,30 @@ public class SurveyController {
     @PutMapping("/update")
     public ResponseEntity<SurveyResponseDTO> updateSurveyBasics(@RequestBody UpdateSurveyRequestDTO request) {
 
+        System.out.println("🔥 SurveyController.updateSurveyBasics - Iniciando actualización");
+        System.out.println("🔥 Request recibido: " + request);
+        System.out.println("🔥 Pace: " + request.getPace());
+        System.out.println("🔥 GenresIds: " + request.getGenresIds());
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
 
-        return ResponseEntity
-                .ok(surveyService.updatePaceGenreSurvey(request.getPace(), request.getGenresIds(), currentUser));
+        System.out.println("🔥 Usuario autenticado: " + currentUser.getEmail());
+
+        try {
+            SurveyResponseDTO result = surveyService.updatePaceGenreSurvey(request.getPace(), request.getGenresIds(),
+                    currentUser);
+            System.out.println("🔥 Resultado del servicio: " + result);
+
+            ResponseEntity<SurveyResponseDTO> response = ResponseEntity.ok(result);
+            System.out.println("🔥 Respuesta a enviar: " + response);
+
+            return response;
+        } catch (Exception e) {
+            System.err.println("💥 Error en updateSurveyBasics: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     // TODO: Actualizar para restricción con rol para admin. Vamos que debe usar el

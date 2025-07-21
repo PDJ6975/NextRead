@@ -52,17 +52,15 @@ public class Book {
     private String isbn13;
 
     @NotBlank
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String publisher;
 
-    @URL(protocol = "https")
-    @NotBlank
-    @Column(nullable = false)
+    @URL // Removido protocol = "https" para permitir HTTP también
+    @Column(nullable = true) // Permitir null temporalmente
     private String coverUrl;
 
-    @Size(max = 2000)
-    @NotBlank
-    @Column(nullable = false, length = 2000)
+    @Size(max = 5000) // Aumentado de 2000 a 5000 caracteres
+    @Column(nullable = true, length = 5000) // Permitir null y aumentar longitud
     private String synopsis;
 
     @Min(1)

@@ -13,6 +13,7 @@ import com.nextread.entities.Author;
 import com.nextread.entities.Book;
 import com.nextread.entities.Survey;
 import com.nextread.entities.User;
+import com.nextread.repositories.AuthorRepository;
 import com.nextread.repositories.BookRepository;
 
 import org.springframework.transaction.annotation.Transactional;
@@ -21,12 +22,15 @@ import org.springframework.transaction.annotation.Transactional;
 public class BookService {
 
     private final BookRepository bookRepository;
+    private final AuthorRepository authorRepository;
     private final RestTemplate restTemplate;
     private final SurveyService surveyService;
 
     @Autowired
-    public BookService(BookRepository bookRepository, RestTemplate restTemplate, SurveyService surveyService) {
+    public BookService(BookRepository bookRepository, AuthorRepository authorRepository, RestTemplate restTemplate,
+            SurveyService surveyService) {
         this.bookRepository = bookRepository;
+        this.authorRepository = authorRepository;
         this.restTemplate = restTemplate;
         this.surveyService = surveyService;
     }
@@ -138,6 +142,7 @@ public class BookService {
                     .title(info.path("title").asText())
                     .isbn10(isbn10)
                     .isbn13(isbn13)
+                    .publisher(info.path("publisher").asText("Editorial desconocida")) // Añadir publisher
                     .coverUrl(imageLinks.path("thumbnail").asText(null))
                     .synopsis(info.path("description").asText(null))
                     .pages(info.path("pageCount").asInt(0))
@@ -193,6 +198,7 @@ public class BookService {
                 .title(info.path("title").asText())
                 .isbn10(isbn10)
                 .isbn13(isbn13)
+                .publisher(info.path("publisher").asText("Editorial desconocida")) // Añadir publisher
                 .coverUrl(cover)
                 .synopsis(info.path("description").asText())
                 .pages(info.path("pageCount").asInt())
@@ -215,6 +221,100 @@ public class BookService {
 
     @Transactional
     public Book saveBook(Book book) {
-        return bookRepository.save(book);
+        System.out.println("📖 BookService.saveBook - Iniciando guardado de libro: " + book.getTitle());
+        System.out.println("📖 Datos del libro:");
+        System.out.println("   - Title: " + book.getTitle());
+        System.out.println("   - ISBN10: " + book.getIsbn10());
+        System.out.println("   - ISBN13: " + book.getIsbn13());
+        System.out.println("   - Publisher: " + book.getPublisher());
+        System.out.println("   - CoverUrl: " + book.getCoverUrl());
+        System.out.println(
+                "   - Synopsis length: " + (book.getSynopsis() != null ? book.getSynopsis().length() : "null"));
+        System.out.println("   - Synopsis: " + (book.getSynopsis() != null
+                ? book.getSynopsis().substring(0, Math.min(100, book.getSynopsis().length())) + "..."
+                : "null"));
+        System.out.println("   - Pages: " + book.getPages());
+        System.out.println("   - PublishedYear: " + book.getPublishedYear());
+        System.out.println("   - Authors count: " + (book.getAuthors() != null ? book.getAuthors().size() : 0));
+
+        // Sanitizar datos antes de guardar
+        sanitizeBookData(book);
+
+        // Primero, manejar los autores
+        if (book.getAuthors() != null && !book.getAuthors().isEmpty()) {
+            List<Author> persistedAuthors = new ArrayList<>();
+
+            for (Author author : book.getAuthors()) {
+                Author persistedAuthor;
+
+                // Buscar si el autor ya existe por nombre
+                var existingAuthor = authorRepository.findByName(author.getName());
+                if (existingAuthor.isPresent()) {
+                    persistedAuthor = existingAuthor.get();
+                    System.out.println("📖 Autor existente encontrado: " + persistedAuthor.getName());
+                } else {
+                    // Crear nuevo autor
+                    persistedAuthor = authorRepository.save(Author.builder().name(author.getName()).build());
+                    System.out.println("📖 Nuevo autor creado: " + persistedAuthor.getName());
+                }
+
+                persistedAuthors.add(persistedAuthor);
+            }
+
+            book.setAuthors(persistedAuthors);
+        }
+
+        // Verificar si el libro ya existe por ISBN13
+        if (book.getIsbn13() != null) {
+            var existingBook = bookRepository.findByIsbn13(book.getIsbn13());
+            if (existingBook.isPresent()) {
+                System.out.println("📖 Libro existente encontrado por ISBN13: " + book.getIsbn13());
+                return existingBook.get();
+            }
+        }
+
+        // Guardar el libro con autores persistidos
+        Book savedBook = bookRepository.save(book);
+        System.out.println(
+                "📖 Libro guardado exitosamente: " + savedBook.getTitle() + " (ID: " + savedBook.getId() + ")");
+
+        return savedBook;
+    }
+
+    private void sanitizeBookData(Book book) {
+        System.out.println("🧹 Sanitizando datos del libro...");
+
+        // Sanitizar coverUrl
+        if (book.getCoverUrl() != null && (book.getCoverUrl().trim().isEmpty() || book.getCoverUrl().equals("null"))) {
+            book.setCoverUrl(null);
+            System.out.println("🧹 CoverUrl limpiado (estaba vacío o 'null')");
+        }
+
+        // Sanitizar synopsis
+        if (book.getSynopsis() != null) {
+            String synopsis = book.getSynopsis().trim();
+            if (synopsis.isEmpty() || synopsis.equals("null")) {
+                book.setSynopsis(null);
+                System.out.println("🧹 Synopsis limpiado (estaba vacío o 'null')");
+            } else if (synopsis.length() > 5000) {
+                book.setSynopsis(synopsis.substring(0, 4997) + "...");
+                System.out.println("🧹 Synopsis truncado de " + synopsis.length() + " a 5000 caracteres");
+            }
+        }
+
+        // Sanitizar publisher si está vacío
+        if (book.getPublisher() != null
+                && (book.getPublisher().trim().isEmpty() || book.getPublisher().equals("null"))) {
+            book.setPublisher("Editorial desconocida");
+            System.out.println("🧹 Publisher establecido a 'Editorial desconocida'");
+        }
+
+        // Validar pages
+        if (book.getPages() <= 0) {
+            book.setPages(1);
+            System.out.println("🧹 Pages establecido a 1 (era " + book.getPages() + ")");
+        }
+
+        System.out.println("🧹 Sanitización completada");
     }
 }

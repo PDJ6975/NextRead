@@ -15,13 +15,36 @@ apiClient.interceptors.request.use((config) => {
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
     }
+
+    // Log de peticiones salientes
+    console.log(`🌐 API Request: ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`, {
+        data: config.data,
+        headers: config.headers
+    });
+
     return config;
 });
 
 // Interceptor para manejar errores
 apiClient.interceptors.response.use(
-    (response) => response,
+    (response) => {
+        // Log de respuestas exitosas
+        console.log(`✅ API Response: ${response.config.method?.toUpperCase()} ${response.config.url}`, {
+            status: response.status,
+            data: response.data,
+            headers: response.headers
+        });
+        return response;
+    },
     (error) => {
+        // Log de errores
+        console.error(`❌ API Error: ${error.config?.method?.toUpperCase()} ${error.config?.url}`, {
+            status: error.response?.status,
+            data: error.response?.data,
+            message: error.message,
+            headers: error.response?.headers
+        });
+
         if (error.response?.status === 401) {
             localStorage.removeItem('token');
             window.location.href = '/auth/login';
