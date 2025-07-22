@@ -127,18 +127,22 @@ export default function RecommendationsSection({
      */
     const handleAddToLibrary = async (book, rating = 0) => {
         try {
+            console.log('🔄 [RecommendationsSection] Añadiendo libro a biblioteca:', book);
+
             // Preparar datos del libro
+            // Para libros generados (sin bookId real), no enviar el ID
             const bookData = {
-                id: book.id,
+                // Solo incluir ID si es un número real (no generado)
+                ...(book.bookId && typeof book.bookId === 'number' ? { id: book.bookId } : {}),
                 title: book.title,
-                authors: book.authors,
+                authors: book.authors || [{ name: 'Autor desconocido' }],
                 isbn10: book.isbn10,
                 isbn13: book.isbn13,
                 publisher: book.publisher || "Editorial desconocida",
                 coverUrl: book.coverUrl,
-                pages: book.pages,
-                publishedYear: book.publishedYear,
-                synopsis: book.synopsis
+                pages: book.pages || 0,
+                publishedYear: book.publishedYear || new Date().getFullYear().toString(),
+                synopsis: book.synopsis || book.reason
             };
 
             const userBookData = {
@@ -146,11 +150,19 @@ export default function RecommendationsSection({
                 status: 'WANT_TO_READ' // Estado por defecto para libros recomendados
             };
 
+            console.log('📤 [RecommendationsSection] Enviando bookData:', bookData);
+            console.log('📤 [RecommendationsSection] Enviando userBookData:', userBookData);
+
             await userBookService.addBook(bookData, userBookData);
 
-            // Guardar como recomendación si no está guardada y tiene ID
-            if (book.id && !book.isGenerated && !book.recommendationId) {
-                await recommendationService.saveRecommendation(book, 'Añadido desde recomendaciones');
+            // Guardar como recomendación si no está guardada y tiene ID real
+            if (book.bookId && typeof book.bookId === 'number' && !book.recommendationId) {
+                try {
+                    await recommendationService.saveRecommendation(book, 'Añadido desde recomendaciones');
+                } catch (err) {
+                    // No es crítico si falla guardar la recomendación
+                    console.warn('No se pudo guardar como recomendación:', err.message);
+                }
             }
 
             // Remover de recomendaciones ya que fue añadido
@@ -161,9 +173,10 @@ export default function RecommendationsSection({
             // Callback para notificar al padre
             onBookAdded?.(book);
 
-            console.log('Libro añadido a biblioteca:', book.title);
+            console.log('✅ [RecommendationsSection] Libro añadido a biblioteca:', book.title);
         } catch (err) {
-            console.error('Error al añadir libro a biblioteca:', err);
+            console.error('💥 [RecommendationsSection] Error al añadir libro a biblioteca:', err);
+            console.error('💥 [RecommendationsSection] Book data que causó el error:', book);
             throw err;
         }
     };
@@ -323,6 +336,7 @@ export default function RecommendationsSection({
                 onAddToLibrary={handleAddToLibrary}
                 onLike={handleLike}
                 onDislike={handleDislike}
+                isRecommendation={true}
             />
 
             {/* Modal de edición de preferencias */}

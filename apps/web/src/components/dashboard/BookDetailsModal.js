@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X, Star, BookOpen, Calendar, User, Building, Heart, Plus } from 'lucide-react';
+import { X, Star, BookOpen, Calendar, User, Building, Heart, Plus, Hash, Building2, ThumbsDown } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Card, CardContent } from '../ui/Card';
 import { StarRating } from '../ui/StarRating';
@@ -12,7 +12,8 @@ export default function BookDetailsModal({
     onClose,
     onAddToLibrary,
     onLike,
-    onDislike
+    onDislike,
+    isRecommendation = false // Nueva prop para identificar si es una recomendación
 }) {
     const [isLiked, setIsLiked] = useState(false);
     const [isDisliked, setIsDisliked] = useState(false);
@@ -96,10 +97,10 @@ export default function BookDetailsModal({
         }
     };
 
-    const handleAddToLibrary = async () => {
+    const handleAddToLibrary = async (rating) => {
         setActionLoading('add');
         try {
-            await onAddToLibrary?.(book, selectedRating);
+            await onAddToLibrary?.(book, rating);
             // Mostrar mensaje de éxito y cerrar modal
             setTimeout(() => {
                 onClose();
@@ -244,66 +245,185 @@ export default function BookDetailsModal({
                                     </div>
                                 )}
 
-                                {/* Sección de añadir a biblioteca */}
-                                <div className="bg-gray-50 rounded-lg p-6">
-                                    <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                                        Añadir a mi biblioteca
-                                    </h3>
-
-                                    {/* Rating selector */}
-                                    <div className="mb-4">
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            ¿Cómo calificarías este libro? (opcional)
-                                        </label>
-                                        <StarRating
-                                            rating={selectedRating}
-                                            onRatingChange={setSelectedRating}
-                                            size="lg"
-                                        />
+                                {/* Motivo de recomendación (solo para recomendaciones) */}
+                                {isRecommendation && book.reason && (
+                                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                        <div className="flex items-start space-x-3">
+                                            <div className="flex-shrink-0">
+                                                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                                    <span className="text-blue-600 text-sm font-semibold">💡</span>
+                                                </div>
+                                            </div>
+                                            <div className="flex-1">
+                                                <h4 className="text-sm font-medium text-blue-900 mb-1">
+                                                    ¿Por qué te lo recomendamos?
+                                                </h4>
+                                                <p className="text-sm text-blue-700 leading-relaxed">
+                                                    {book.reason}
+                                                </p>
+                                            </div>
+                                        </div>
                                     </div>
+                                )}
 
-                                    {/* Botones de acción */}
-                                    <div className="flex space-x-3">
-                                        <Button
-                                            onClick={handleAddToLibrary}
-                                            disabled={actionLoading === 'add'}
-                                            className="flex-1"
-                                        >
-                                            {actionLoading === 'add' ? (
-                                                <div className="w-4 h-4 border border-white border-t-transparent rounded-full animate-spin mr-2" />
-                                            ) : (
-                                                <Plus className="w-4 h-4 mr-2" />
-                                            )}
-                                            Añadir a biblioteca
-                                        </Button>
+                                {/* Detalles técnicos */}
+                                <div className="grid grid-cols-2 gap-4 text-sm">
+                                    {book.isbn13 && (
+                                        <div className="flex items-center space-x-2">
+                                            <Hash className="w-4 h-4 text-gray-400" />
+                                            <span className="text-gray-600">ISBN:</span>
+                                            <span className="text-gray-900">{book.isbn13}</span>
+                                        </div>
+                                    )}
 
-                                        <Button
-                                            variant={isLiked ? "default" : "outline"}
-                                            onClick={handleLike}
-                                            disabled={isDisliked || actionLoading === 'like'}
-                                            className={isLiked ? 'bg-green-600 hover:bg-green-700' : 'hover:bg-green-50 hover:text-green-600'}
-                                        >
-                                            {actionLoading === 'like' ? (
-                                                <div className="w-4 h-4 border border-current border-t-transparent rounded-full animate-spin" />
-                                            ) : (
-                                                <Heart className={`w-4 h-4 ${isLiked ? 'fill-current' : ''}`} />
-                                            )}
-                                        </Button>
+                                    {book.publisher && (
+                                        <div className="flex items-center space-x-2">
+                                            <Building2 className="w-4 h-4 text-gray-400" />
+                                            <span className="text-gray-600">Editorial:</span>
+                                            <span className="text-gray-900">{book.publisher}</span>
+                                        </div>
+                                    )}
 
-                                        <Button
-                                            variant="outline"
-                                            onClick={handleDislike}
-                                            disabled={isLiked || actionLoading === 'dislike'}
-                                            className={isDisliked ? 'bg-red-600 hover:bg-red-700 text-white' : 'hover:bg-red-50 hover:text-red-600'}
-                                        >
-                                            {actionLoading === 'dislike' ? (
-                                                <div className="w-4 h-4 border border-current border-t-transparent rounded-full animate-spin" />
-                                            ) : (
-                                                <X className="w-4 h-4" />
-                                            )}
-                                        </Button>
-                                    </div>
+                                    {book.publishedYear && (
+                                        <div className="flex items-center space-x-2">
+                                            <Calendar className="w-4 h-4 text-gray-400" />
+                                            <span className="text-gray-600">Año:</span>
+                                            <span className="text-gray-900">{book.publishedYear}</span>
+                                        </div>
+                                    )}
+
+                                    {book.pages && book.pages > 0 && (
+                                        <div className="flex items-center space-x-2">
+                                            <BookOpen className="w-4 h-4 text-gray-400" />
+                                            <span className="text-gray-600">Páginas:</span>
+                                            <span className="text-gray-900">{book.pages}</span>
+                                        </div>
+                                    )}
                                 </div>
+
+                                {/* Sección de acciones - Solo para recomendaciones */}
+                                {isRecommendation && (
+                                    <div className="border-t pt-6">
+                                        <div className="flex items-center justify-between space-x-4">
+                                            {/* Botones de feedback */}
+                                            <div className="flex space-x-2">
+                                                <Button
+                                                    onClick={handleLike}
+                                                    disabled={actionLoading === 'like'}
+                                                    variant="outline"
+                                                    size="sm"
+                                                    className={`flex items-center space-x-2 ${isLiked ? 'bg-red-50 border-red-200 text-red-700' : ''
+                                                        }`}
+                                                >
+                                                    {actionLoading === 'like' ? (
+                                                        <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                                                    ) : (
+                                                        <Heart className={`w-4 h-4 ${isLiked ? 'fill-current' : ''}`} />
+                                                    )}
+                                                    <span>{actionLoading === 'like' ? 'Guardando...' : 'Me gusta'}</span>
+                                                </Button>
+
+                                                <Button
+                                                    onClick={handleDislike}
+                                                    disabled={actionLoading === 'dislike'}
+                                                    variant="outline"
+                                                    size="sm"
+                                                    className="flex items-center space-x-2"
+                                                >
+                                                    {actionLoading === 'dislike' ? (
+                                                        <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                                                    ) : (
+                                                        <ThumbsDown className="w-4 h-4" />
+                                                    )}
+                                                    <span>{actionLoading === 'dislike' ? 'Eliminando...' : 'No me interesa'}</span>
+                                                </Button>
+                                            </div>
+
+                                            {/* Botón principal de añadir */}
+                                            <Button
+                                                onClick={() => handleAddToLibrary(0)}
+                                                disabled={actionLoading === 'add'}
+                                                className="flex items-center space-x-2"
+                                            >
+                                                {actionLoading === 'add' ? (
+                                                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                                ) : (
+                                                    <Plus className="w-4 h-4" />
+                                                )}
+                                                <span>{actionLoading === 'add' ? 'Añadiendo...' : 'Añadir a mi biblioteca'}</span>
+                                            </Button>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Sección de rating y añadir - Solo para libros normales */}
+                                {!isRecommendation && (
+                                    <div className="border-t pt-6">
+                                        <div className="space-y-4">
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                    ¿Qué te parece este libro?
+                                                </label>
+                                                <StarRating
+                                                    rating={selectedRating}
+                                                    onChange={setSelectedRating}
+                                                    size="lg"
+                                                    showValue={true}
+                                                />
+                                            </div>
+
+                                            <div className="flex items-center justify-between space-x-4">
+                                                {/* Botones de feedback */}
+                                                <div className="flex space-x-2">
+                                                    <Button
+                                                        onClick={handleLike}
+                                                        disabled={actionLoading === 'like'}
+                                                        variant="outline"
+                                                        size="sm"
+                                                        className={`flex items-center space-x-2 ${isLiked ? 'bg-red-50 border-red-200 text-red-700' : ''
+                                                            }`}
+                                                    >
+                                                        {actionLoading === 'like' ? (
+                                                            <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                                                        ) : (
+                                                            <Heart className={`w-4 h-4 ${isLiked ? 'fill-current' : ''}`} />
+                                                        )}
+                                                        <span>{actionLoading === 'like' ? 'Guardando...' : 'Me gusta'}</span>
+                                                    </Button>
+
+                                                    <Button
+                                                        onClick={handleDislike}
+                                                        disabled={actionLoading === 'dislike'}
+                                                        variant="outline"
+                                                        size="sm"
+                                                        className="flex items-center space-x-2"
+                                                    >
+                                                        {actionLoading === 'dislike' ? (
+                                                            <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                                                        ) : (
+                                                            <ThumbsDown className="w-4 h-4" />
+                                                        )}
+                                                        <span>{actionLoading === 'dislike' ? 'Eliminando...' : 'No me interesa'}</span>
+                                                    </Button>
+                                                </div>
+
+                                                {/* Botón principal de añadir */}
+                                                <Button
+                                                    onClick={() => handleAddToLibrary(selectedRating)}
+                                                    disabled={actionLoading === 'add'}
+                                                    className="flex items-center space-x-2"
+                                                >
+                                                    {actionLoading === 'add' ? (
+                                                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                                    ) : (
+                                                        <Plus className="w-4 h-4" />
+                                                    )}
+                                                    <span>{actionLoading === 'add' ? 'Añadiendo...' : 'Añadir a mi biblioteca'}</span>
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
