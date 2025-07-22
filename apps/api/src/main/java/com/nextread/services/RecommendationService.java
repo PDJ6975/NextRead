@@ -37,7 +37,19 @@ public class RecommendationService {
      */
     @Transactional(readOnly = true)
     public List<GeneratedRecommendationDTO> generateRecommendations(User user) {
-        return chatGPTService.generateRecommendations(user);
+        System.out.println(
+                "🔧 [RecommendationService] Iniciando generateRecommendations para usuario: " + user.getEmail());
+
+        try {
+            List<GeneratedRecommendationDTO> result = chatGPTService.generateRecommendations(user);
+            System.out.println("🔧 [RecommendationService] ChatGPTService devolvió: "
+                    + (result != null ? result.size() : 0) + " recomendaciones");
+            return result;
+        } catch (Exception e) {
+            System.err.println(
+                    "💥 [RecommendationService] Error: " + e.getClass().getSimpleName() + " - " + e.getMessage());
+            throw e;
+        }
     }
 
     /**

@@ -4,12 +4,19 @@ import ProtectedRoute from '../../components/ProtectedRoute';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import DashboardHeader from '../../components/dashboard/DashboardHeader';
 import DashboardStats from '../../components/dashboard/DashboardStats';
+import RecommendationsSection from '../../components/dashboard/RecommendationsSection';
 import { Card, CardContent, CardHeader } from '../../components/ui/Card';
-import { EmptyLibrary, EmptyRecommendations } from '../../components/ui/EmptyState';
+import { EmptyLibrary } from '../../components/ui/EmptyState';
 import { useAuth } from '../../contexts/AuthContext';
 
 export default function HomePage() {
     const { user, logout } = useAuth();
+
+    const handleBookAdded = (book) => {
+        console.log('Libro añadido desde recomendaciones:', book.title);
+        // TODO: Actualizar lista de libros del usuario
+        // TODO: Mostrar toast de confirmación
+    };
 
     return (
         <ProtectedRoute requiresFirstTime={false}>
@@ -30,23 +37,10 @@ export default function HomePage() {
                             {/* Columna Principal - Recomendaciones */}
                             <div className="lg:col-span-2 space-y-6">
                                 {/* Sección de Recomendaciones */}
-                                <Card>
-                                    <CardHeader>
-                                        <h2 className="text-xl font-bold text-gray-900">
-                                            Recomendaciones para ti
-                                        </h2>
-                                        <p className="text-gray-600 text-sm">
-                                            Descubre libros basados en tus gustos
-                                        </p>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <EmptyRecommendations
-                                            onUpdatePreferences={() => {
-                                                console.log('Navigate to preferences');
-                                            }}
-                                        />
-                                    </CardContent>
-                                </Card>
+                                <RecommendationsSection
+                                    maxRecommendations={6}
+                                    onBookAdded={handleBookAdded}
+                                />
 
                                 {/* Sección de Historial de Libros */}
                                 <Card>
@@ -117,7 +111,7 @@ export default function HomePage() {
                                                 Obtén nuevas sugerencias personalizadas
                                             </p>
                                             <div className="bg-white border border-purple-200 rounded px-3 py-2 text-sm text-gray-500">
-                                                🚧 Próximamente
+                                                ✅ Disponible arriba
                                             </div>
                                         </div>
                                     </CardContent>

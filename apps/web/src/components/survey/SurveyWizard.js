@@ -112,7 +112,7 @@ export function SurveyWizard({ initialSurvey = null, isFirstTime = true }) {
 
             // Añadir libros leídos
             if (finalData.readBooks && finalData.readBooks.length > 0) {
-                const { userBookService } = await import('../../services/userBookService');
+                const userBookService = (await import('../../services/userBookService')).default;
 
                 for (const book of finalData.readBooks) {
                     // Crear el objeto Book separado del UserBookDTO
@@ -136,10 +136,7 @@ export function SurveyWizard({ initialSurvey = null, isFirstTime = true }) {
 
                     try {
 
-                        const response = await userBookService.addBook({
-                            book: bookData,
-                            userBookDTO: userBookData
-                        });
+                        const response = await userBookService.addBook(bookData, userBookData);
                     } catch (error) {
                         throw error;
                     }
@@ -148,7 +145,7 @@ export function SurveyWizard({ initialSurvey = null, isFirstTime = true }) {
 
             // Añadir libros abandonados
             if (finalData.abandonedBooks && finalData.abandonedBooks.length > 0) {
-                const { userBookService } = await import('../../services/userBookService');
+                const userBookService = (await import('../../services/userBookService')).default;
 
                 for (const book of finalData.abandonedBooks) {
                     // Crear el objeto Book separado del UserBookDTO
@@ -172,10 +169,7 @@ export function SurveyWizard({ initialSurvey = null, isFirstTime = true }) {
 
                     try {
 
-                        const response = await userBookService.addBook({
-                            book: bookData,
-                            userBookDTO: userBookData
-                        });
+                        const response = await userBookService.addBook(bookData, userBookData);
                     } catch (error) {
                         throw error;
                     }

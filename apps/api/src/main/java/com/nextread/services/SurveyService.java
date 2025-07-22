@@ -109,8 +109,32 @@ public class SurveyService {
 
     @Transactional(readOnly = true)
     public Survey findSurveyByUser(User user) {
-        return surveryRepository.findByUser(user)
-                .orElseThrow(() -> new RuntimeException("El usuario no tiene encuesta asociada"));
+        System.out.println("📋 [SurveyService.findSurveyByUser] Buscando encuesta para usuario: " + user.getEmail());
+
+        try {
+            Survey survey = surveryRepository.findByUser(user)
+                    .orElseThrow(() -> new RuntimeException("El usuario no tiene encuesta asociada"));
+
+            System.out.println("📋 [SurveyService.findSurveyByUser] Encuesta encontrada:");
+            System.out.println("📋 [SurveyService.findSurveyByUser] - ID: " + survey.getId());
+            System.out.println("📋 [SurveyService.findSurveyByUser] - FirstTime: " + survey.getFirstTime());
+            System.out.println("📋 [SurveyService.findSurveyByUser] - Pace: " + survey.getPace());
+            System.out.println("📋 [SurveyService.findSurveyByUser] - Géneros: "
+                    + (survey.getSelectedGenres() != null ? survey.getSelectedGenres().size() : 0));
+
+            if (survey.getSelectedGenres() != null && !survey.getSelectedGenres().isEmpty()) {
+                for (int i = 0; i < survey.getSelectedGenres().size(); i++) {
+                    Genre genre = survey.getSelectedGenres().get(i);
+                    System.out.println("📋 [SurveyService.findSurveyByUser] - Género " + (i + 1) + ": "
+                            + genre.getSelectedGenre());
+                }
+            }
+
+            return survey;
+        } catch (Exception e) {
+            System.err.println("💥 [SurveyService.findSurveyByUser] Error: " + e.getMessage());
+            throw e;
+        }
     }
 
     /**

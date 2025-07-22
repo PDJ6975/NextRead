@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { BookOpen, Clock, Target, TrendingUp } from 'lucide-react';
 import { Card, CardContent } from '../ui/Card';
+import userStatsService from '../../services/userStatsService';
 
 // Componente de Skeleton para loading
 function StatCardSkeleton() {
@@ -54,7 +55,7 @@ function StatCard({ title, value, icon: Icon, color, description, loading }) {
     );
 }
 
-export default function DashboardStats({ stats }) {
+export default function DashboardStats() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [userStats, setUserStats] = useState({
@@ -64,39 +65,31 @@ export default function DashboardStats({ stats }) {
         averageRating: 0
     });
 
-    // Simular carga de estadísticas (en el futuro será una API call real)
+    // Cargar estadísticas del usuario
     useEffect(() => {
         const loadStats = async () => {
             try {
                 setLoading(true);
                 setError(null);
 
-                // Simular delay de API
-                await new Promise(resolve => setTimeout(resolve, 1500));
+                // Simular delay para mostrar skeleton loading
+                await userStatsService.simulateDelay(800);
 
-                // En el futuro, esto será:
-                // const response = await fetch('/api/userbooks/stats');
-                // const data = await response.json();
-
-                // Por ahora, datos de ejemplo
-                const mockStats = {
-                    booksRead: stats?.booksRead || Math.floor(Math.random() * 50) + 10,
-                    booksReading: stats?.booksReading || Math.floor(Math.random() * 5) + 1,
-                    pagesRead: stats?.pagesRead || Math.floor(Math.random() * 5000) + 1000,
-                    averageRating: stats?.averageRating || (Math.random() * 2 + 3).toFixed(1)
-                };
-
-                setUserStats(mockStats);
+                const stats = await userStatsService.getUserStats();
+                setUserStats(stats);
             } catch (err) {
                 setError('Error al cargar estadísticas');
-                console.error('Error loading stats:', err);
+                console.error('Error loading user stats:', err);
+
+                // En caso de error, usar estadísticas por defecto
+                setUserStats(userStatsService.getDefaultStats());
             } finally {
                 setLoading(false);
             }
         };
 
         loadStats();
-    }, [stats]);
+    }, []);
 
     // Configuración de las cards de estadísticas
     const statsConfig = [
@@ -105,7 +98,7 @@ export default function DashboardStats({ stats }) {
             value: loading ? '-' : userStats.booksRead,
             icon: BookOpen,
             color: 'blue',
-            description: loading ? '' : 'Este año'
+            description: loading ? '' : `${userStats.totalBooks} libros en total`
         },
         {
             title: 'Leyendo Ahora',
@@ -123,10 +116,10 @@ export default function DashboardStats({ stats }) {
         },
         {
             title: 'Rating Promedio',
-            value: loading ? '-' : `${userStats.averageRating}⭐`,
+            value: loading ? '-' : userStats.averageRating > 0 ? `${userStats.averageRating}⭐` : 'Sin valorar',
             icon: TrendingUp,
             color: 'purple',
-            description: loading ? '' : 'De tus libros'
+            description: loading ? '' : 'De tus libros valorados'
         }
     ];
 
