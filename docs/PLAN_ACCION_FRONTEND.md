@@ -971,175 +971,371 @@ export function MobileMenu({ isOpen, onClose }) {
 ### 🚧 Fase 4: Página Principal - EN DESARROLLO
 **Estado: 20% Completado**
 
-1. 🚧 **Desarrollar dashboard principal**
-   - ✅ Crear layout básico del home
-   - 🚧 Implementar navegación principal
-   - ⏳ Crear secciones del dashboard
+---
 
-2. ⏳ **Implementar gestión de libros**
-   - ⏳ Componente `BookHistory`
-   - ⏳ Funcionalidad de actualización/eliminación
-   - ⏳ Búsqueda manual de libros
+## 📋 **Visión General de la Página Principal**
 
-3. ⏳ **Crear sistema de recomendaciones**
-   - ⏳ Componente `RecommendationsSection`
-   - ⏳ Generación de recomendaciones
-   - ⏳ Selección y guardado
+La página principal (`/home`) será el centro neurálgico de NextRead, donde los usuarios gestionarán su biblioteca personal, recibirán recomendaciones y navegarán por su historial de lectura. La página seguirá un diseño de dashboard modular y responsive.
 
-### ⏳ Fase 5: Funcionalidades Avanzadas - PENDIENTE
-**Estado: 0% Completado**
+### 🎯 **Objetivos de la Fase 4**
+1. **Dashboard Funcional**: Interface completa para usuarios registrados
+2. **Gestión de Biblioteca**: CRUD completo de libros del usuario
+3. **Recomendaciones Inteligentes**: Sistema de sugerencias personalizadas
+4. **UX Optimizada**: Navegación fluida y acciones rápidas
+5. **Performance**: Carga eficiente y lazy loading
 
-1. ⏳ **Implementar perfil de usuario**
-   - ⏳ Página de perfil (`/profile`)
-   - ⏳ Actualización de información
-   - ⏳ Gestión de avatar
+---
 
-2. ⏳ **Mejorar UX/UI**
-   - ⏳ Implementar loading states
-   - ⏳ Agregar animaciones
-   - ⏳ Optimizar responsive design
+## 🏗️ **Arquitectura del Dashboard**
 
-3. ⏳ **Optimización y performance**
-   - ⏳ Implementar lazy loading
-   - ⏳ Optimizar imágenes
-   - ⏳ Mejorar SEO
-
-### ⏳ Fase 6: Testing y Pulido - PENDIENTE
-**Estado: 0% Completado**
-
-1. ⏳ **Implementar testing**
-   - ⏳ Unit tests para componentes
-   - ⏳ Integration tests para flujos
-   - ⏳ E2E tests para funcionalidades críticas
-
-## Configuración del Proyecto
-
-### 1. package.json
-```json
-{
-  "name": "nextread-frontend",
-  "version": "0.1.0",
-  "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
-    "test": "jest",
-    "test:watch": "jest --watch"
-  },
-  "dependencies": {
-    "next": "14.0.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "axios": "^1.5.0",
-    "zod": "^3.22.0",
-    "lucide-react": "^0.290.0",
-    "clsx": "^2.0.0",
-    "tailwind-merge": "^1.14.0"
-  },
-  "devDependencies": {
-    "@types/node": "^20.8.0",
-    "@types/react": "^18.2.0",
-    "@types/react-dom": "^18.2.0",
-    "autoprefixer": "^10.4.0",
-    "eslint": "^8.52.0",
-    "eslint-config-next": "14.0.0",
-    "postcss": "^8.4.0",
-    "tailwindcss": "^3.3.0",
-    "jest": "^29.7.0",
-    "@testing-library/react": "^13.4.0",
-    "@testing-library/jest-dom": "^6.1.0"
-  }
-}
+### **Estructura Jerárquica**
+```
+/home
+├── DashboardLayout (wrapper)
+├── DashboardHeader (navegación + usuario)
+├── DashboardStats (métricas rápidas)
+├── RecommendationsSection (recomendaciones personalizadas)
+├── BookHistorySection (libros del usuario)
+└── QuickActionsSection (búsqueda manual + acciones rápidas)
 ```
 
-### 2. next.config.js
+### **Layout Responsivo**
+```
+Desktop (lg+):     Mobile (sm):
+┌─────────────────┐  ┌──────────────┐
+│ Header          │  │ Header       │
+├─────────────────┤  ├──────────────┤
+│ Stats (4 cols)  │  │ Stats (2x2)  │
+├─────────────────┤  ├──────────────┤
+│ Recommendations │  │ Quick Actions│
+│ (8/12)          │  │ (full width) │
+├─────────────────┤  ├──────────────┤
+│ Quick Actions   │  │ Recommenda   │
+│ (4/12)          │  │ tions (full) │
+├─────────────────┤  ├──────────────┤
+│ Book History    │  │ Book History │
+│ (full width)    │  │ (full width) │
+└─────────────────┘  └──────────────┘
+```
+
+---
+
+## 🧩 **Componentes Detallados**
+
+### **1. DashboardLayout**
 ```javascript
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
-  },
-  images: {
-    domains: ['localhost', 'api.nextread.com'],
-  },
-  async redirects() {
-    return [
-      {
-        source: '/dashboard',
-        destination: '/home',
-        permanent: true,
-      },
-    ];
-  },
-};
-
-module.exports = nextConfig;
+// apps/web/src/components/layout/DashboardLayout.js
 ```
 
-### 3. tailwind.config.js
+**Props:**
+- `children`: React.ReactNode
+- `user`: User object del AuthContext
+
+**Funcionalidades:**
+- ✅ Layout base con sidebar colapsable
+- 🚧 Navegación principal (Home, Profile, Logout)
+- ⏳ Modo oscuro toggle
+- ⏳ Notificaciones (futuro)
+
+**Estado interno:**
+- `sidebarCollapsed`: boolean
+- `currentSection`: string
+
+---
+
+### **2. DashboardHeader**
 ```javascript
-/** @type {import('tailwindcss').Config} */
-module.exports = {
-  content: [
-    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
-  ],
-  theme: {
-    extend: {
-      colors: {
-        primary: {
-          50: '#eff6ff',
-          500: '#3b82f6',
-          600: '#2563eb',
-          700: '#1d4ed8',
-        },
-        secondary: {
-          50: '#f9fafb',
-          500: '#6b7280',
-          600: '#4b5563',
-          700: '#374151',
-        },
-      },
-      fontFamily: {
-        sans: ['Inter', 'sans-serif'],
-      },
-    },
-  },
-  plugins: [],
-};
+// apps/web/src/components/dashboard/DashboardHeader.js
 ```
 
-## Consideraciones Técnicas
+**Props:**
+- `user`: User object
+- `onLogout`: function
 
-### 1. SEO y Performance
-- Implementar meta tags dinámicos
-- Optimizar imágenes con Next.js Image
-- Implementar lazy loading
-- Configurar sitemap y robots.txt
+**Funcionalidades:**
+- ✅ Saludo personalizado ("¡Hola [nombre]!")
+- 🚧 Avatar del usuario
+- 🚧 Dropdown menu con opciones
+- ⏳ Barra de búsqueda global
 
-### 2. Accesibilidad
-- Implementar navegación por teclado
-- Agregar ARIA labels
-- Asegurar contraste de colores
-- Implementar screen reader support
+**APIs utilizadas:**
+- Ninguna (datos del AuthContext)
 
-### 3. Seguridad
-- Sanitizar inputs del usuario
-- Implementar CSRF protection
-- Validar datos en frontend y backend
-- Secure token storage
+---
 
-### 4. Monitoreo y Analytics
-- Implementar error tracking
-- Agregar analytics de usuario
-- Monitorear performance
-- Implementar logging
+### **3. DashboardStats**
+```javascript
+// apps/web/src/components/dashboard/DashboardStats.js
+```
 
-## Conclusión
+**Props:**
+- `stats`: object con métricas del usuario
 
-Este plan de acción proporciona una hoja de ruta completa para el desarrollo del frontend de NextRead. La implementación seguirá un enfoque incremental, priorizando la funcionalidad core y mejorando progresivamente la experiencia de usuario. El resultado será una aplicación moderna, responsive y fácil de usar que complementará perfectamente el backend desarrollado.
+**Funcionalidades:**
+- ⏳ Libros leídos este año
+- ⏳ Libros en progreso
+- ⏳ Páginas totales leídas
+- ⏳ Tiempo promedio de lectura
 
-La arquitectura propuesta es escalable y mantenible, permitiendo futuras mejoras y expansiones del sistema de recomendaciones de libros. 
+**APIs utilizadas:**
+- `GET /userbooks/stats` - Obtener estadísticas del usuario
+
+**Estado interno:**
+- `loading`: boolean
+- `stats`: object
+- `error`: string
+
+---
+
+### **4. RecommendationsSection**
+```javascript
+// apps/web/src/components/dashboard/RecommendationsSection.js
+```
+
+**Props:**
+- `maxRecommendations`: number (default: 6)
+- `onBookSelect`: function
+
+**Funcionalidades:**
+- ⏳ Carrusel de recomendaciones personalizadas
+- ⏳ Botón "Generar nuevas recomendaciones"
+- ⏳ Acción "Me interesa" / "No me interesa"
+- ⏳ Agregar directamente a biblioteca
+- ⏳ Ver detalles de libro en modal
+
+**APIs utilizadas:**
+- `GET /recommendations` - Obtener recomendaciones
+- `POST /recommendations/generate` - Generar nuevas recomendaciones
+- `POST /recommendations/feedback` - Enviar feedback de recomendación
+
+**Estado interno:**
+- `recommendations`: array
+- `loading`: boolean
+- `generating`: boolean
+- `error`: string
+
+**Subcomponentes:**
+- `RecommendationCard`: Card individual para cada libro recomendado
+- `RecommendationCarousel`: Carrusel navegable
+- `GenerateButton`: Botón para nuevas recomendaciones
+
+---
+
+### **5. BookHistorySection**
+```javascript
+// apps/web/src/components/dashboard/BookHistorySection.js
+```
+
+**Props:**
+- `initialView`: 'grid' | 'list' (default: 'grid')
+- `pageSize`: number (default: 12)
+
+**Funcionalidades:**
+- ⏳ Vista grid/list toggleable
+- ⏳ Filtros por estado (Leído, Leyendo, Abandonado, Por leer)
+- ⏳ Filtros por rating (5★, 4★+, etc.)
+- ⏳ Ordenación (Fecha añadido, Rating, Título, Autor)
+- ⏳ Búsqueda dentro de la biblioteca personal
+- ⏳ Paginación o infinite scroll
+- ⏳ Acciones por libro: Editar, Eliminar, Cambiar estado
+
+**APIs utilizadas:**
+- `GET /userbooks?page=X&status=Y&sort=Z` - Obtener libros del usuario
+- `PUT /userbooks/{id}` - Actualizar libro del usuario
+- `DELETE /userbooks/{id}` - Eliminar libro de biblioteca
+
+**Estado interno:**
+- `books`: array
+- `loading`: boolean
+- `filters`: object
+- `currentPage`: number
+- `totalPages`: number
+- `viewMode`: 'grid' | 'list'
+- `sortBy`: string
+
+**Subcomponentes:**
+- `BookHistoryCard`: Card individual para cada libro del usuario
+- `BookHistoryFilters`: Panel de filtros y búsqueda
+- `BookHistoryGrid`: Vista en cuadrícula
+- `BookHistoryList`: Vista en lista
+- `BookActionModal`: Modal para editar/eliminar libros
+
+---
+
+### **6. QuickActionsSection**
+```javascript
+// apps/web/src/components/dashboard/QuickActionsSection.js
+```
+
+**Props:**
+- `onBookAdded`: function (callback después de añadir libro)
+
+**Funcionalidades:**
+- ⏳ Búsqueda rápida de libros para añadir
+- ⏳ Botones de acción rápida ("Marcar como leído", "Añadir a por leer")
+- ⏳ Acceso rápido a encuesta (si firstTime=true de algún modo)
+- ⏳ Botón "Obtener recomendaciones"
+
+**APIs utilizadas:**
+- `GET /books/search?title=X` - Búsqueda general de libros
+- `POST /userbooks` - Añadir libro a biblioteca
+
+**Estado interno:**
+- `searchQuery`: string
+- `searchResults`: array
+- `searching`: boolean
+- `selectedBook`: object
+
+**Subcomponentes:**
+- `QuickSearchForm`: Formulario de búsqueda rápida
+- `QuickActionCard`: Card con acciones comunes
+
+---
+
+## 🔄 **Flujos de Usuario Detallados**
+
+### **Flujo 1: Usuario accede a /home**
+1. **Carga inicial**:
+   - ✅ Verificar autenticación (ProtectedRoute)
+   - 🚧 Cargar datos del usuario desde AuthContext
+   - ⏳ Obtener estadísticas (`GET /userbooks/stats`)
+   - ⏳ Cargar recomendaciones (`GET /recommendations`)
+   - ⏳ Cargar primeros libros de historial (`GET /userbooks`)
+
+2. **Renderizado**:
+   - 🚧 Mostrar header con saludo personalizado
+   - ⏳ Mostrar stats con skeleton loading mientras carga
+   - ⏳ Mostrar recomendaciones o placeholder si no hay
+   - ⏳ Mostrar grid de libros o mensaje de biblioteca vacía
+
+### **Flujo 2: Usuario busca un libro manualmente**
+1. Usuario escribe en QuickSearchForm
+2. Debounce de 300ms activa búsqueda
+3. API call `GET /books/search?title=X`
+4. Mostrar resultados en dropdown
+5. Usuario selecciona libro
+6. Modal de confirmación con opciones de estado/rating
+7. API call `POST /userbooks`
+8. Actualizar BookHistorySection
+9. Mostrar toast de confirmación
+
+### **Flujo 3: Usuario gestiona un libro existente**
+1. Usuario hace click en BookHistoryCard
+2. Se abre BookActionModal
+3. Opciones disponibles:
+   - Cambiar estado (Leído → Leyendo, etc.)
+   - Cambiar rating
+   - Eliminar de biblioteca
+   - Ver detalles completos
+4. API call según acción (`PUT /userbooks/{id}` o `DELETE`)
+5. Actualizar UI local
+6. Mostrar feedback al usuario
+
+### **Flujo 4: Usuario interactúa con recomendaciones**
+1. Sistema muestra 6 recomendaciones iniciales
+2. Usuario puede:
+   - "Me interesa" → `POST /recommendations/feedback`
+   - "No me interesa" → `POST /recommendations/feedback`  
+   - "Añadir a biblioteca" → `POST /userbooks`
+   - "Generar nuevas" → `POST /recommendations/generate`
+3. UI se actualiza con nueva información
+4. Recomendaciones se recalculan basado en feedback
+
+---
+
+## 🎨 **Estados de UI y Loading**
+
+### **Estados de Carga**
+1. **Skeleton Loading**:
+   - DashboardStats: 4 cards con shimmer
+   - RecommendationsSection: 6 cards con shimmer
+   - BookHistorySection: Grid de 12 cards con shimmer
+
+2. **Empty States**:
+   - Sin libros: Ilustración + CTA "Añade tu primer libro"
+   - Sin recomendaciones: "Completa tu encuesta para obtener recomendaciones"
+   - Error de conexión: "Problema de conexión, reintenta"
+
+3. **Loading States**:
+   - Botones con spinner durante acciones
+   - Overlay loading en modals
+   - Progress bar en cargas de listas largas
+
+---
+
+## 📱 **Diseño Responsivo Específico**
+
+### **Breakpoints y Comportamientos**
+- **Mobile (sm)**: Stack vertical, navegación en hamburger
+- **Tablet (md)**: Grid 2x2 para stats, carrusel horizontal para recomendaciones  
+- **Desktop (lg+)**: Layout completo con sidebar, múltiples columnas
+
+### **Interacciones Touch**
+- Swipe en carrusel de recomendaciones
+- Pull to refresh en BookHistorySection
+- Long press para acciones de contexto en móvil
+
+---
+
+## 🔗 **APIs Específicas Requeridas**
+
+### **Nuevas APIs Backend Necesarias**
+1. `GET /userbooks/stats` - Estadísticas del usuario
+2. `GET /recommendations` - Obtener recomendaciones personalizadas
+3. `POST /recommendations/generate` - Generar nuevas recomendaciones  
+4. `POST /recommendations/feedback` - Feedback de recomendación
+5. `GET /userbooks` - Paginación y filtros mejorados
+6. `PUT /userbooks/{id}` - Actualizar libro específico
+7. `DELETE /userbooks/{id}` - Eliminar libro específico
+
+### **APIs Existentes a Utilizar**
+- ✅ `GET /books/search?title=X` - Búsqueda de libros
+- ✅ `POST /userbooks` - Añadir libro a biblioteca
+- ✅ `GET /auth/user` - Datos del usuario (si es necesario)
+
+---
+
+## 🎯 **Plan de Implementación Detallado**
+
+### **Paso 1: Componentes Base (2-3 días)**
+1. 🚧 Finalizar `DashboardLayout` con navegación
+2. 🚧 Completar `DashboardHeader` con dropdown
+3. ⏳ Crear `DashboardStats` con skeleton loading
+4. ⏳ Implementar estados vacíos y de error
+
+### **Paso 2: Sistema de Recomendaciones (3-4 días)**
+1. ⏳ Crear `RecommendationsSection` con carrusel
+2. ⏳ Implementar `RecommendationCard` con acciones
+3. ⏳ Conectar con APIs de recomendaciones
+4. ⏳ Añadir sistema de feedback
+
+### **Paso 3: Gestión de Biblioteca (4-5 días)**
+1. ⏳ Desarrollar `BookHistorySection` con filtros
+2. ⏳ Crear `BookHistoryCard` con acciones
+3. ⏳ Implementar `BookActionModal` para edición
+4. ⏳ Añadir paginación e infinite scroll
+
+### **Paso 4: Búsqueda Rápida (2-3 días)**
+1. ⏳ Crear `QuickActionsSection`
+2. ⏳ Implementar `QuickSearchForm` con debounce
+3. ⏳ Conectar con BookSearchForm existente
+4. ⏳ Optimizar performance de búsquedas
+
+### **Paso 5: Polish y Optimización (2-3 días)**
+1. ⏳ Responsive design y testing móvil
+2. ⏳ Animaciones y microinteracciones
+3. ⏳ Optimización de performance
+4. ⏳ Testing de flujos completos
+
+---
+
+## 📊 **Métricas de Éxito**
+- ✅ Tiempo de carga inicial < 2 segundos
+- ✅ Todas las acciones CRUD funcionan correctamente
+- ✅ Interface responsive en todos los dispositivos
+- ✅ Zero errores de JavaScript en consola
+- ✅ Feedback visual en todas las interacciones
+
+---
+
+**¿Comenzamos con la implementación paso a paso?** 🚀 

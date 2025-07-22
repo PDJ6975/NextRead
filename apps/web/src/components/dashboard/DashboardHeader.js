@@ -1,0 +1,197 @@
+'use client';
+
+import { useState, useRef, useEffect } from 'react';
+import { ChevronDown, User, Settings, LogOut, Bell } from 'lucide-react';
+import { Button } from '../ui/Button';
+
+export default function DashboardHeader({ user, onLogout }) {
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+    const dropdownRef = useRef(null);
+
+    // Cerrar dropdown al hacer click fuera
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setDropdownOpen(false);
+            }
+        }
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
+    const getGreeting = () => {
+        const hour = new Date().getHours();
+        const name = user?.fullName || user?.email?.split('@')[0] || 'Usuario';
+
+        if (hour < 12) {
+            return `¡Buenos días, ${name}!`;
+        } else if (hour < 18) {
+            return `¡Buenas tardes, ${name}!`;
+        } else {
+            return `¡Buenas noches, ${name}!`;
+        }
+    };
+
+    const getInitials = () => {
+        if (user?.fullName) {
+            return user.fullName
+                .split(' ')
+                .map(name => name[0])
+                .join('')
+                .toUpperCase()
+                .substring(0, 2);
+        }
+        return user?.email?.[0]?.toUpperCase() || 'U';
+    };
+
+    const dropdownItems = [
+        {
+            id: 'profile',
+            label: 'Mi Perfil',
+            icon: User,
+            action: () => {
+                console.log('Navigate to profile');
+                setDropdownOpen(false);
+            }
+        },
+        {
+            id: 'settings',
+            label: 'Configuración',
+            icon: Settings,
+            action: () => {
+                console.log('Navigate to settings');
+                setDropdownOpen(false);
+            }
+        },
+        {
+            id: 'divider',
+            type: 'divider'
+        },
+        {
+            id: 'logout',
+            label: 'Cerrar Sesión',
+            icon: LogOut,
+            action: () => {
+                onLogout();
+                setDropdownOpen(false);
+            },
+            danger: true
+        }
+    ];
+
+    return (
+        <div className="bg-white border-b border-gray-200 px-6 py-4">
+            <div className="flex items-center justify-between">
+                {/* Saludo y descripción */}
+                <div className="flex-1">
+                    <h1 className="text-2xl font-bold text-gray-900 mb-1">
+                        {getGreeting()}
+                    </h1>
+                    <p className="text-gray-600 text-sm">
+                        Descubre tu próxima lectura favorita
+                    </p>
+                </div>
+
+                {/* Acciones del header */}
+                <div className="flex items-center space-x-4">
+                    {/* Notificaciones (futuro) */}
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className="relative p-2 hover:bg-gray-100"
+                        title="Notificaciones"
+                    >
+                        <Bell className="w-5 h-5 text-gray-600" />
+                        {/* Badge de notificaciones */}
+                        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                            0
+                        </span>
+                    </Button>
+
+                    {/* Usuario dropdown */}
+                    <div className="relative" ref={dropdownRef}>
+                        <Button
+                            variant="ghost"
+                            onClick={() => setDropdownOpen(!dropdownOpen)}
+                            className="flex items-center space-x-3 px-3 py-2 hover:bg-gray-100 rounded-lg"
+                        >
+                            {/* Avatar */}
+                            <div className="w-8 h-8 bg-indigo-600 text-white rounded-full flex items-center justify-center text-sm font-medium">
+                                {getInitials()}
+                            </div>
+
+                            {/* Información del usuario */}
+                            <div className="hidden sm:block text-left">
+                                <div className="text-sm font-medium text-gray-900 truncate max-w-32">
+                                    {user?.fullName || user?.email?.split('@')[0] || 'Usuario'}
+                                </div>
+                                <div className="text-xs text-gray-500 truncate max-w-32">
+                                    {user?.email}
+                                </div>
+                            </div>
+
+                            {/* Chevron */}
+                            <ChevronDown
+                                className={`w-4 h-4 text-gray-400 transition-transform ${dropdownOpen ? 'rotate-180' : ''
+                                    }`}
+                            />
+                        </Button>
+
+                        {/* Dropdown Menu */}
+                        {dropdownOpen && (
+                            <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+                                {/* Header del dropdown */}
+                                <div className="px-4 py-3 border-b border-gray-100">
+                                    <div className="flex items-center space-x-3">
+                                        <div className="w-10 h-10 bg-indigo-600 text-white rounded-full flex items-center justify-center text-sm font-medium">
+                                            {getInitials()}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="text-sm font-medium text-gray-900 truncate">
+                                                {user?.fullName || 'Usuario'}
+                                            </div>
+                                            <div className="text-xs text-gray-500 truncate">
+                                                {user?.email}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Items del dropdown */}
+                                <div className="py-1">
+                                    {dropdownItems.map((item) => {
+                                        if (item.type === 'divider') {
+                                            return (
+                                                <div
+                                                    key={item.id}
+                                                    className="h-px bg-gray-100 mx-2 my-1"
+                                                />
+                                            );
+                                        }
+
+                                        const Icon = item.icon;
+                                        return (
+                                            <button
+                                                key={item.id}
+                                                onClick={item.action}
+                                                className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-100 flex items-center space-x-3 transition-colors ${item.danger
+                                                        ? 'text-red-600 hover:bg-red-50'
+                                                        : 'text-gray-700'
+                                                    }`}
+                                            >
+                                                <Icon className="w-4 h-4" />
+                                                <span>{item.label}</span>
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+} 
