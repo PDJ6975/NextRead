@@ -120,8 +120,6 @@ class RecommendationService {
         return generatedRecs
             .filter(rec => rec && rec.title && rec.reason) // Filtrar elementos inválidos
             .map((rec, index) => {
-                console.log(`🔄 [Frontend] Transformando recomendación ${index + 1}:`, rec);
-
                 // Transformar autores del formato del backend al formato esperado por el frontend
                 let authors = [];
                 if (rec.authors && Array.isArray(rec.authors)) {

@@ -44,13 +44,14 @@ export default function RecommendationsSection({
 
             // Si no hay recomendaciones guardadas, intentar generar algunas
             if (!data || data.length === 0) {
-                // Mostrar mensaje educativo en lugar de generar automáticamente
-                console.log('No hay recomendaciones guardadas. El usuario puede generar nuevas.');
+                // No hay recomendaciones guardadas. El usuario puede generar nuevas.
             }
-        } catch (err) {
-            setError('Error al cargar recomendaciones');
-            console.error('Error loading recommendations:', err);
-        } finally {
+
+            setRecommendations(recommendations);
+            setLoading(false);
+        } catch (error) {
+            console.error('Error al cargar recomendaciones:', error);
+            setError(error.message);
             setLoading(false);
         }
     };
@@ -59,25 +60,15 @@ export default function RecommendationsSection({
      * Genera nuevas recomendaciones usando ChatGPT
      */
     const handleGenerateNew = async () => {
+        setGenerating(true);
+        setError(null);
         try {
-            setGenerating(true);
-            setError(null);
-
-            // Simular delay para UX
-            await recommendationService.simulateDelay(2500);
-
             const newRecommendations = await recommendationService.generateNewRecommendations();
-            setRecommendations(newRecommendations || []);
-
-            // Feedback visual de éxito
-            console.log('Nuevas recomendaciones generadas exitosamente');
-
-        } catch (err) {
-            // Mostrar el mensaje de error específico del servicio
-            const errorMessage = err.message || 'Error al generar nuevas recomendaciones';
-            setError(errorMessage);
-            console.error('Error generating recommendations:', err);
-        } finally {
+            setRecommendations(newRecommendations);
+            setGenerating(false);
+        } catch (error) {
+            console.error('Error al generar nuevas recomendaciones:', error);
+            setError(error.message);
             setGenerating(false);
         }
     };
@@ -87,8 +78,6 @@ export default function RecommendationsSection({
      */
     const handleAddToLibrary = async (book, rating = 0) => {
         try {
-            console.log('🔄 [RecommendationsSection] Añadiendo libro a biblioteca:', book);
-
             // Preparar datos del libro
             // Para libros generados (sin bookId real), no enviar el ID
             const bookData = {
@@ -110,9 +99,6 @@ export default function RecommendationsSection({
                 status: 'TO_READ' // Estado por defecto para libros recomendados
             };
 
-            console.log('📤 [RecommendationsSection] Enviando bookData:', bookData);
-            console.log('📤 [RecommendationsSection] Enviando userBookData:', userBookData);
-
             await userBookService.addBook(bookData, userBookData);
 
             // Remover de recomendaciones ya que fue añadido
@@ -123,7 +109,6 @@ export default function RecommendationsSection({
             // Callback para notificar al padre
             onBookAdded?.(book);
 
-            console.log('✅ [RecommendationsSection] Libro añadido a biblioteca:', book.title);
         } catch (err) {
             console.error('💥 [RecommendationsSection] Error al añadir libro a biblioteca:', err);
             console.error('💥 [RecommendationsSection] Book data que causó el error:', book);
@@ -167,7 +152,6 @@ export default function RecommendationsSection({
     const handlePreferencesSaved = () => {
         // Recargar recomendaciones después de actualizar preferencias
         loadRecommendations();
-        console.log('Preferencias actualizadas, recargando recomendaciones...');
     };
 
     /**

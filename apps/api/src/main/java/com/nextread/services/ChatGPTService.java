@@ -61,7 +61,7 @@ public class ChatGPTService {
      * utilizando la API de ChatGPT.
      * 
      * @param user El usuario para quien generar recomendaciones
-     * @return Lista de exactamente 3 recomendaciones generadas con datos completos
+     * @return Lista de exactamente 3 recomendaciones completamente enriquecidas
      */
     public List<GeneratedRecommendationDTO> generateRecommendations(User user) {
         if (apiKey == null || apiKey.isEmpty()) {
@@ -80,7 +80,7 @@ public class ChatGPTService {
 
             List<UserBook> userBooks = userBookService.findUserBooks(user);
 
-            // Generar exactamente 3 recomendaciones válidas
+            // Generar exactamente 3 recomendaciones completamente enriquecidas
             List<GeneratedRecommendationDTO> finalRecommendations = new ArrayList<>();
             int maxAttempts = 5; // Máximo 5 intentos para evitar loops infinitos
             int currentAttempt = 0;
@@ -97,31 +97,38 @@ public class ChatGPTService {
                 // Parsear la respuesta y convertir a DTOs
                 List<GeneratedRecommendationDTO> result = parseRecommendations(response);
 
-                // Enriquecer las recomendaciones con información adicional de libros
-                List<GeneratedRecommendationDTO> enrichedResult = enrichRecommendations(result);
-
-                // Procesar las recomendaciones enriquecidas
-                if (enrichedResult != null && !enrichedResult.isEmpty()) {
-                    for (GeneratedRecommendationDTO rec : enrichedResult) {
+                // Procesar las recomendaciones una por una hasta encontrar una enriquecida
+                if (result != null && !result.isEmpty()) {
+                    for (GeneratedRecommendationDTO rec : result) {
                         // Verificar que no sea duplicado
                         boolean isDuplicate = finalRecommendations.stream()
                                 .anyMatch(existing -> existing.getTitle().equalsIgnoreCase(rec.getTitle()));
 
                         if (!isDuplicate) {
-                            finalRecommendations.add(rec);
+                            // Intentar enriquecer esta recomendación específica
+                            GeneratedRecommendationDTO enrichedRec = enrichSingleRecommendation(rec);
 
-                            // Si ya tenemos 3 recomendaciones válidas, salir del bucle
-                            if (finalRecommendations.size() >= 3) {
-                                break;
+                            if (enrichedRec != null && enrichedRec.isEnriched()) {
+                                finalRecommendations.add(enrichedRec);
+
+                                // Si ya tenemos 3 recomendaciones válidas, salir del bucle
+                                if (finalRecommendations.size() >= 3) {
+                                    break;
+                                }
                             }
                         }
                     }
                 }
-            }
 
-            // Asegurar que devolvemos exactamente 3 recomendaciones
-            if (finalRecommendations.size() > 3) {
-                finalRecommendations = finalRecommendations.subList(0, 3);
+                // Si no se pudo enriquecer ninguna recomendación, continuar con el siguiente
+                // intento
+                if (result == null || result.isEmpty() ||
+                        result.stream().noneMatch(rec -> {
+                            GeneratedRecommendationDTO enriched = enrichSingleRecommendation(rec);
+                            return enriched != null && enriched.isEnriched();
+                        })) {
+                    // Continuar con el siguiente intento
+                }
             }
 
             return finalRecommendations;
@@ -361,58 +368,46 @@ public class ChatGPTService {
     }
 
     /**
-     * Enriquece las recomendaciones generadas con información adicional de libros.
-     * Solo incluye recomendaciones que tengan todos los datos obligatorios de la
-     * entidad Book.
+     * Enriquece una sola recomendación con información adicional de libros.
      * 
-     * @param recommendations Las recomendaciones generadas por ChatGPT
-     * @return Lista de recomendaciones enriquecidas con datos completos
+     * @param recommendation La recomendación básica a enriquecer
+     * @return La recomendación enriquecida o null si no se pudo enriquecer
      */
-    private List<GeneratedRecommendationDTO> enrichRecommendations(List<GeneratedRecommendationDTO> recommendations) {
-        List<GeneratedRecommendationDTO> enrichedRecommendations = new ArrayList<>();
+    private GeneratedRecommendationDTO enrichSingleRecommendation(GeneratedRecommendationDTO recommendation) {
+        try {
+            // Intentar encontrar el libro usando el método existente findRecommendedBook
+            // Este método busca en BD local primero, luego en Google Books
+            Book book = bookService.findRecommendedBook(recommendation.getTitle());
 
-        for (GeneratedRecommendationDTO rec : recommendations) {
-            try {
-                // Intentar encontrar el libro usando el método existente findRecommendedBook
-                // Este método busca en BD local primero, luego en Google Books
-                Book book = bookService.findRecommendedBook(rec.getTitle());
-
-                if (book != null) {
-                    // Convertir autores a lista de strings
-                    List<String> authorNames = new ArrayList<>();
-                    if (book.getAuthors() != null && !book.getAuthors().isEmpty()) {
-                        authorNames = book.getAuthors().stream()
-                                .map(Author::getName)
-                                .collect(Collectors.toList());
-                    }
-
-                    GeneratedRecommendationDTO enrichedRec = GeneratedRecommendationDTO.builder()
-                            .title(book.getTitle())
-                            .reason(rec.getReason())
-                            .coverUrl(book.getCoverUrl())
-                            .isbn13(book.getIsbn13())
-                            .isbn10(book.getIsbn10())
-                            .publisher(book.getPublisher())
-                            .publishedYear(book.getPublishedYear())
-                            .pages(book.getPages())
-                            .synopsis(book.getSynopsis())
-                            .authors(authorNames)
-                            .bookId(book.getId()) // Solo si el libro existe en BD local
-                            .enriched(true)
-                            .build();
-
-                    enrichedRecommendations.add(enrichedRec);
+            if (book != null) {
+                // Convertir autores a lista de strings
+                List<String> authorNames = new ArrayList<>();
+                if (book.getAuthors() != null && !book.getAuthors().isEmpty()) {
+                    authorNames = book.getAuthors().stream()
+                            .map(Author::getName)
+                            .collect(Collectors.toList());
                 }
-                // NO añadir recomendaciones incompletas - esto es intencional para forzar
-                // la generación de nuevas recomendaciones
 
-            } catch (Exception e) {
-                // NO añadir recomendaciones con errores - esto es intencional para forzar
-                // la generación de nuevas recomendaciones
+                return GeneratedRecommendationDTO.builder()
+                        .title(book.getTitle())
+                        .reason(recommendation.getReason())
+                        .coverUrl(book.getCoverUrl())
+                        .isbn13(book.getIsbn13())
+                        .isbn10(book.getIsbn10())
+                        .publisher(book.getPublisher())
+                        .publishedYear(book.getPublishedYear())
+                        .pages(book.getPages())
+                        .synopsis(book.getSynopsis())
+                        .authors(authorNames)
+                        .bookId(book.getId()) // Solo si el libro existe en BD local
+                        .enriched(true)
+                        .build();
+            } else {
+                return null; // No añadir recomendaciones incompletas
             }
+        } catch (Exception e) {
+            return null; // No añadir recomendaciones con errores
         }
-
-        return enrichedRecommendations;
     }
 
     /**
