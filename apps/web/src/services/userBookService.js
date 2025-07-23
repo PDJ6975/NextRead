@@ -26,9 +26,28 @@ class UserBookService {
      */
     async addBook(bookData, userBookData) {
         try {
+            // Transformar autores si vienen como strings
+            let transformedAuthors = bookData.authors;
+            if (bookData.authors && Array.isArray(bookData.authors)) {
+                transformedAuthors = bookData.authors.map(author => {
+                    // Si el autor es un string, convertirlo a objeto Author
+                    if (typeof author === 'string') {
+                        return { name: author };
+                    }
+                    // Si ya es un objeto, mantenerlo tal como está
+                    return author;
+                });
+            }
+
+            // Crear el objeto Book con autores transformados
+            const transformedBookData = {
+                ...bookData,
+                authors: transformedAuthors
+            };
+
             // El backend espera el formato AddBookRequestDTO
             const requestData = {
-                book: bookData,
+                book: transformedBookData,
                 userBookDTO: userBookData
             };
 

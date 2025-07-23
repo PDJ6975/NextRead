@@ -147,7 +147,7 @@ export default function RecommendationsSection({
 
             const userBookData = {
                 rating: rating > 0 ? rating : null,
-                status: 'WANT_TO_READ' // Estado por defecto para libros recomendados
+                status: 'TO_READ' // Estado por defecto para libros recomendados
             };
 
             console.log('📤 [RecommendationsSection] Enviando bookData:', bookData);
