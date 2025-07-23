@@ -11,10 +11,12 @@ class RecommendationService {
     async getRecommendations() {
         try {
             const response = await apiClient.get('/recommendations');
+
             // Las recomendaciones del backend incluyen el libro completo
-            return this.transformRecommendationsToBooks(response.data);
+            const transformedData = this.transformRecommendationsToBooks(response.data);
+            return transformedData;
         } catch (error) {
-            console.error('Error al obtener recomendaciones:', error);
+            console.error('💥 [Frontend] Error al obtener recomendaciones:', error);
 
             // Si no hay recomendaciones o hay error, devolver array vacío
             if (error.response?.status === 404 || error.response?.status === 500) {
@@ -27,7 +29,8 @@ class RecommendationService {
 
     /**
      * Genera nuevas recomendaciones usando ChatGPT
-     * @returns {Promise<Array>} Lista de nuevas recomendaciones generadas
+     * Las recomendaciones se guardan automáticamente en el backend
+     * @returns {Promise<Array>} Lista de nuevas recomendaciones generadas y guardadas
      */
     async generateNewRecommendations() {
         console.log('🚀 [Frontend] Iniciando generateNewRecommendations...');
@@ -102,57 +105,15 @@ class RecommendationService {
     }
 
     /**
-     * Guarda una recomendación (equivalente a "like")
-     * @param {Object} book - Libro recomendado
-     * @param {string} reason - Razón de la recomendación
-     * @returns {Promise<Object>} Respuesta del servidor
-     */
-    async saveRecommendation(book, reason = 'Me interesa este libro') {
-        try {
-            const response = await apiClient.post('/recommendations', {
-                bookId: book.id,
-                reason: reason
-            });
-            return response.data;
-        } catch (error) {
-            console.error('Error al guardar recomendación:', error);
-
-            // Simular éxito si el endpoint falla
-            if (error.response?.status === 404) {
-                return { success: true, message: 'Recomendación guardada (mock)' };
-            }
-
-            throw error;
-        }
-    }
-
-    /**
-     * Elimina una recomendación (equivalente a "dislike")
-     * @param {Object} recommendation - Recomendación a eliminar
-     * @returns {Promise<Object>} Respuesta del servidor
-     */
-    async deleteRecommendation(recommendation) {
-        try {
-            const response = await apiClient.delete(`/recommendations/${recommendation.id}`);
-            return { success: true, message: response.data };
-        } catch (error) {
-            console.error('Error al eliminar recomendación:', error);
-
-            // Simular éxito si el endpoint falla
-            if (error.response?.status === 404) {
-                return { success: true, message: 'Recomendación eliminada (mock)' };
-            }
-
-            throw error;
-        }
-    }
-
-    /**
      * Transforma las recomendaciones del backend a formato de libros para el frontend
      * @param {Array} recommendations - Recomendaciones del backend
      * @returns {Array} Array de libros transformados
      */
     transformRecommendationsToBooks(recommendations) {
+        if (!Array.isArray(recommendations)) {
+            return [];
+        }
+
         return recommendations.map(rec => ({
             id: rec.recommendedBook?.id,
             title: rec.recommendedBook?.title,

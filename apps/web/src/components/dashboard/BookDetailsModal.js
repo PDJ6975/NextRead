@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X, Star, BookOpen, Calendar, User, Building, Heart, Plus, Hash, Building2, ThumbsDown } from 'lucide-react';
+import { X, Star, BookOpen, Calendar, User, Building, Plus, Hash, Building2 } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Card, CardContent } from '../ui/Card';
 import { StarRating } from '../ui/StarRating';
@@ -11,12 +11,8 @@ export default function BookDetailsModal({
     isOpen,
     onClose,
     onAddToLibrary,
-    onLike,
-    onDislike,
     isRecommendation = false // Nueva prop para identificar si es una recomendación
 }) {
-    const [isLiked, setIsLiked] = useState(false);
-    const [isDisliked, setIsDisliked] = useState(false);
     const [actionLoading, setActionLoading] = useState(null);
     const [selectedRating, setSelectedRating] = useState(0);
 
@@ -67,34 +63,6 @@ export default function BookDetailsModal({
             ).join(', ');
         }
         return 'Autor desconocido';
-    };
-
-    const handleLike = async () => {
-        if (isDisliked) return;
-
-        setActionLoading('like');
-        try {
-            await onLike?.(book);
-            setIsLiked(!isLiked);
-        } catch (error) {
-            console.error('Error al dar like:', error);
-        } finally {
-            setActionLoading(null);
-        }
-    };
-
-    const handleDislike = async () => {
-        if (isLiked) return;
-
-        setActionLoading('dislike');
-        try {
-            await onDislike?.(book);
-            setIsDisliked(!isDisliked);
-        } catch (error) {
-            console.error('Error al dar dislike:', error);
-        } finally {
-            setActionLoading(null);
-        }
     };
 
     const handleAddToLibrary = async (rating) => {
@@ -305,38 +273,10 @@ export default function BookDetailsModal({
                                 {isRecommendation && (
                                     <div className="border-t pt-6">
                                         <div className="flex items-center justify-between space-x-4">
-                                            {/* Botones de feedback */}
-                                            <div className="flex space-x-2">
-                                                <Button
-                                                    onClick={handleLike}
-                                                    disabled={actionLoading === 'like'}
-                                                    variant="outline"
-                                                    size="sm"
-                                                    className={`flex items-center space-x-2 ${isLiked ? 'bg-red-50 border-red-200 text-red-700' : ''
-                                                        }`}
-                                                >
-                                                    {actionLoading === 'like' ? (
-                                                        <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
-                                                    ) : (
-                                                        <Heart className={`w-4 h-4 ${isLiked ? 'fill-current' : ''}`} />
-                                                    )}
-                                                    <span>{actionLoading === 'like' ? 'Guardando...' : 'Me gusta'}</span>
-                                                </Button>
-
-                                                <Button
-                                                    onClick={handleDislike}
-                                                    disabled={actionLoading === 'dislike'}
-                                                    variant="outline"
-                                                    size="sm"
-                                                    className="flex items-center space-x-2"
-                                                >
-                                                    {actionLoading === 'dislike' ? (
-                                                        <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
-                                                    ) : (
-                                                        <ThumbsDown className="w-4 h-4" />
-                                                    )}
-                                                    <span>{actionLoading === 'dislike' ? 'Eliminando...' : 'No me interesa'}</span>
-                                                </Button>
+                                            {/* Información de que ya está guardado */}
+                                            <div className="flex items-center space-x-2 text-sm text-gray-600">
+                                                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                                                <span>Recomendación guardada automáticamente</span>
                                             </div>
 
                                             {/* Botón principal de añadir */}
@@ -373,40 +313,6 @@ export default function BookDetailsModal({
                                             </div>
 
                                             <div className="flex items-center justify-between space-x-4">
-                                                {/* Botones de feedback */}
-                                                <div className="flex space-x-2">
-                                                    <Button
-                                                        onClick={handleLike}
-                                                        disabled={actionLoading === 'like'}
-                                                        variant="outline"
-                                                        size="sm"
-                                                        className={`flex items-center space-x-2 ${isLiked ? 'bg-red-50 border-red-200 text-red-700' : ''
-                                                            }`}
-                                                    >
-                                                        {actionLoading === 'like' ? (
-                                                            <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
-                                                        ) : (
-                                                            <Heart className={`w-4 h-4 ${isLiked ? 'fill-current' : ''}`} />
-                                                        )}
-                                                        <span>{actionLoading === 'like' ? 'Guardando...' : 'Me gusta'}</span>
-                                                    </Button>
-
-                                                    <Button
-                                                        onClick={handleDislike}
-                                                        disabled={actionLoading === 'dislike'}
-                                                        variant="outline"
-                                                        size="sm"
-                                                        className="flex items-center space-x-2"
-                                                    >
-                                                        {actionLoading === 'dislike' ? (
-                                                            <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
-                                                        ) : (
-                                                            <ThumbsDown className="w-4 h-4" />
-                                                        )}
-                                                        <span>{actionLoading === 'dislike' ? 'Eliminando...' : 'No me interesa'}</span>
-                                                    </Button>
-                                                </div>
-
                                                 {/* Botón principal de añadir */}
                                                 <Button
                                                     onClick={() => handleAddToLibrary(selectedRating)}

@@ -83,46 +83,6 @@ export default function RecommendationsSection({
     };
 
     /**
-     * Maneja el "like" de una recomendación (guardarla)
-     */
-    const handleLike = async (book) => {
-        try {
-            // Solo guardar si el libro tiene ID (no es generado)
-            if (book.id && !book.isGenerated) {
-                await recommendationService.saveRecommendation(book, book.reason);
-                console.log('Recomendación guardada:', book.title);
-            } else {
-                console.log('Like registrado para libro generado:', book.title);
-            }
-        } catch (err) {
-            console.error('Error al registrar like:', err);
-            throw err; // Re-throw para que el componente hijo maneje el error
-        }
-    };
-
-    /**
-     * Maneja el "dislike" de una recomendación (eliminarla)
-     */
-    const handleDislike = async (book) => {
-        try {
-            // Solo eliminar si es una recomendación guardada
-            if (book.recommendationId) {
-                await recommendationService.deleteRecommendation({ id: book.recommendationId });
-            }
-
-            // Remover la recomendación de la lista local
-            setRecommendations(prev => prev.filter(rec =>
-                rec.id !== book.id && rec.title !== book.title
-            ));
-
-            console.log('Recomendación eliminada:', book.title);
-        } catch (err) {
-            console.error('Error al registrar dislike:', err);
-            throw err;
-        }
-    };
-
-    /**
      * Maneja agregar libro a la biblioteca
      */
     const handleAddToLibrary = async (book, rating = 0) => {
@@ -154,16 +114,6 @@ export default function RecommendationsSection({
             console.log('📤 [RecommendationsSection] Enviando userBookData:', userBookData);
 
             await userBookService.addBook(bookData, userBookData);
-
-            // Guardar como recomendación si no está guardada y tiene ID real
-            if (book.bookId && typeof book.bookId === 'number' && !book.recommendationId) {
-                try {
-                    await recommendationService.saveRecommendation(book, 'Añadido desde recomendaciones');
-                } catch (err) {
-                    // No es crítico si falla guardar la recomendación
-                    console.warn('No se pudo guardar como recomendación:', err.message);
-                }
-            }
 
             // Remover de recomendaciones ya que fue añadido
             setRecommendations(prev => prev.filter(rec =>
@@ -266,13 +216,17 @@ export default function RecommendationsSection({
                     {!loading && !error && (
                         <div className="mt-4 text-sm text-gray-600">
                             {recommendations.length > 0 ? (
-                                <p>
-                                    {recommendations.length} recomendación{recommendations.length !== 1 ? 'es' : ''} disponible{recommendations.length !== 1 ? 's' : ''}
-                                    {recommendations.some(r => r.isGenerated) && ' (generadas con IA)'}
-                                </p>
+                                <div className="flex items-center space-x-2">
+                                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                                    <p>
+                                        {recommendations.length} recomendación{recommendations.length !== 1 ? 'es' : ''} guardada{recommendations.length !== 1 ? 's' : ''} automáticamente
+                                        {recommendations.some(r => r.isGenerated) && ' (generadas con IA)'}
+                                    </p>
+                                </div>
                             ) : (
                                 <p>
-                                    Genera recomendaciones personalizadas basadas en tu perfil de lectura
+                                    Genera recomendaciones personalizadas basadas en tu perfil de lectura.
+                                    Las recomendaciones se guardan automáticamente en tu biblioteca.
                                 </p>
                             )}
                         </div>
@@ -310,8 +264,6 @@ export default function RecommendationsSection({
                                 <RecommendationCarousel
                                     recommendations={recommendations}
                                     loading={loading}
-                                    onLike={handleLike}
-                                    onDislike={handleDislike}
                                     onAddToLibrary={handleAddToLibrary}
                                     onViewDetails={handleViewDetails}
                                 />
@@ -334,8 +286,6 @@ export default function RecommendationsSection({
                 isOpen={showDetailsModal}
                 onClose={handleCloseModal}
                 onAddToLibrary={handleAddToLibrary}
-                onLike={handleLike}
-                onDislike={handleDislike}
                 isRecommendation={true}
             />
 

@@ -1,8 +1,10 @@
 package com.nextread.services;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,6 +14,9 @@ import com.nextread.entities.Recommendation;
 import com.nextread.entities.User;
 import com.nextread.repositories.BookRepository;
 import com.nextread.repositories.RecommendationRepository;
+import com.nextread.entities.RecommendationStatus;
+import com.nextread.entities.Author;
+import com.nextread.repositories.AuthorRepository;
 
 @Service
 public class RecommendationService {
@@ -19,35 +24,66 @@ public class RecommendationService {
     private final RecommendationRepository recommendationRepository;
     private final BookRepository bookRepository;
     private final ChatGPTService chatGPTService;
+    private final AuthorRepository authorRepository;
 
     @Autowired
     public RecommendationService(RecommendationRepository recommendationRepository,
             BookRepository bookRepository,
-            ChatGPTService chatGPTService) {
+            @Lazy ChatGPTService chatGPTService,
+            AuthorRepository authorRepository) {
         this.recommendationRepository = recommendationRepository;
         this.bookRepository = bookRepository;
         this.chatGPTService = chatGPTService;
+        this.authorRepository = authorRepository;
     }
 
     /**
      * Genera recomendaciones usando ChatGPT basadas en la encuesta del usuario.
+     * Las recomendaciones se guardan automáticamente en la base de datos.
      * 
      * @param user El usuario autenticado
-     * @return Lista de recomendaciones generadas (no guardadas)
+     * @return Lista de recomendaciones generadas y guardadas
      */
-    @Transactional(readOnly = true)
+    @Transactional
     public List<GeneratedRecommendationDTO> generateRecommendations(User user) {
-        System.out.println(
-                "🔧 [RecommendationService] Iniciando generateRecommendations para usuario: " + user.getEmail());
-
         try {
             List<GeneratedRecommendationDTO> result = chatGPTService.generateRecommendations(user);
-            System.out.println("🔧 [RecommendationService] ChatGPTService devolvió: "
-                    + (result != null ? result.size() : 0) + " recomendaciones");
+
+            // Guardar automáticamente las recomendaciones generadas
+            if (result != null && !result.isEmpty()) {
+                for (GeneratedRecommendationDTO recommendation : result) {
+                    try {
+                        // Buscar o crear el libro en la base de datos
+                        Book book = findOrCreateBook(recommendation);
+
+                        if (book != null) {
+                            // Verificar que no exista ya una recomendación para este libro y usuario
+                            List<Recommendation> existingRecommendations = recommendationRepository
+                                    .findByRecommendedUser(user);
+                            boolean recommendationExists = existingRecommendations.stream()
+                                    .anyMatch(r -> r.getRecommendedBook().getId().equals(book.getId()));
+
+                            if (recommendationExists) {
+                                continue;
+                            }
+
+                            // Crear y guardar la recomendación con estado REJECTED por defecto
+                            Recommendation savedRecommendation = new Recommendation();
+                            savedRecommendation.setRecommendedUser(user);
+                            savedRecommendation.setRecommendedBook(book);
+                            savedRecommendation.setReason(recommendation.getReason());
+                            savedRecommendation.setStatus(RecommendationStatus.REJECTED);
+
+                            recommendationRepository.save(savedRecommendation);
+                        }
+                    } catch (Exception e) {
+                        // Continuar con las siguientes recomendaciones si hay error
+                    }
+                }
+            }
+
             return result;
         } catch (Exception e) {
-            System.err.println(
-                    "💥 [RecommendationService] Error: " + e.getClass().getSimpleName() + " - " + e.getMessage());
             throw e;
         }
     }
@@ -60,7 +96,10 @@ public class RecommendationService {
      */
     @Transactional(readOnly = true)
     public List<Recommendation> getRecommendationsForUser(User user) {
-        return recommendationRepository.findByRecommendedUser(user);
+        // Solo devolver recomendaciones con estado REJECTED (no aceptadas aún)
+        List<Recommendation> recommendations = recommendationRepository.findByRecommendedUserAndStatus(user,
+                RecommendationStatus.REJECTED);
+        return recommendations;
     }
 
     /**
@@ -139,5 +178,112 @@ public class RecommendationService {
     public Recommendation findRecommendationById(Long id) {
         return recommendationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Recomendación no encontrada"));
+    }
+
+    /**
+     * Actualiza el estado de una recomendación a ACCEPTED cuando el usuario añade
+     * el libro
+     * 
+     * @param user   El usuario
+     * @param bookId El ID del libro
+     */
+    @Transactional
+    public void acceptRecommendation(User user, Long bookId) {
+        List<Recommendation> userRecommendations = recommendationRepository.findByRecommendedUser(user);
+
+        for (Recommendation recommendation : userRecommendations) {
+            if (recommendation.getRecommendedBook().getId().equals(bookId)) {
+                recommendation.setStatus(RecommendationStatus.ACCEPTED);
+                recommendationRepository.save(recommendation);
+                return;
+            }
+        }
+    }
+
+    /**
+     * Busca un libro por título o lo crea si no existe
+     * 
+     * @param recommendation DTO con los datos del libro recomendado
+     * @return El libro encontrado o creado
+     */
+    private Book findOrCreateBook(GeneratedRecommendationDTO recommendation) {
+        // Primero intentar buscar por título exacto
+        List<Book> existingBooks = bookRepository.findByTitleIgnoreCase(recommendation.getTitle().trim());
+        if (!existingBooks.isEmpty()) {
+            return existingBooks.get(0);
+        }
+
+        // Si no existe, crear el libro con los datos disponibles
+        Book newBook = new Book();
+        newBook.setTitle(recommendation.getTitle());
+        newBook.setSynopsis(recommendation.getReason());
+
+        // Establecer valores por defecto para campos obligatorios
+        if (recommendation.getAuthors() != null && !recommendation.getAuthors().isEmpty()) {
+            // Crear autores a partir de los nombres, evitando duplicados
+            List<Author> authors = recommendation.getAuthors().stream()
+                    .map(authorName -> {
+                        // Buscar si el autor ya existe
+                        Optional<Author> existingAuthor = authorRepository.findByName(authorName);
+                        if (existingAuthor.isPresent()) {
+                            return existingAuthor.get();
+                        } else {
+                            // Crear nuevo autor
+                            Author newAuthor = new Author();
+                            newAuthor.setName(authorName);
+                            return authorRepository.save(newAuthor);
+                        }
+                    })
+                    .toList();
+            newBook.setAuthors(authors);
+        } else {
+            // Crear autor por defecto
+            Optional<Author> defaultAuthorOpt = authorRepository.findByName("Autor desconocido");
+            Author defaultAuthor;
+            if (defaultAuthorOpt.isPresent()) {
+                defaultAuthor = defaultAuthorOpt.get();
+            } else {
+                defaultAuthor = new Author();
+                defaultAuthor.setName("Autor desconocido");
+                defaultAuthor = authorRepository.save(defaultAuthor);
+            }
+            newBook.setAuthors(List.of(defaultAuthor));
+        }
+
+        if (recommendation.getPublisher() != null) {
+            newBook.setPublisher(recommendation.getPublisher());
+        } else {
+            newBook.setPublisher("Editorial desconocida");
+        }
+
+        if (recommendation.getPublishedYear() != null) {
+            newBook.setPublishedYear(recommendation.getPublishedYear());
+        } else {
+            newBook.setPublishedYear("Año desconocido");
+        }
+
+        if (recommendation.getPages() != null) {
+            newBook.setPages(recommendation.getPages());
+        } else {
+            newBook.setPages(0);
+        }
+
+        if (recommendation.getIsbn13() != null) {
+            newBook.setIsbn13(recommendation.getIsbn13());
+        } else {
+            newBook.setIsbn13("0000000000000"); // ISBN por defecto
+        }
+
+        if (recommendation.getIsbn10() != null) {
+            newBook.setIsbn10(recommendation.getIsbn10());
+        } else {
+            newBook.setIsbn10("0000000000"); // ISBN por defecto
+        }
+
+        if (recommendation.getCoverUrl() != null) {
+            newBook.setCoverUrl(recommendation.getCoverUrl());
+        }
+
+        return bookRepository.save(newBook);
     }
 }

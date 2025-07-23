@@ -1,20 +1,16 @@
 'use client';
 
 import { useState } from 'react';
-import { Heart, X, Plus, Eye, Star, BookOpen, Calendar, User } from 'lucide-react';
+import { Plus, Eye, Star, BookOpen, Calendar, User } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Card, CardContent } from '../ui/Card';
 
 export default function RecommendationCard({
     book,
-    onLike,
-    onDislike,
     onAddToLibrary,
     onViewDetails,
     loading = false
 }) {
-    const [isLiked, setIsLiked] = useState(false);
-    const [isDisliked, setIsDisliked] = useState(false);
     const [actionLoading, setActionLoading] = useState(null);
 
     // Skeleton loading para cuando se están cargando las recomendaciones
@@ -35,41 +31,12 @@ export default function RecommendationCard({
                         <div className="flex space-x-2 mb-3">
                             <div className="h-8 bg-gray-200 rounded flex-1"></div>
                             <div className="h-8 bg-gray-200 rounded w-8"></div>
-                            <div className="h-8 bg-gray-200 rounded w-8"></div>
                         </div>
                     </div>
                 </CardContent>
             </Card>
         );
     }
-
-    const handleLike = async () => {
-        if (isDisliked) return; // No permitir like si ya está disliked
-
-        setActionLoading('like');
-        try {
-            await onLike?.(book);
-            setIsLiked(!isLiked);
-        } catch (error) {
-            console.error('Error al dar like:', error);
-        } finally {
-            setActionLoading(null);
-        }
-    };
-
-    const handleDislike = async () => {
-        if (isLiked) return; // No permitir dislike si ya está liked
-
-        setActionLoading('dislike');
-        try {
-            await onDislike?.(book);
-            setIsDisliked(!isDisliked);
-        } catch (error) {
-            console.error('Error al dar dislike:', error);
-        } finally {
-            setActionLoading(null);
-        }
-    };
 
     const handleAddToLibrary = async () => {
         setActionLoading('add');
@@ -217,36 +184,15 @@ export default function RecommendationCard({
                             Añadir
                         </Button>
 
-                        {/* Botón Me gusta */}
+                        {/* Botón Ver detalles */}
                         <Button
-                            variant={isLiked ? "default" : "outline"}
+                            variant="outline"
                             size="sm"
-                            onClick={handleLike}
-                            disabled={isDisliked || actionLoading === 'like'}
-                            className={`p-2 ${isLiked ? 'bg-green-600 hover:bg-green-700 text-white' : 'hover:bg-green-50 hover:text-green-600'}`}
-                            title="Me gusta esta recomendación"
+                            onClick={handleViewDetails}
+                            className="p-2 hover:bg-gray-50"
+                            title="Ver detalles del libro"
                         >
-                            {actionLoading === 'like' ? (
-                                <div className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin" />
-                            ) : (
-                                <Heart className={`w-3 h-3 ${isLiked ? 'fill-current' : ''}`} />
-                            )}
-                        </Button>
-
-                        {/* Botón No me gusta */}
-                        <Button
-                            variant={isDisliked ? "default" : "outline"}
-                            size="sm"
-                            onClick={handleDislike}
-                            disabled={isLiked || actionLoading === 'dislike'}
-                            className={`p-2 ${isDisliked ? 'bg-red-600 hover:bg-red-700 text-white' : 'hover:bg-red-50 hover:text-red-600'}`}
-                            title="No me gusta esta recomendación"
-                        >
-                            {actionLoading === 'dislike' ? (
-                                <div className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin" />
-                            ) : (
-                                <X className="w-3 h-3" />
-                            )}
+                            <Eye className="w-3 h-3" />
                         </Button>
                     </div>
                 </div>

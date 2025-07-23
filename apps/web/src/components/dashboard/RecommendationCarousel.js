@@ -8,8 +8,6 @@ import RecommendationCard from './RecommendationCard';
 export default function RecommendationCarousel({
     recommendations = [],
     loading = false,
-    onLike,
-    onDislike,
     onAddToLibrary,
     onViewDetails
 }) {
@@ -151,8 +149,6 @@ export default function RecommendationCarousel({
                             <RecommendationCard
                                 book={item}
                                 loading={item.loading}
-                                onLike={(book) => handleCardClick(null, () => onLike?.(book))}
-                                onDislike={(book) => handleCardClick(null, () => onDislike?.(book))}
                                 onAddToLibrary={(book) => handleCardClick(null, () => onAddToLibrary?.(book))}
                                 onViewDetails={(book) => handleCardClick(null, () => onViewDetails?.(book))}
                             />
