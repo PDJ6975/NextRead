@@ -60,10 +60,12 @@ public class ChatGPTService {
      * Genera recomendaciones de libros basadas en la encuesta del usuario
      * utilizando la API de ChatGPT.
      * 
-     * @param user El usuario para quien generar recomendaciones
+     * @param user          El usuario para quien generar recomendaciones
+     * @param rejectedBooks Lista de libros rechazados recientemente que deben
+     *                      evitarse
      * @return Lista de exactamente 3 recomendaciones completamente enriquecidas
      */
-    public List<GeneratedRecommendationDTO> generateRecommendations(User user) {
+    public List<GeneratedRecommendationDTO> generateRecommendations(User user, List<Book> rejectedBooks) {
         if (apiKey == null || apiKey.isEmpty()) {
             throw new RuntimeException("API key de OpenAI no configurada");
         }
@@ -88,8 +90,8 @@ public class ChatGPTService {
             while (finalRecommendations.size() < 3 && currentAttempt < maxAttempts) {
                 currentAttempt++;
 
-                // Construir prompt personalizado
-                String prompt = buildPrompt(survey, userBooks);
+                // Construir prompt personalizado incluyendo libros rechazados
+                String prompt = buildPrompt(survey, userBooks, rejectedBooks);
 
                 // Llamar a la API de ChatGPT
                 String response = callChatGPTAPI(prompt);
@@ -141,11 +143,13 @@ public class ChatGPTService {
     /**
      * Construye el prompt personalizado basado en la encuesta y libros del usuario.
      * 
-     * @param survey    La encuesta del usuario
-     * @param userBooks Los libros del usuario
+     * @param survey        La encuesta del usuario
+     * @param userBooks     Los libros del usuario
+     * @param rejectedBooks Lista de libros rechazados recientemente que deben
+     *                      evitarse
      * @return Prompt personalizado para ChatGPT
      */
-    private String buildPrompt(Survey survey, List<UserBook> userBooks) {
+    private String buildPrompt(Survey survey, List<UserBook> userBooks, List<Book> rejectedBooks) {
         StringBuilder prompt = new StringBuilder();
 
         prompt.append("Eres un experto en recomendaciones de libros. ");
@@ -185,6 +189,15 @@ public class ChatGPTService {
             prompt.append("abandonó porque NO le gustaron. Evita recomendar libros similares a estos. ");
             prompt.append(
                     "Los libros 'LEÍDO COMPLETAMENTE' con buenas valoraciones (4-5/5) indican sus gustos preferidos.\n");
+        }
+
+        // Información de libros rechazados
+        if (!rejectedBooks.isEmpty()) {
+            prompt.append("\nLibros rechazados recientemente:\n");
+            rejectedBooks.forEach(book -> {
+                prompt.append("- ").append(book.getTitle()).append("\n");
+            });
+            prompt.append("Evita recomendar libros similares a estos.\n");
         }
 
         prompt.append("\nINSTRUCCIONES ESPECÍFICAS:\n");

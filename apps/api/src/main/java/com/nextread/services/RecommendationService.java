@@ -1,6 +1,10 @@
 package com.nextread.services;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.ArrayList;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -31,8 +35,47 @@ public class RecommendationService {
     }
 
     /**
+     * Obtiene los libros que han sido rechazados recientemente por el usuario.
+     * Estos libros se incluirán en el prompt para que la IA los evite.
+     * 
+     * @param user          El usuario
+     * @param daysThreshold Número de días hacia atrás para considerar como
+     *                      "reciente"
+     * @return Lista de libros rechazados recientemente
+     */
+    @Transactional(readOnly = true)
+    public List<Book> getRecentlyRejectedBooks(User user, int daysThreshold) {
+        try {
+            System.out.println(
+                    "DEBUG: Buscando libros rechazados para usuario: " + user.getEmail() + ", días: " + daysThreshold);
+
+            Instant thresholdDate = Instant.now().minusSeconds(daysThreshold * 24 * 60 * 60);
+            System.out.println("DEBUG: Fecha umbral: " + thresholdDate);
+
+            List<Recommendation> rejectedRecommendations = recommendationRepository
+                    .findByRecommendedUserAndStatusAndCreatedAtAfter(user, RecommendationStatus.REJECTED,
+                            thresholdDate);
+
+            System.out.println("DEBUG: Recomendaciones rechazadas encontradas: " + rejectedRecommendations.size());
+
+            List<Book> result = rejectedRecommendations.stream()
+                    .map(Recommendation::getRecommendedBook)
+                    .distinct()
+                    .collect(Collectors.toList());
+
+            System.out.println("DEBUG: Libros únicos rechazados: " + result.size());
+            return result;
+        } catch (Exception e) {
+            System.out.println("DEBUG: Error en getRecentlyRejectedBooks: " + e.getMessage());
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
+    /**
      * Genera recomendaciones usando ChatGPT basadas en la encuesta del usuario.
      * Las recomendaciones se guardan automáticamente en la base de datos.
+     * Incluye libros rechazados recientemente para que la IA los evite.
      * 
      * @param user El usuario autenticado
      * @return Lista de recomendaciones generadas y guardadas
@@ -40,7 +83,14 @@ public class RecommendationService {
     @Transactional
     public List<GeneratedRecommendationDTO> generateRecommendations(User user) {
         try {
-            List<GeneratedRecommendationDTO> result = chatGPTService.generateRecommendations(user);
+            System.out.println("DEBUG: Iniciando generateRecommendations para usuario: " + user.getEmail());
+
+            // Obtener libros rechazados recientemente (últimos 30 días)
+            List<Book> rejectedBooks = getRecentlyRejectedBooks(user, 30);
+            System.out.println("DEBUG: Libros rechazados encontrados: " + rejectedBooks.size());
+
+            List<GeneratedRecommendationDTO> result = chatGPTService.generateRecommendations(user, rejectedBooks);
+            System.out.println("DEBUG: Recomendaciones generadas: " + (result != null ? result.size() : 0));
 
             // Guardar automáticamente las recomendaciones generadas
             if (result != null && !result.isEmpty()) {
@@ -70,6 +120,8 @@ public class RecommendationService {
 
             return result;
         } catch (Exception e) {
+            System.out.println("DEBUG: Error en generateRecommendations: " + e.getMessage());
+            e.printStackTrace();
             throw e;
         }
     }
