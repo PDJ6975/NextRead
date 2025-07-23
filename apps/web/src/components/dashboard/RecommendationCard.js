@@ -55,38 +55,67 @@ export default function RecommendationCard({
 
     // Función para obtener la URL de la imagen con fallback
     const getImageUrl = () => {
-        if (book?.coverUrl) {
+        if (book?.coverUrl && book.coverUrl.trim() !== '') {
             return book.coverUrl;
         }
-        // Fallback a una imagen placeholder
-        return `https://via.placeholder.com/200x300/e5e7eb/6b7280?text=${encodeURIComponent(book?.title?.substring(0, 20) || 'Libro')}`;
+        // Si no hay coverUrl, no intentar cargar ninguna imagen
+        return null;
     };
 
-    // Generar URL de placeholder más confiable
-    const getPlaceholderUrl = (title) => {
-        const cleanTitle = encodeURIComponent(title.substring(0, 20));
-        // Usar un servicio más confiable para placeholders
-        return `https://placehold.co/200x300/e5e7eb/6b7280?text=${cleanTitle}`;
+    // Generar URL de placeholder más confiable usando data URI
+    const getPlaceholderDataUri = (title) => {
+        const cleanTitle = (title || 'Libro').substring(0, 20);
+        // Usar un data URI SVG como placeholder para evitar requests externos
+        const svg = `
+            <svg width="200" height="300" xmlns="http://www.w3.org/2000/svg">
+                <rect width="200" height="300" fill="#e5e7eb"/>
+                <text x="100" y="150" font-family="Arial, sans-serif" font-size="12" 
+                      text-anchor="middle" fill="#6b7280" dominant-baseline="middle">
+                    ${cleanTitle}
+                </text>
+            </svg>
+        `;
+        return `data:image/svg+xml;base64,${btoa(svg)}`;
     };
 
-    const coverUrl = book.coverUrl || getPlaceholderUrl(book.title);
+    const coverUrl = getImageUrl();
+    const hasCover = coverUrl !== null;
 
     // Función para obtener el autor principal
     const getMainAuthor = () => {
         if (book?.authors && book.authors.length > 0) {
-            return typeof book.authors[0] === 'string'
-                ? book.authors[0]
-                : book.authors[0]?.name || 'Autor desconocido';
+            const firstAuthor = book.authors[0];
+            if (typeof firstAuthor === 'string') {
+                return firstAuthor;
+            } else if (firstAuthor && typeof firstAuthor === 'object' && firstAuthor.name) {
+                return firstAuthor.name;
+            }
         }
         return 'Autor desconocido';
     };
 
     // Función para formatear el año de publicación
     const getPublishedYear = () => {
-        if (book?.publishedYear) {
+        if (book?.publishedYear && book.publishedYear.trim() !== '') {
             return book.publishedYear;
         }
         return '';
+    };
+
+    // Función para obtener la editorial
+    const getPublisher = () => {
+        if (book?.publisher && book.publisher.trim() !== '') {
+            return book.publisher;
+        }
+        return '';
+    };
+
+    // Función para obtener las páginas
+    const getPages = () => {
+        if (book?.pages && book.pages > 0) {
+            return book.pages;
+        }
+        return null;
     };
 
     return (
@@ -94,14 +123,20 @@ export default function RecommendationCard({
             <CardContent className="p-0">
                 {/* Imagen del libro con overlay de acciones */}
                 <div className="relative aspect-[2/3] overflow-hidden rounded-t-lg bg-gray-100">
-                    <img
-                        src={coverUrl}
-                        alt={book?.title || 'Portada del libro'}
-                        className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
-                        onError={(e) => {
-                            e.target.src = `https://via.placeholder.com/200x300/e5e7eb/6b7280?text=${encodeURIComponent(book?.title?.substring(0, 20) || 'Libro')}`;
-                        }}
-                    />
+                    {hasCover ? (
+                        <img
+                            src={coverUrl}
+                            alt={book?.title || 'Portada del libro'}
+                            className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+                            onError={(e) => {
+                                e.target.src = getPlaceholderDataUri(book?.title || 'Libro');
+                            }}
+                        />
+                    ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-gray-200">
+                            <p className="text-gray-600 text-sm">No hay portada disponible</p>
+                        </div>
+                    )}
 
                     {/* Overlay con botón de ver detalles */}
                     <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 flex items-center justify-center">
@@ -144,10 +179,10 @@ export default function RecommendationCard({
                                     <span>{getPublishedYear()}</span>
                                 </div>
                             )}
-                            {book?.pages && (
+                            {getPages() && (
                                 <div className="flex items-center">
                                     <BookOpen className="w-3 h-3 mr-1" />
-                                    <span>{book.pages}p</span>
+                                    <span>{getPages()}p</span>
                                 </div>
                             )}
                         </div>

@@ -296,17 +296,19 @@ public class BookService {
     }
 
     /**
-     * Verifica si un libro tiene todos los datos obligatorios para la entidad Book.
+     * Verifica si un libro tiene los datos mínimos requeridos para ser considerado
+     * completo.
+     * Solo verifica campos obligatorios según la entidad Book.
      * 
      * @param book El libro a verificar
-     * @return true si el libro tiene todos los datos obligatorios, false en caso
-     *         contrario
+     * @return true si el libro tiene los datos mínimos requeridos
      */
     private boolean hasCompleteBookData(Book book) {
         if (book == null)
             return false;
 
-        // Verificar campos obligatorios según la entidad Book
+        // Verificar campos obligatorios según la entidad Book (@Column(nullable =
+        // false))
         boolean hasRequiredFields = book.getTitle() != null && !book.getTitle().trim().isEmpty() &&
                 book.getIsbn13() != null && !book.getIsbn13().trim().isEmpty() &&
                 book.getIsbn10() != null && !book.getIsbn10().trim().isEmpty() &&
@@ -314,7 +316,7 @@ public class BookService {
                 book.getPages() > 0 &&
                 book.getPublishedYear() != null && !book.getPublishedYear().trim().isEmpty();
 
-        // Verificar que tenga al menos un autor
+        // Verificar que tenga al menos un autor (relación obligatoria)
         boolean hasAuthors = book.getAuthors() != null && !book.getAuthors().isEmpty();
 
         return hasRequiredFields && hasAuthors;

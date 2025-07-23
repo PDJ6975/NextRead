@@ -78,21 +78,31 @@ class RecommendationService {
             return [];
         }
 
-        return recommendations.map(rec => ({
-            id: rec.recommendedBook?.id,
-            title: rec.recommendedBook?.title,
-            authors: rec.recommendedBook?.authors || [],
-            isbn10: rec.recommendedBook?.isbn10,
-            isbn13: rec.recommendedBook?.isbn13,
-            publisher: rec.recommendedBook?.publisher,
-            publishedYear: rec.recommendedBook?.publishedYear,
-            pages: rec.recommendedBook?.pages,
-            coverUrl: rec.recommendedBook?.coverUrl,
-            synopsis: rec.recommendedBook?.synopsis,
-            reason: rec.reason,
-            recommendationId: rec.id, // Para poder eliminarla después
-            createdAt: rec.createdAt
-        }));
+        return recommendations.map(rec => {
+            // Transformar autores del formato del backend al formato esperado por el frontend
+            let authors = [];
+            if (rec.recommendedBook?.authors && Array.isArray(rec.recommendedBook.authors)) {
+                authors = rec.recommendedBook.authors.map(author => ({
+                    name: author.name || 'Autor desconocido'
+                }));
+            }
+
+            return {
+                id: rec.recommendedBook?.id,
+                title: rec.recommendedBook?.title,
+                authors: authors,
+                isbn10: rec.recommendedBook?.isbn10,
+                isbn13: rec.recommendedBook?.isbn13,
+                publisher: rec.recommendedBook?.publisher,
+                publishedYear: rec.recommendedBook?.publishedYear,
+                pages: rec.recommendedBook?.pages,
+                coverUrl: rec.recommendedBook?.coverUrl,
+                synopsis: rec.recommendedBook?.synopsis,
+                reason: rec.reason,
+                recommendationId: rec.id, // Para poder eliminarla después
+                createdAt: rec.createdAt
+            };
+        });
     }
 
     /**
@@ -112,17 +122,32 @@ class RecommendationService {
             .map((rec, index) => {
                 console.log(`🔄 [Frontend] Transformando recomendación ${index + 1}:`, rec);
 
+                // Transformar autores del formato del backend al formato esperado por el frontend
+                let authors = [];
+                if (rec.authors && Array.isArray(rec.authors)) {
+                    // Los autores pueden venir como array de strings o array de objetos
+                    authors = rec.authors.map(author => {
+                        if (typeof author === 'string') {
+                            return { name: author };
+                        } else if (author && typeof author === 'object' && author.name) {
+                            return { name: author.name };
+                        } else {
+                            return { name: 'Autor desconocido' };
+                        }
+                    });
+                }
+
                 // Si la recomendación fue enriquecida, usar los datos del backend
-                if (rec.enriched && rec.coverUrl) {
+                if (rec.enriched) {
                     return {
                         id: rec.bookId || `generated-${index}-${Date.now()}`,
                         title: rec.title,
-                        authors: rec.authors || [{ name: 'Autor desconocido' }],
+                        authors: authors.length > 0 ? authors : [{ name: 'Autor desconocido' }],
                         isbn10: rec.isbn10,
                         isbn13: rec.isbn13,
-                        publisher: rec.publisher || 'Editorial desconocida',
-                        publishedYear: rec.publishedYear || 'Año desconocido',
-                        pages: rec.pages || 0,
+                        publisher: rec.publisher,
+                        publishedYear: rec.publishedYear,
+                        pages: rec.pages,
                         coverUrl: rec.coverUrl,
                         synopsis: rec.synopsis || rec.reason,
                         reason: rec.reason,

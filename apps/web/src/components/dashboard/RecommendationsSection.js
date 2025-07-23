@@ -98,10 +98,10 @@ export default function RecommendationsSection({
                 authors: book.authors || [{ name: 'Autor desconocido' }],
                 isbn10: book.isbn10,
                 isbn13: book.isbn13,
-                publisher: book.publisher || "Editorial desconocida",
+                publisher: book.publisher,
                 coverUrl: book.coverUrl,
-                pages: book.pages || 0,
-                publishedYear: book.publishedYear || new Date().getFullYear().toString(),
+                pages: book.pages,
+                publishedYear: book.publishedYear,
                 synopsis: book.synopsis || book.reason
             };
 

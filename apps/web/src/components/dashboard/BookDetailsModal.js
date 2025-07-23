@@ -39,11 +39,31 @@ export default function BookDetailsModal({
 
     // Función para obtener la URL de la imagen con fallback
     const getImageUrl = () => {
-        if (book?.coverUrl) {
+        if (book?.coverUrl && book.coverUrl.trim() !== '') {
             return book.coverUrl;
         }
-        return `https://via.placeholder.com/300x450/e5e7eb/6b7280?text=${encodeURIComponent(book?.title?.substring(0, 30) || 'Libro')}`;
+        // Si no hay coverUrl, no intentar cargar ninguna imagen
+        return null;
     };
+
+    // Generar URL de placeholder más confiable usando data URI
+    const getPlaceholderDataUri = (title) => {
+        const cleanTitle = (title || 'Libro').substring(0, 30);
+        // Usar un data URI SVG como placeholder para evitar requests externos
+        const svg = `
+            <svg width="300" height="450" xmlns="http://www.w3.org/2000/svg">
+                <rect width="300" height="450" fill="#e5e7eb"/>
+                <text x="150" y="225" font-family="Arial, sans-serif" font-size="14" 
+                      text-anchor="middle" fill="#6b7280" dominant-baseline="middle">
+                    ${cleanTitle}
+                </text>
+            </svg>
+        `;
+        return `data:image/svg+xml;base64,${btoa(svg)}`;
+    };
+
+    const coverUrl = getImageUrl();
+    const hasCover = coverUrl !== null;
 
     // Función para obtener el autor principal
     const getMainAuthor = () => {
@@ -110,14 +130,21 @@ export default function BookDetailsModal({
                             {/* Imagen del libro */}
                             <div className="lg:col-span-1">
                                 <div className="sticky top-24">
-                                    <img
-                                        src={getImageUrl()}
-                                        alt={book.title}
-                                        className="w-full max-w-sm mx-auto rounded-lg shadow-lg"
-                                        onError={(e) => {
-                                            e.target.src = `https://via.placeholder.com/300x450/e5e7eb/6b7280?text=${encodeURIComponent(book?.title?.substring(0, 30) || 'Libro')}`;
-                                        }}
-                                    />
+                                    {hasCover ? (
+                                        <img
+                                            src={coverUrl}
+                                            alt={book.title}
+                                            className="w-full max-w-sm mx-auto rounded-lg shadow-lg"
+                                        />
+                                    ) : (
+                                        <div className="w-full max-w-sm mx-auto rounded-lg shadow-lg flex items-center justify-center bg-gray-100">
+                                            <img
+                                                src={getPlaceholderDataUri(book.title)}
+                                                alt={book.title}
+                                                className="w-full max-w-sm mx-auto rounded-lg shadow-lg"
+                                            />
+                                        </div>
+                                    )}
 
                                     {/* Badge de recomendación */}
                                     <div className="mt-4 flex justify-center">
