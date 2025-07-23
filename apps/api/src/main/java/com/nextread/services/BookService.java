@@ -18,6 +18,7 @@ import com.nextread.repositories.AuthorRepository;
 import com.nextread.repositories.BookRepository;
 
 import org.springframework.transaction.annotation.Transactional;
+import com.nextread.dto.GeneratedRecommendationDTO;
 
 @Service
 public class BookService {
@@ -417,5 +418,64 @@ public class BookService {
         if (book.getPages() <= 0) {
             book.setPages(1);
         }
+    }
+
+    /**
+     * Busca un libro por título o lo crea si no existe usando datos de
+     * recomendación
+     * 
+     * @param recommendation DTO con los datos del libro recomendado
+     * @return El libro encontrado o creado
+     */
+    @Transactional
+    public Book findOrCreateBookFromRecommendation(GeneratedRecommendationDTO recommendation) {
+        // Buscar por título exacto
+        List<Book> existingBooks = bookRepository.findByTitleIgnoreCase(recommendation.getTitle().trim());
+        if (!existingBooks.isEmpty()) {
+            return existingBooks.get(0);
+        }
+
+        // Crear el libro directamente usando el builder de Book
+        Book newBook = Book.builder()
+                .title(recommendation.getTitle())
+                .synopsis(recommendation.getReason())
+                .publisher(
+                        recommendation.getPublisher() != null ? recommendation.getPublisher() : "Editorial desconocida")
+                .publishedYear(recommendation.getPublishedYear() != null ? recommendation.getPublishedYear()
+                        : "Año desconocido")
+                .pages(recommendation.getPages() != null ? recommendation.getPages() : 0)
+                .isbn13(recommendation.getIsbn13() != null ? recommendation.getIsbn13() : "0000000000000")
+                .isbn10(recommendation.getIsbn10() != null ? recommendation.getIsbn10() : "0000000000")
+                .coverUrl(recommendation.getCoverUrl())
+                .build();
+
+        // Manejar autores
+        if (recommendation.getAuthors() != null && !recommendation.getAuthors().isEmpty()) {
+            List<Author> bookAuthors = recommendation.getAuthors().stream()
+                    .map(authorName -> {
+                        var existingAuthor = authorRepository.findByName(authorName);
+                        if (existingAuthor.isPresent()) {
+                            return existingAuthor.get();
+                        } else {
+                            Author newAuthor = Author.builder().name(authorName).build();
+                            return authorRepository.save(newAuthor);
+                        }
+                    })
+                    .toList();
+            newBook.setAuthors(bookAuthors);
+        } else {
+            // Crear autor por defecto
+            var defaultAuthorOpt = authorRepository.findByName("Autor desconocido");
+            Author defaultAuthor;
+            if (defaultAuthorOpt.isPresent()) {
+                defaultAuthor = defaultAuthorOpt.get();
+            } else {
+                defaultAuthor = Author.builder().name("Autor desconocido").build();
+                defaultAuthor = authorRepository.save(defaultAuthor);
+            }
+            newBook.setAuthors(List.of(defaultAuthor));
+        }
+
+        return saveBook(newBook);
     }
 }

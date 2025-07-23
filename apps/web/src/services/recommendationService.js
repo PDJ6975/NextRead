@@ -33,65 +33,29 @@ class RecommendationService {
      * @returns {Promise<Array>} Lista de nuevas recomendaciones generadas y guardadas
      */
     async generateNewRecommendations() {
-        console.log('🚀 [Frontend] Iniciando generateNewRecommendations...');
-
         try {
-            console.log('🌐 [Frontend] Realizando POST a /recommendations/generate');
-            console.log('🌐 [Frontend] Headers que se enviarán:', {
-                'Content-Type': 'application/json',
-                'Authorization': localStorage.getItem('token') ? 'Bearer [TOKEN_PRESENT]' : 'NO_TOKEN'
-            });
-
             const response = await apiClient.post('/recommendations/generate');
-
-            console.log('✅ [Frontend] Respuesta recibida del backend:');
-            console.log('📊 [Frontend] Status:', response.status);
-            console.log('📊 [Frontend] Headers:', response.headers);
-            console.log('📊 [Frontend] Data type:', typeof response.data);
-            console.log('📊 [Frontend] Data is array:', Array.isArray(response.data));
-            console.log('📊 [Frontend] Data content:', response.data);
 
             // Verificar que la respuesta sea válida
             if (!response.data) {
-                console.error('❌ [Frontend] Respuesta vacía del servidor');
                 throw new Error('Respuesta vacía del servidor');
             }
 
             // Verificar que sea un array
             if (!Array.isArray(response.data)) {
-                console.error('❌ [Frontend] Respuesta del backend no es un array:', response.data);
                 throw new Error('Formato de respuesta inválido del servidor');
             }
 
-            console.log('🔄 [Frontend] Transformando recomendaciones...');
             // Las recomendaciones generadas solo tienen title y reason
             const transformedData = this.transformGeneratedRecommendations(response.data);
-            console.log('✅ [Frontend] Recomendaciones transformadas:', transformedData);
-
             return transformedData;
         } catch (error) {
-            console.error('💥 [Frontend] Error al generar nuevas recomendaciones:', error);
-
-            // Log del error específico para debugging
-            if (error.response) {
-                console.error('📊 [Frontend] Error response status:', error.response.status);
-                console.error('📊 [Frontend] Error response headers:', error.response.headers);
-                console.error('📊 [Frontend] Error response data:', error.response.data);
-            } else if (error.request) {
-                console.error('📊 [Frontend] Error request:', error.request);
-            } else {
-                console.error('📊 [Frontend] Error message:', error.message);
-            }
-
             // Manejar errores específicos del backend
             if (error.response?.status === 400) {
-                // Error de validación o usuario no completó encuesta
                 throw new Error('Debes completar la encuesta antes de generar recomendaciones');
             } else if (error.response?.status === 500) {
-                // Error interno del servidor (probablemente API key de OpenAI)
                 throw new Error('Error interno del servidor. El servicio de recomendaciones no está disponible temporalmente');
             } else if (error.response?.status === 404) {
-                // Endpoint no encontrado
                 throw new Error('Servicio de recomendaciones no disponible');
             } else if (error.message?.includes('API key de OpenAI no configurada')) {
                 throw new Error('Servicio de recomendaciones no configurado correctamente');

@@ -1,7 +1,6 @@
 package com.nextread.services;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -11,30 +10,24 @@ import org.springframework.transaction.annotation.Transactional;
 import com.nextread.dto.GeneratedRecommendationDTO;
 import com.nextread.entities.Book;
 import com.nextread.entities.Recommendation;
-import com.nextread.entities.User;
-import com.nextread.repositories.BookRepository;
-import com.nextread.repositories.RecommendationRepository;
 import com.nextread.entities.RecommendationStatus;
-import com.nextread.entities.Author;
-import com.nextread.repositories.AuthorRepository;
+import com.nextread.entities.User;
+import com.nextread.repositories.RecommendationRepository;
 
 @Service
 public class RecommendationService {
 
     private final RecommendationRepository recommendationRepository;
-    private final BookRepository bookRepository;
+    private final BookService bookService;
     private final ChatGPTService chatGPTService;
-    private final AuthorRepository authorRepository;
 
     @Autowired
     public RecommendationService(RecommendationRepository recommendationRepository,
-            BookRepository bookRepository,
-            @Lazy ChatGPTService chatGPTService,
-            AuthorRepository authorRepository) {
+            BookService bookService,
+            @Lazy ChatGPTService chatGPTService) {
         this.recommendationRepository = recommendationRepository;
-        this.bookRepository = bookRepository;
+        this.bookService = bookService;
         this.chatGPTService = chatGPTService;
-        this.authorRepository = authorRepository;
     }
 
     /**
@@ -53,28 +46,21 @@ public class RecommendationService {
             if (result != null && !result.isEmpty()) {
                 for (GeneratedRecommendationDTO recommendation : result) {
                     try {
-                        // Buscar o crear el libro en la base de datos
-                        Book book = findOrCreateBook(recommendation);
+                        // Buscar o crear el libro usando BookService
+                        Book book = bookService.findOrCreateBookFromRecommendation(recommendation);
 
                         if (book != null) {
                             // Verificar que no exista ya una recomendación para este libro y usuario
-                            List<Recommendation> existingRecommendations = recommendationRepository
-                                    .findByRecommendedUser(user);
-                            boolean recommendationExists = existingRecommendations.stream()
-                                    .anyMatch(r -> r.getRecommendedBook().getId().equals(book.getId()));
+                            if (!recommendationExists(user, book)) {
+                                // Crear y guardar la recomendación usando el Builder de la entidad
+                                Recommendation savedRecommendation = Recommendation.builder()
+                                        .recommendedUser(user)
+                                        .recommendedBook(book)
+                                        .reason(recommendation.getReason())
+                                        .build();
 
-                            if (recommendationExists) {
-                                continue;
+                                recommendationRepository.save(savedRecommendation);
                             }
-
-                            // Crear y guardar la recomendación con estado REJECTED por defecto
-                            Recommendation savedRecommendation = new Recommendation();
-                            savedRecommendation.setRecommendedUser(user);
-                            savedRecommendation.setRecommendedBook(book);
-                            savedRecommendation.setReason(recommendation.getReason());
-                            savedRecommendation.setStatus(RecommendationStatus.REJECTED);
-
-                            recommendationRepository.save(savedRecommendation);
                         }
                     } catch (Exception e) {
                         // Continuar con las siguientes recomendaciones si hay error
@@ -97,9 +83,7 @@ public class RecommendationService {
     @Transactional(readOnly = true)
     public List<Recommendation> getRecommendationsForUser(User user) {
         // Solo devolver recomendaciones con estado REJECTED (no aceptadas aún)
-        List<Recommendation> recommendations = recommendationRepository.findByRecommendedUserAndStatus(user,
-                RecommendationStatus.REJECTED);
-        return recommendations;
+        return recommendationRepository.findByRecommendedUserAndStatus(user, RecommendationStatus.REJECTED);
     }
 
     /**
@@ -113,24 +97,19 @@ public class RecommendationService {
      */
     @Transactional
     public Recommendation createRecommendation(User user, Long bookId, String reason) {
-        // Verificar que el libro existe
-        Book book = bookRepository.findById(bookId)
-                .orElseThrow(() -> new RuntimeException("Libro no encontrado"));
+        Book book = bookService.findBookById(bookId);
 
         // Verificar que el usuario no tenga ya una recomendación para este libro
-        List<Recommendation> existingRecommendations = recommendationRepository.findByRecommendedUser(user);
-        boolean recommendationExists = existingRecommendations.stream()
-                .anyMatch(r -> r.getRecommendedBook().getId().equals(bookId));
-
-        if (recommendationExists) {
+        if (recommendationExists(user, book)) {
             throw new RuntimeException("Ya existe una recomendación de este libro para el usuario");
         }
 
-        // Crear la nueva recomendación
-        Recommendation recommendation = new Recommendation();
-        recommendation.setRecommendedUser(user);
-        recommendation.setRecommendedBook(book);
-        recommendation.setReason(reason);
+        // Crear la nueva recomendación usando el Builder de la entidad
+        Recommendation recommendation = Recommendation.builder()
+                .recommendedUser(user)
+                .recommendedBook(book)
+                .reason(reason)
+                .build();
 
         return recommendationRepository.save(recommendation);
     }
@@ -172,7 +151,7 @@ public class RecommendationService {
      * 
      * @param id El ID de la recomendación
      * @return La recomendación encontrada
-     * @throws RuntimeException si la recomendación no existe
+     * @throws RuntimeException si no existe
      */
     @Transactional(readOnly = true)
     public Recommendation findRecommendationById(Long id) {
@@ -201,89 +180,15 @@ public class RecommendationService {
     }
 
     /**
-     * Busca un libro por título o lo crea si no existe
+     * Verifica si ya existe una recomendación para un usuario y libro
      * 
-     * @param recommendation DTO con los datos del libro recomendado
-     * @return El libro encontrado o creado
+     * @param user El usuario
+     * @param book El libro
+     * @return true si existe, false en caso contrario
      */
-    private Book findOrCreateBook(GeneratedRecommendationDTO recommendation) {
-        // Primero intentar buscar por título exacto
-        List<Book> existingBooks = bookRepository.findByTitleIgnoreCase(recommendation.getTitle().trim());
-        if (!existingBooks.isEmpty()) {
-            return existingBooks.get(0);
-        }
-
-        // Si no existe, crear el libro con los datos disponibles
-        Book newBook = new Book();
-        newBook.setTitle(recommendation.getTitle());
-        newBook.setSynopsis(recommendation.getReason());
-
-        // Establecer valores por defecto para campos obligatorios
-        if (recommendation.getAuthors() != null && !recommendation.getAuthors().isEmpty()) {
-            // Crear autores a partir de los nombres, evitando duplicados
-            List<Author> authors = recommendation.getAuthors().stream()
-                    .map(authorName -> {
-                        // Buscar si el autor ya existe
-                        Optional<Author> existingAuthor = authorRepository.findByName(authorName);
-                        if (existingAuthor.isPresent()) {
-                            return existingAuthor.get();
-                        } else {
-                            // Crear nuevo autor
-                            Author newAuthor = new Author();
-                            newAuthor.setName(authorName);
-                            return authorRepository.save(newAuthor);
-                        }
-                    })
-                    .toList();
-            newBook.setAuthors(authors);
-        } else {
-            // Crear autor por defecto
-            Optional<Author> defaultAuthorOpt = authorRepository.findByName("Autor desconocido");
-            Author defaultAuthor;
-            if (defaultAuthorOpt.isPresent()) {
-                defaultAuthor = defaultAuthorOpt.get();
-            } else {
-                defaultAuthor = new Author();
-                defaultAuthor.setName("Autor desconocido");
-                defaultAuthor = authorRepository.save(defaultAuthor);
-            }
-            newBook.setAuthors(List.of(defaultAuthor));
-        }
-
-        if (recommendation.getPublisher() != null) {
-            newBook.setPublisher(recommendation.getPublisher());
-        } else {
-            newBook.setPublisher("Editorial desconocida");
-        }
-
-        if (recommendation.getPublishedYear() != null) {
-            newBook.setPublishedYear(recommendation.getPublishedYear());
-        } else {
-            newBook.setPublishedYear("Año desconocido");
-        }
-
-        if (recommendation.getPages() != null) {
-            newBook.setPages(recommendation.getPages());
-        } else {
-            newBook.setPages(0);
-        }
-
-        if (recommendation.getIsbn13() != null) {
-            newBook.setIsbn13(recommendation.getIsbn13());
-        } else {
-            newBook.setIsbn13("0000000000000"); // ISBN por defecto
-        }
-
-        if (recommendation.getIsbn10() != null) {
-            newBook.setIsbn10(recommendation.getIsbn10());
-        } else {
-            newBook.setIsbn10("0000000000"); // ISBN por defecto
-        }
-
-        if (recommendation.getCoverUrl() != null) {
-            newBook.setCoverUrl(recommendation.getCoverUrl());
-        }
-
-        return bookRepository.save(newBook);
+    private boolean recommendationExists(User user, Book book) {
+        List<Recommendation> existingRecommendations = recommendationRepository.findByRecommendedUser(user);
+        return existingRecommendations.stream()
+                .anyMatch(r -> r.getRecommendedBook().getId().equals(book.getId()));
     }
 }

@@ -40,47 +40,16 @@ public class RecommendationController {
      */
     @PostMapping("/generate")
     public ResponseEntity<List<GeneratedRecommendationDTO>> generateRecommendations() {
-        System.out.println("🚀 [DEBUG] Iniciando generación de recomendaciones...");
-
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            System.out.println("🔐 [DEBUG] Authentication obtenido: " + (authentication != null ? "OK" : "NULL"));
-
-            if (authentication == null) {
-                System.err.println("❌ [ERROR] Authentication es null");
-                throw new RuntimeException("Usuario no autenticado");
-            }
-
             User currentUser = (User) authentication.getPrincipal();
-            System.out.println("👤 [DEBUG] Usuario actual: " + (currentUser != null ? currentUser.getEmail() : "NULL"));
-            System.out.println("👤 [DEBUG] Usuario ID: " + (currentUser != null ? currentUser.getId() : "NULL"));
 
-            if (currentUser == null) {
-                System.err.println("❌ [ERROR] CurrentUser es null");
-                throw new RuntimeException("Usuario no válido");
-            }
-
-            System.out.println("📞 [DEBUG] Llamando a recommendationService.generateRecommendations...");
             List<GeneratedRecommendationDTO> recommendations = recommendationService
                     .generateRecommendations(currentUser);
-
-            System.out.println("✅ [DEBUG] Recomendaciones generadas exitosamente");
-            System.out.println(
-                    "📊 [DEBUG] Número de recomendaciones: " + (recommendations != null ? recommendations.size() : 0));
-
-            if (recommendations != null && !recommendations.isEmpty()) {
-                System.out.println("📝 [DEBUG] Primera recomendación: " + recommendations.get(0).getTitle());
-            }
 
             return ResponseEntity.ok(recommendations);
 
         } catch (Exception e) {
-            System.err.println("💥 [ERROR] Error en generateRecommendations: " + e.getClass().getSimpleName());
-            System.err.println("💥 [ERROR] Mensaje: " + e.getMessage());
-            System.err.println("💥 [ERROR] Stack trace:");
-            e.printStackTrace();
-
-            // Re-throw para que Spring maneje la respuesta HTTP
             throw e;
         }
     }
