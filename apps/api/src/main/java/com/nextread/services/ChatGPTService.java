@@ -60,103 +60,88 @@ public class ChatGPTService {
      * utilizando la API de ChatGPT.
      * 
      * @param user El usuario para quien generar recomendaciones
-     * @return Lista de recomendaciones generadas
+     * @return Lista de exactamente 3 recomendaciones generadas con datos completos
      */
     public List<GeneratedRecommendationDTO> generateRecommendations(User user) {
-        System.out.println("🤖 [ChatGPTService] Iniciando generateRecommendations para usuario: " + user.getEmail());
-
-        // Verificar API key
-        System.out.println("🔑 [ChatGPTService] Verificando API key...");
-        System.out.println(
-                "🔑 [ChatGPTService] API key configurada: " + (apiKey != null && !apiKey.isEmpty() ? "SÍ" : "NO"));
-        System.out.println("🔑 [ChatGPTService] API URL: " + apiUrl);
-
         if (apiKey == null || apiKey.isEmpty()) {
-            System.err.println("❌ [ChatGPTService] API key de OpenAI no configurada");
             throw new RuntimeException("API key de OpenAI no configurada");
         }
 
         try {
             // Obtener datos del usuario
-            System.out.println("📋 [ChatGPTService] Obteniendo encuesta del usuario...");
             Survey survey = surveyService.findSurveyByUser(user);
-            System.out.println("📋 [ChatGPTService] Encuesta obtenida - ID: " + survey.getId());
-            System.out.println("📋 [ChatGPTService] FirstTime: " + survey.getFirstTime());
-            System.out.println("📋 [ChatGPTService] Pace: " + survey.getPace());
-            System.out.println("📋 [ChatGPTService] Géneros seleccionados: "
-                    + (survey.getSelectedGenres() != null ? survey.getSelectedGenres().size() : 0));
 
             // Validar que la encuesta ya se haya completado
             if (survey.getFirstTime().equals(Boolean.TRUE)) {
-                System.err.println("❌ [ChatGPTService] Usuario no ha completado la encuesta base");
                 throw new RuntimeException(
                         "Se debe completar la encuesta base para poder comenzar con las recomendaciones.");
             }
 
-            System.out.println("📚 [ChatGPTService] Obteniendo libros del usuario...");
             List<UserBook> userBooks = userBookService.findUserBooks(user);
-            System.out.println("📚 [ChatGPTService] Libros del usuario: " + (userBooks != null ? userBooks.size() : 0));
 
-            // Construir prompt personalizado
-            System.out.println("✍️ [ChatGPTService] Construyendo prompt...");
-            String prompt = buildPrompt(survey, userBooks);
-            System.out.println("✍️ [ChatGPTService] Prompt construido - Longitud: " + prompt.length() + " caracteres");
-            System.out.println("✍️ [ChatGPTService] Prompt completo:");
-            System.out.println("--- INICIO PROMPT ---");
-            System.out.println(prompt);
-            System.out.println("--- FIN PROMPT ---");
+            // Generar exactamente 3 recomendaciones válidas
+            List<GeneratedRecommendationDTO> finalRecommendations = new ArrayList<>();
+            int maxAttempts = 5; // Máximo 5 intentos para evitar loops infinitos
+            int currentAttempt = 0;
 
-            // Llamar a la API de ChatGPT
-            System.out.println("🌐 [ChatGPTService] Llamando a la API de ChatGPT...");
-            String response = callChatGPTAPI(prompt);
-            System.out.println("🌐 [ChatGPTService] Respuesta de ChatGPT recibida - Longitud: "
-                    + (response != null ? response.length() : 0));
-            System.out.println("🌐 [ChatGPTService] Respuesta completa:");
-            System.out.println("--- INICIO RESPUESTA ---");
-            System.out.println(response);
-            System.out.println("--- FIN RESPUESTA ---");
+            while (finalRecommendations.size() < 3 && currentAttempt < maxAttempts) {
+                currentAttempt++;
 
-            // Parsear la respuesta y convertir a DTOs
-            System.out.println("🔄 [ChatGPTService] Parseando respuesta...");
-            List<GeneratedRecommendationDTO> result = parseRecommendations(response);
-            System.out.println("🔄 [ChatGPTService] Parsing completado - Recomendaciones: "
-                    + (result != null ? result.size() : 0));
+                // Construir prompt personalizado
+                String prompt = buildPrompt(survey, userBooks);
 
-            // Enriquecer las recomendaciones con información adicional de libros
-            System.out.println("📚 [ChatGPTService] Enriqueciendo recomendaciones con información de libros...");
-            List<GeneratedRecommendationDTO> enrichedResult = enrichRecommendations(result);
-            System.out.println("📚 [ChatGPTService] Enriquecimiento completado");
+                // Llamar a la API de ChatGPT
+                String response = callChatGPTAPI(prompt);
 
-            if (enrichedResult != null && !enrichedResult.isEmpty()) {
-                for (int i = 0; i < enrichedResult.size(); i++) {
-                    GeneratedRecommendationDTO rec = enrichedResult.get(i);
-                    System.out.println("📖 [ChatGPTService] Recomendación " + (i + 1) + ": " + rec.getTitle());
-                    System.out.println("📖 [ChatGPTService] - Cover URL: " + (rec.getCoverUrl() != null ? "SÍ" : "NO"));
-                    System.out.println("📖 [ChatGPTService] - Enriquecida: " + rec.isEnriched());
-                    System.out.println("📖 [ChatGPTService] - Reason: " + rec.getReason());
+                // Parsear la respuesta y convertir a DTOs
+                List<GeneratedRecommendationDTO> result = parseRecommendations(response);
+
+                // Enriquecer las recomendaciones con información adicional de libros
+                List<GeneratedRecommendationDTO> enrichedResult = enrichRecommendations(result);
+
+                // Procesar las recomendaciones enriquecidas
+                if (enrichedResult != null && !enrichedResult.isEmpty()) {
+                    for (GeneratedRecommendationDTO rec : enrichedResult) {
+                        // Verificar que no sea duplicado
+                        boolean isDuplicate = finalRecommendations.stream()
+                                .anyMatch(existing -> existing.getTitle().equalsIgnoreCase(rec.getTitle()));
+
+                        if (!isDuplicate) {
+                            finalRecommendations.add(rec);
+
+                            // Si ya tenemos 3 recomendaciones válidas, salir del bucle
+                            if (finalRecommendations.size() >= 3) {
+                                break;
+                            }
+                        }
+                    }
                 }
             }
 
-            return enrichedResult;
+            // Asegurar que devolvemos exactamente 3 recomendaciones
+            if (finalRecommendations.size() > 3) {
+                finalRecommendations = finalRecommendations.subList(0, 3);
+            }
+
+            return finalRecommendations;
 
         } catch (Exception e) {
-            System.err.println("💥 [ChatGPTService] Error en generateRecommendations:");
-            System.err.println("💥 [ChatGPTService] Tipo: " + e.getClass().getSimpleName());
-            System.err.println("💥 [ChatGPTService] Mensaje: " + e.getMessage());
-            System.err.println("💥 [ChatGPTService] Stack trace:");
-            e.printStackTrace();
             throw new RuntimeException("Error al generar recomendaciones: " + e.getMessage());
         }
     }
 
     /**
      * Construye el prompt personalizado basado en la encuesta y libros del usuario.
+     * 
+     * @param survey    La encuesta del usuario
+     * @param userBooks Los libros del usuario
+     * @return Prompt personalizado para ChatGPT
      */
     private String buildPrompt(Survey survey, List<UserBook> userBooks) {
         StringBuilder prompt = new StringBuilder();
 
         prompt.append("Eres un experto en recomendaciones de libros. ");
-        prompt.append("Basándote en la siguiente información del usuario, recomienda exactamente 3 libros. ");
+        prompt.append("Basándote en la siguiente información del usuario, recomienda exactamente 3 libros DIVERSOS. ");
 
         // Información de la encuesta
         prompt.append("Preferencias del usuario:\n");
@@ -194,7 +179,14 @@ public class ChatGPTService {
                     "Los libros 'LEÍDO COMPLETAMENTE' con buenas valoraciones (4-5/5) indican sus gustos preferidos.\n");
         }
 
-        prompt.append("\nPor favor, responde ÚNICAMENTE con un JSON válido con el siguiente formato:\n");
+        prompt.append("\nINSTRUCCIONES ESPECÍFICAS:\n");
+        prompt.append("1. Genera EXACTAMENTE 3 recomendaciones DIVERSAS\n");
+        prompt.append("2. Evita recomendar libros que el usuario ya haya leído o abandonado\n");
+        prompt.append("3. Incluye variedad en géneros y autores\n");
+        prompt.append("4. Asegúrate de que los títulos sean exactos y reconocibles\n");
+        prompt.append("5. Cada recomendación debe ser única y diferente a las otras\n\n");
+
+        prompt.append("Por favor, responde ÚNICAMENTE con un JSON válido con el siguiente formato:\n");
         prompt.append("[\n");
         prompt.append("  {\n");
         prompt.append("    \"title\": \"Título exacto del libro\",\n");
@@ -212,15 +204,15 @@ public class ChatGPTService {
 
     /**
      * Realiza la llamada a la API de ChatGPT.
+     * 
+     * @param prompt El prompt a enviar a ChatGPT
+     * @return Respuesta de la API de ChatGPT
      */
     private String callChatGPTAPI(String prompt) {
-        System.out.println("🌐 [ChatGPTService.callChatGPTAPI] Preparando llamada a API...");
-
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.setBearerAuth(apiKey);
-            System.out.println("🌐 [ChatGPTService.callChatGPTAPI] Headers configurados");
 
             Map<String, Object> requestBody = Map.of(
                     "model", "gpt-4o-mini",
@@ -229,89 +221,56 @@ public class ChatGPTService {
                     "max_tokens", 500,
                     "temperature", 0.7);
 
-            System.out.println("🌐 [ChatGPTService.callChatGPTAPI] Request body creado");
-            System.out.println("🌐 [ChatGPTService.callChatGPTAPI] Modelo: gpt-4o-mini");
-            System.out.println("🌐 [ChatGPTService.callChatGPTAPI] Max tokens: 500");
-            System.out.println("🌐 [ChatGPTService.callChatGPTAPI] Temperature: 0.7");
-
             HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, headers);
 
-            System.out.println("🌐 [ChatGPTService.callChatGPTAPI] Realizando llamada HTTP a: " + apiUrl);
             ResponseEntity<String> response = restTemplate.exchange(
                     apiUrl,
                     HttpMethod.POST,
                     request,
                     String.class);
 
-            System.out.println("🌐 [ChatGPTService.callChatGPTAPI] Respuesta HTTP recibida");
-            System.out.println("🌐 [ChatGPTService.callChatGPTAPI] Status code: " + response.getStatusCode());
-            System.out.println("🌐 [ChatGPTService.callChatGPTAPI] Response body length: "
-                    + (response.getBody() != null ? response.getBody().length() : 0));
-
             String extractedContent = extractContentFromResponse(response.getBody());
-            System.out.println("🌐 [ChatGPTService.callChatGPTAPI] Contenido extraído exitosamente");
             return extractedContent;
 
         } catch (Exception e) {
-            System.err.println("💥 [ChatGPTService.callChatGPTAPI] Error en llamada a API:");
-            System.err.println("💥 [ChatGPTService.callChatGPTAPI] Tipo: " + e.getClass().getSimpleName());
-            System.err.println("💥 [ChatGPTService.callChatGPTAPI] Mensaje: " + e.getMessage());
-            e.printStackTrace();
             throw e;
         }
     }
 
     /**
      * Extrae el contenido de la respuesta de ChatGPT.
+     * 
+     * @param response La respuesta completa de la API
+     * @return El contenido extraído de la respuesta
      */
     private String extractContentFromResponse(String response) {
-        System.out.println("🔄 [ChatGPTService.extractContentFromResponse] Extrayendo contenido...");
-
         try {
             JsonNode root = objectMapper.readTree(response);
             String content = root.path("choices").get(0).path("message").path("content").asText();
-            System.out.println("🔄 [ChatGPTService.extractContentFromResponse] Contenido extraído exitosamente");
             return content;
         } catch (Exception e) {
-            System.err.println("💥 [ChatGPTService.extractContentFromResponse] Error al parsear respuesta:");
-            System.err.println("💥 [ChatGPTService.extractContentFromResponse] Respuesta original:");
-            System.err.println(response);
-            System.err.println("💥 [ChatGPTService.extractContentFromResponse] Error: " + e.getMessage());
             throw new RuntimeException("Error al parsear respuesta de ChatGPT: " + e.getMessage());
         }
     }
 
     /**
      * Parsea las recomendaciones de la respuesta JSON.
+     * 
+     * @param jsonResponse La respuesta JSON de ChatGPT
+     * @return Lista de recomendaciones parseadas
      */
     private List<GeneratedRecommendationDTO> parseRecommendations(String jsonResponse) {
-        System.out.println("🔄 [ChatGPTService.parseRecommendations] Iniciando parsing...");
-        System.out.println("🔄 [ChatGPTService.parseRecommendations] JSON a parsear:");
-        System.out.println("--- INICIO JSON ---");
-        System.out.println(jsonResponse);
-        System.out.println("--- FIN JSON ---");
-
         try {
             // Limpiar la respuesta de bloques de código markdown
             String cleanedJson = cleanJsonResponse(jsonResponse);
-            System.out.println("🧹 [ChatGPTService.parseRecommendations] JSON limpio:");
-            System.out.println("--- INICIO JSON LIMPIO ---");
-            System.out.println(cleanedJson);
-            System.out.println("--- FIN JSON LIMPIO ---");
 
             JsonNode recommendations = objectMapper.readTree(cleanedJson);
-            System.out.println("🔄 [ChatGPTService.parseRecommendations] JSON parseado exitosamente");
-            System.out.println("🔄 [ChatGPTService.parseRecommendations] Es array: " + recommendations.isArray());
-            System.out.println("🔄 [ChatGPTService.parseRecommendations] Tamaño: " + recommendations.size());
 
             List<GeneratedRecommendationDTO> result = new ArrayList<>();
 
             for (JsonNode recommendation : recommendations) {
-                System.out.println("🔄 [ChatGPTService.parseRecommendations] Procesando recomendación...");
                 String title = recommendation.path("title").asText();
                 String reason = recommendation.path("reason").asText();
-                System.out.println("🔄 [ChatGPTService.parseRecommendations] Title: " + title);
-                System.out.println("🔄 [ChatGPTService.parseRecommendations] Reason: " + reason);
 
                 // Validar que title y reason no estén vacíos
                 if (title != null && !title.trim().isEmpty() && reason != null && !reason.trim().isEmpty()) {
@@ -320,14 +279,8 @@ public class ChatGPTService {
                             .reason(reason.trim())
                             .build();
                     result.add(dto);
-                } else {
-                    System.out.println(
-                            "⚠️ [ChatGPTService.parseRecommendations] Recomendación inválida ignorada - Title: '"
-                                    + title + "', Reason: '" + reason + "'");
                 }
             }
-
-            System.out.println("🔄 [ChatGPTService.parseRecommendations] Parsing completado - Total: " + result.size());
 
             // Validar que tengamos al menos una recomendación
             if (result.isEmpty()) {
@@ -336,11 +289,6 @@ public class ChatGPTService {
 
             return result;
         } catch (Exception e) {
-            System.err.println("💥 [ChatGPTService.parseRecommendations] Error al parsear recomendaciones:");
-            System.err.println("💥 [ChatGPTService.parseRecommendations] JSON problemático:");
-            System.err.println(jsonResponse);
-            System.err.println("💥 [ChatGPTService.parseRecommendations] Error: " + e.getMessage());
-            e.printStackTrace();
             throw new RuntimeException("Error al parsear recomendaciones: " + e.getMessage());
         }
     }
@@ -358,7 +306,6 @@ public class ChatGPTService {
         }
 
         String cleaned = response.trim();
-        System.out.println("🧹 [ChatGPTService.cleanJsonResponse] Respuesta original: '" + cleaned + "'");
 
         // Remover bloques de código markdown variantes
         cleaned = cleaned.replaceAll("```json\\s*", "");
@@ -409,44 +356,27 @@ public class ChatGPTService {
                     + cleaned.substring(0, Math.min(50, cleaned.length())));
         }
 
-        System.out.println("🧹 [ChatGPTService.cleanJsonResponse] Limpieza completada");
-        System.out.println("🧹 [ChatGPTService.cleanJsonResponse] Longitud original: " + response.length());
-        System.out.println("🧹 [ChatGPTService.cleanJsonResponse] Longitud limpia: " + cleaned.length());
-        System.out.println("🧹 [ChatGPTService.cleanJsonResponse] Primeros 100 chars: "
-                + cleaned.substring(0, Math.min(100, cleaned.length())));
-
         return cleaned;
     }
 
     /**
      * Enriquece las recomendaciones generadas con información adicional de libros.
+     * Solo incluye recomendaciones que tengan todos los datos obligatorios de la
+     * entidad Book.
      * 
      * @param recommendations Las recomendaciones generadas por ChatGPT
-     * @return Lista de recomendaciones enriquecidas
+     * @return Lista de recomendaciones enriquecidas con datos completos
      */
     private List<GeneratedRecommendationDTO> enrichRecommendations(List<GeneratedRecommendationDTO> recommendations) {
-        System.out.println("📚 [ChatGPTService.enrichRecommendations] Iniciando enriquecimiento...");
         List<GeneratedRecommendationDTO> enrichedRecommendations = new ArrayList<>();
 
         for (GeneratedRecommendationDTO rec : recommendations) {
-            System.out.println("📖 [ChatGPTService.enrichRecommendations] Procesando: " + rec.getTitle());
-
             try {
                 // Intentar encontrar el libro usando el método existente findRecommendedBook
                 // Este método busca en BD local primero, luego en Google Books
                 Book book = bookService.findRecommendedBook(rec.getTitle());
 
                 if (book != null) {
-                    System.out.println("📖 [ChatGPTService.enrichRecommendations] Libro encontrado:");
-                    System.out.println("📖 [ChatGPTService.enrichRecommendations] - ID: " + book.getId());
-                    System.out.println("📖 [ChatGPTService.enrichRecommendations] - Título: " + book.getTitle());
-                    System.out.println("📖 [ChatGPTService.enrichRecommendations] - ISBN13: " + book.getIsbn13());
-                    System.out.println("📖 [ChatGPTService.enrichRecommendations] - Cover URL: " + book.getCoverUrl());
-                    System.out.println("📖 [ChatGPTService.enrichRecommendations] - Publisher: " + book.getPublisher());
-                    System.out.println("📖 [ChatGPTService.enrichRecommendations] - Pages: " + book.getPages());
-                    System.out.println("📖 [ChatGPTService.enrichRecommendations] - Authors: "
-                            + (book.getAuthors() != null ? book.getAuthors().size() : 0));
-
                     // Convertir autores a lista de strings
                     List<String> authorNames = new ArrayList<>();
                     if (book.getAuthors() != null && !book.getAuthors().isEmpty()) {
@@ -471,48 +401,24 @@ public class ChatGPTService {
                             .build();
 
                     enrichedRecommendations.add(enrichedRec);
-                    System.out
-                            .println("✅ [ChatGPTService.enrichRecommendations] Recomendación enriquecida exitosamente");
-
-                } else {
-                    System.out.println("❌ [ChatGPTService.enrichRecommendations] No se encontró información del libro");
-                    // Crear recomendación básica sin enriquecer
-                    GeneratedRecommendationDTO basicRec = GeneratedRecommendationDTO.builder()
-                            .title(rec.getTitle())
-                            .reason(rec.getReason())
-                            .coverUrl(null)
-                            .enriched(false)
-                            .build();
-                    enrichedRecommendations.add(basicRec);
                 }
+                // NO añadir recomendaciones incompletas - esto es intencional para forzar
+                // la generación de nuevas recomendaciones
 
             } catch (Exception e) {
-                System.err.println("💥 [ChatGPTService.enrichRecommendations] Error al enriquecer: " + rec.getTitle());
-                System.err.println("💥 [ChatGPTService.enrichRecommendations] Tipo: " + e.getClass().getSimpleName());
-                System.err.println("💥 [ChatGPTService.enrichRecommendations] Mensaje: " + e.getMessage());
-
-                // En caso de error, crear recomendación básica
-                GeneratedRecommendationDTO basicRec = GeneratedRecommendationDTO.builder()
-                        .title(rec.getTitle())
-                        .reason(rec.getReason())
-                        .coverUrl(null)
-                        .enriched(false)
-                        .build();
-                enrichedRecommendations.add(basicRec);
+                // NO añadir recomendaciones con errores - esto es intencional para forzar
+                // la generación de nuevas recomendaciones
             }
         }
-
-        System.out.println("📚 [ChatGPTService.enrichRecommendations] Enriquecimiento completado");
-        System.out.println(
-                "📚 [ChatGPTService.enrichRecommendations] Total recomendaciones: " + enrichedRecommendations.size());
-        System.out.println("📚 [ChatGPTService.enrichRecommendations] Enriquecidas: "
-                + enrichedRecommendations.stream().mapToLong(r -> r.isEnriched() ? 1 : 0).sum());
 
         return enrichedRecommendations;
     }
 
     /**
      * Formatea el ritmo de lectura para el prompt.
+     * 
+     * @param pace El ritmo de lectura seleccionado
+     * @return Descripción formateada del ritmo
      */
     private String formatPace(PaceSelection pace) {
         return switch (pace) {
@@ -525,6 +431,9 @@ public class ChatGPTService {
 
     /**
      * Formatea el género para el prompt.
+     * 
+     * @param genre El género seleccionado
+     * @return Nombre formateado del género
      */
     private String formatGenre(GenreSelection genre) {
         return switch (genre) {

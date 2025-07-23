@@ -74,12 +74,17 @@ public class BookService {
         List<Book> localMatches = bookRepository.findByTitleIgnoreCase(title);
 
         if (!localMatches.isEmpty()) {
-            Book loadedBook = localMatches.get(0);
-            return loadedBook;
-        } else {
-            Book googleBook = findGoogleBook(title);
-            return googleBook;
+            // Buscar el primer libro local con datos completos
+            for (Book book : localMatches) {
+                if (hasCompleteBookData(book)) {
+                    return book;
+                }
+            }
         }
+
+        // Si no hay libros locales con datos completos, buscar en Google Books
+        Book googleBook = findGoogleBook(title);
+        return googleBook;
     }
 
     /**
@@ -209,15 +214,15 @@ public class BookService {
 
     /**
      * Consulta la API de Google Books para obtener información de un libro por
-     * título
-     * Extrae los campos relevantes del JSON de respuesta y los mapea a un BookDTO.
+     * título. Busca entre múltiples resultados y selecciona el que tenga datos
+     * válidos.
      * 
      * @param title El título del libro
-     * @return BookDTO con los datos del libro obtenidos de Google Books
-     * @throws RuntimeException si el libro no se encuentra en Google Books
+     * @return Book con los datos del libro obtenidos de Google Books
+     * @throws RuntimeException si el libro no se encuentra en Google Books o ningún
+     *                          resultado tiene datos válidos
      */
     private Book findGoogleBook(String title) {
-
         String url = "https://www.googleapis.com/books/v1/volumes?q=intitle:" + title.replace(" ", "+");
         JsonNode root = restTemplate.getForObject(url, JsonNode.class);
 
@@ -225,40 +230,93 @@ public class BookService {
             throw new RuntimeException("Libro no encontrado.");
         }
 
-        JsonNode item0 = root.path("items").get(0);
-        JsonNode info = item0.path("volumeInfo");
-        JsonNode identifiers = info.path("industryIdentifiers");
-        JsonNode imageLinks = info.path("imageLinks");
+        JsonNode items = root.path("items");
+        List<Book> candidateBooks = new ArrayList<>();
 
-        String isbn10 = null;
-        String isbn13 = null;
-        for (JsonNode idNode : identifiers) {
-            String type = idNode.path("type").asText();
-            String idVal = idNode.path("identifier").asText();
-            if ("ISBN_10".equals(type))
-                isbn10 = idVal;
-            if ("ISBN_13".equals(type))
-                isbn13 = idVal;
+        // Procesar todos los resultados disponibles (máximo 10 para eficiencia)
+        int maxResults = Math.min(items.size(), 10);
+
+        for (int i = 0; i < maxResults; i++) {
+            try {
+                JsonNode item = items.get(i);
+                JsonNode info = item.path("volumeInfo");
+                JsonNode identifiers = info.path("industryIdentifiers");
+                JsonNode imageLinks = info.path("imageLinks");
+
+                // Extraer ISBNs
+                String isbn10 = null;
+                String isbn13 = null;
+                for (JsonNode idNode : identifiers) {
+                    String type = idNode.path("type").asText();
+                    String idVal = idNode.path("identifier").asText();
+                    if ("ISBN_10".equals(type))
+                        isbn10 = idVal;
+                    if ("ISBN_13".equals(type))
+                        isbn13 = idVal;
+                }
+
+                // Extraer autores
+                List<String> authorNames = new ArrayList<>();
+                info.path("authors").forEach(a -> authorNames.add(a.asText()));
+
+                List<Author> authors = authorNames.stream()
+                        .map(name -> Author.builder().name(name).build())
+                        .collect(Collectors.toList());
+
+                // Construir el libro
+                Book book = Book.builder()
+                        .title(info.path("title").asText())
+                        .isbn10(isbn10)
+                        .isbn13(isbn13)
+                        .publisher(info.path("publisher").asText("Editorial desconocida"))
+                        .coverUrl(imageLinks.path("thumbnail").asText())
+                        .synopsis(info.path("description").asText())
+                        .pages(info.path("pageCount").asInt())
+                        .publishedYear(info.path("publishedDate").asText())
+                        .authors(authors)
+                        .build();
+
+                candidateBooks.add(book);
+            } catch (Exception e) {
+                // Continuar con el siguiente resultado si hay error en este
+                continue;
+            }
         }
-        String cover = imageLinks.path("thumbnail").asText();
-        List<String> authorNames = new ArrayList<>();
-        info.path("authors").forEach(a -> authorNames.add(a.asText()));
 
-        List<Author> authors = authorNames.stream()
-                .map(name -> Author.builder().name(name).build())
-                .collect(Collectors.toList());
+        // Buscar el primer libro con datos válidos
+        for (Book book : candidateBooks) {
+            if (hasCompleteBookData(book)) {
+                return book;
+            }
+        }
 
-        return Book.builder()
-                .title(info.path("title").asText())
-                .isbn10(isbn10)
-                .isbn13(isbn13)
-                .publisher(info.path("publisher").asText("Editorial desconocida")) // Añadir publisher
-                .coverUrl(cover)
-                .synopsis(info.path("description").asText())
-                .pages(info.path("pageCount").asInt())
-                .publishedYear(info.path("publishedDate").asText())
-                .authors(authors)
-                .build();
+        // Si ningún libro tiene datos completos, lanzar excepción
+        throw new RuntimeException("Ningún resultado de Google Books tiene datos completos para: " + title);
+    }
+
+    /**
+     * Verifica si un libro tiene todos los datos obligatorios para la entidad Book.
+     * 
+     * @param book El libro a verificar
+     * @return true si el libro tiene todos los datos obligatorios, false en caso
+     *         contrario
+     */
+    private boolean hasCompleteBookData(Book book) {
+        if (book == null)
+            return false;
+
+        // Verificar campos obligatorios según la entidad Book
+        boolean hasRequiredFields = book.getTitle() != null && !book.getTitle().trim().isEmpty() &&
+                book.getIsbn13() != null && !book.getIsbn13().trim().isEmpty() &&
+                book.getIsbn10() != null && !book.getIsbn10().trim().isEmpty() &&
+                book.getPublisher() != null && !book.getPublisher().trim().isEmpty() &&
+                book.getPages() > 0 &&
+                book.getPublishedYear() != null && !book.getPublishedYear().trim().isEmpty();
+
+        // Verificar que tenga al menos un autor
+        boolean hasAuthors = book.getAuthors() != null && !book.getAuthors().isEmpty();
+
+        return hasRequiredFields && hasAuthors;
     }
 
     @Transactional
