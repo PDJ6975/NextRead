@@ -3,7 +3,6 @@ package com.nextread.services;
 import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.ArrayList;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -44,31 +43,15 @@ public class RecommendationService {
      */
     @Transactional(readOnly = true)
     public List<Book> getRecentlyRejectedBooks(User user, int daysThreshold) {
-        try {
-            System.out.println(
-                    "DEBUG: Buscando libros rechazados para usuario: " + user.getEmail() + ", días: " + daysThreshold);
+        Instant thresholdDate = Instant.now().minusSeconds(daysThreshold * 24 * 60 * 60);
 
-            Instant thresholdDate = Instant.now().minusSeconds(daysThreshold * 24 * 60 * 60);
-            System.out.println("DEBUG: Fecha umbral: " + thresholdDate);
+        List<Recommendation> rejectedRecommendations = recommendationRepository
+                .findByRecommendedUserAndStatusAndCreatedAtAfter(user, RecommendationStatus.REJECTED, thresholdDate);
 
-            List<Recommendation> rejectedRecommendations = recommendationRepository
-                    .findByRecommendedUserAndStatusAndCreatedAtAfter(user, RecommendationStatus.REJECTED,
-                            thresholdDate);
-
-            System.out.println("DEBUG: Recomendaciones rechazadas encontradas: " + rejectedRecommendations.size());
-
-            List<Book> result = rejectedRecommendations.stream()
-                    .map(Recommendation::getRecommendedBook)
-                    .distinct()
-                    .collect(Collectors.toList());
-
-            System.out.println("DEBUG: Libros únicos rechazados: " + result.size());
-            return result;
-        } catch (Exception e) {
-            System.out.println("DEBUG: Error en getRecentlyRejectedBooks: " + e.getMessage());
-            e.printStackTrace();
-            return new ArrayList<>();
-        }
+        return rejectedRecommendations.stream()
+                .map(Recommendation::getRecommendedBook)
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     /**
@@ -82,14 +65,10 @@ public class RecommendationService {
     @Transactional
     public List<GeneratedRecommendationDTO> generateRecommendations(User user) {
         try {
-            System.out.println("DEBUG: Iniciando generateRecommendations para usuario: " + user.getEmail());
-
             // Obtener libros rechazados recientemente (últimos 30 días)
             List<Book> rejectedBooks = getRecentlyRejectedBooks(user, 30);
-            System.out.println("DEBUG: Libros rechazados encontrados: " + rejectedBooks.size());
 
             List<GeneratedRecommendationDTO> result = chatGPTService.generateRecommendations(user, rejectedBooks);
-            System.out.println("DEBUG: Recomendaciones generadas: " + (result != null ? result.size() : 0));
 
             // Guardar automáticamente las recomendaciones generadas
             if (result != null && !result.isEmpty()) {
@@ -119,8 +98,6 @@ public class RecommendationService {
 
             return result;
         } catch (Exception e) {
-            System.out.println("DEBUG: Error en generateRecommendations: " + e.getMessage());
-            e.printStackTrace();
             throw e;
         }
     }
@@ -149,6 +126,10 @@ public class RecommendationService {
     @Transactional
     public Recommendation createRecommendation(User user, Long bookId, String reason) {
         Book book = bookService.findBookById(bookId);
+
+        if (book == null) {
+            throw new RuntimeException("Libro no encontrado");
+        }
 
         // Verificar que el usuario no tenga ya una recomendación para este libro
         if (recommendationExists(user, book)) {
