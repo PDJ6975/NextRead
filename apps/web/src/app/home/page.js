@@ -49,52 +49,6 @@ export default function HomePage() {
 
                             {/* Sidebar - Acciones Rápidas */}
                             <div className="space-y-6">
-                                {/* Acciones Rápidas */}
-                                <Card>
-                                    <CardHeader>
-                                        <h3 className="text-lg font-semibold text-gray-900">
-                                            Acciones rápidas
-                                        </h3>
-                                    </CardHeader>
-                                    <CardContent className="space-y-4">
-                                        <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
-                                            <h4 className="text-sm font-medium text-blue-900 mb-2">
-                                                🔍 Buscar libros
-                                            </h4>
-                                            <p className="text-xs text-blue-700 mb-3">
-                                                Encuentra y añade nuevos libros a tu biblioteca
-                                            </p>
-                                            <div className="bg-white border border-blue-200 rounded px-3 py-2 text-sm text-gray-500">
-                                                🚧 Próximamente
-                                            </div>
-                                        </div>
-
-                                        <div className="bg-green-50 border border-green-200 rounded-md p-4">
-                                            <h4 className="text-sm font-medium text-green-900 mb-2">
-                                                ⭐ Calificar libros
-                                            </h4>
-                                            <p className="text-xs text-green-700 mb-3">
-                                                Mejora tus recomendaciones calificando lecturas
-                                            </p>
-                                            <div className="bg-white border border-green-200 rounded px-3 py-2 text-sm text-gray-500">
-                                                🚧 Próximamente
-                                            </div>
-                                        </div>
-
-                                        <div className="bg-purple-50 border border-purple-200 rounded-md p-4">
-                                            <h4 className="text-sm font-medium text-purple-900 mb-2">
-                                                🎯 Generar recomendaciones
-                                            </h4>
-                                            <p className="text-xs text-purple-700 mb-3">
-                                                Obtén nuevas sugerencias personalizadas
-                                            </p>
-                                            <div className="bg-white border border-purple-200 rounded px-3 py-2 text-sm text-gray-500">
-                                                ✅ Disponible arriba
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-
                                 {/* Progreso del Usuario */}
                                 <Card>
                                     <CardHeader>

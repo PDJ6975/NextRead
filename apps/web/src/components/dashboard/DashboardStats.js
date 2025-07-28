@@ -101,13 +101,6 @@ export default function DashboardStats() {
             description: loading ? '' : `${userStats.totalBooks} libros en total`
         },
         {
-            title: 'Leyendo Ahora',
-            value: loading ? '-' : userStats.booksReading,
-            icon: Clock,
-            color: 'orange',
-            description: loading ? '' : 'En progreso'
-        },
-        {
             title: 'Páginas Leídas',
             value: loading ? '-' : userStats.pagesRead.toLocaleString(),
             icon: Target,
