@@ -6,7 +6,7 @@ import DashboardHeader from '../../components/dashboard/DashboardHeader';
 import DashboardStats from '../../components/dashboard/DashboardStats';
 import RecommendationsSection from '../../components/dashboard/RecommendationsSection';
 import { Card, CardContent, CardHeader } from '../../components/ui/Card';
-import { EmptyLibrary } from '../../components/ui/EmptyState';
+import UserLibrarySection from '../../components/dashboard/UserLibrarySection';
 import { useAuth } from '../../contexts/AuthContext';
 
 export default function HomePage() {
@@ -43,30 +43,8 @@ export default function HomePage() {
                                 />
 
                                 {/* Sección de Historial de Libros */}
-                                <Card>
-                                    <CardHeader>
-                                        <div className="flex items-center justify-between">
-                                            <div>
-                                                <h2 className="text-xl font-bold text-gray-900">
-                                                    Tu biblioteca
-                                                </h2>
-                                                <p className="text-gray-600 text-sm">
-                                                    Gestiona tus libros leídos y en progreso
-                                                </p>
-                                            </div>
-                                            <div className="text-sm text-gray-500">
-                                                🚧 En desarrollo
-                                            </div>
-                                        </div>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <EmptyLibrary
-                                            onAddBook={() => {
-                                                console.log('Open add book modal');
-                                            }}
-                                        />
-                                    </CardContent>
-                                </Card>
+                                {/* Biblioteca del usuario */}
+                                <UserLibrarySection />
                             </div>
 
                             {/* Sidebar - Acciones Rápidas */}
