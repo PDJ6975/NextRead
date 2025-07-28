@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { MiniBookSearch } from '../ui/MiniBookSearch';
 import userBookService from '../../services/userBookService';
 import { bookService } from '../../services/bookService';
 import { Card, CardHeader, CardContent } from '../ui/Card';
@@ -14,6 +15,23 @@ export default function UserLibrarySection() {
   const [error, setError] = useState(null);
   // Eliminamos el loading global de actualización
   const [updatingBookId, setUpdatingBookId] = useState(null);
+  const [addingBook, setAddingBook] = useState(false);
+  // Añadir libro manualmente a TO_READ
+  const handleAddBookToRead = async (book) => {
+    // Si ya existe, no hacer nada
+    if (userBooks.some(ub => ub.bookId === book.id)) return;
+    setAddingBook(true);
+    try {
+      // Añadir optimistamente a userBooks y booksDetails
+      const added = await userBookService.addBook(book, { status: 'TO_READ' });
+      setUserBooks(prev => [...prev, added]);
+      setBooksDetails(prev => ({ ...prev, [added.bookId]: book }));
+    } catch (e) {
+      setError('No se pudo añadir el libro');
+    } finally {
+      setAddingBook(false);
+    }
+  };
 
   const fetchBooks = async () => {
     try {
@@ -181,9 +199,21 @@ export default function UserLibrarySection() {
     <section className="my-8">
       <Card className="shadow-md border border-gray-100">
         <CardHeader>
-          <div>
-            <h2 className="text-xl font-bold text-gray-900">Tu biblioteca</h2>
-            <p className="text-gray-600 text-sm">Gestiona tus libros leídos y en progreso</p>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-bold text-gray-900">Tu biblioteca</h2>
+              <p className="text-gray-600 text-sm">Gestiona tus libros leídos y en progreso</p>
+            </div>
+            <div className="w-full md:w-64">
+              <MiniBookSearch
+                onBookSelect={handleAddBookToRead}
+                placeholder="Añadir libro..."
+                disabledBooks={userBooks.map(ub => booksDetails[ub.bookId]).filter(Boolean)}
+              />
+              {addingBook && (
+                <div className="text-xs text-blue-600 mt-1">Añadiendo libro...</div>
+              )}
+            </div>
           </div>
         </CardHeader>
         <CardContent>
