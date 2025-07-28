@@ -12,7 +12,8 @@ export default function UserLibrarySection() {
   const [booksDetails, setBooksDetails] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [updating, setUpdating] = useState(false);
+  // Eliminamos el loading global de actualización
+  const [updatingBookId, setUpdatingBookId] = useState(null);
 
   const fetchBooks = async () => {
     try {
@@ -45,34 +46,39 @@ export default function UserLibrarySection() {
 
   // Mover libro de sección
   const handleMoveBook = async (userBook, newStatus) => {
-    setUpdating(true);
+    setUpdatingBookId(userBook.id);
+    // Actualización optimista
+    setUserBooks(prev => prev.map(ub => ub.id === userBook.id ? { ...ub, status: newStatus } : ub));
     try {
       await userBookService.updateBook(userBook.id, { status: newStatus });
-      await fetchBooks();
     } catch (e) {
       setError('No se pudo actualizar el estado del libro');
+      // Revertir si falla
+      setUserBooks(prev => prev.map(ub => ub.id === userBook.id ? { ...ub, status: userBook.status } : ub));
     } finally {
-      setUpdating(false);
+      setUpdatingBookId(null);
     }
   };
 
   // Valorar libro leído
   const handleRateBook = async (userBook, rating) => {
-    setUpdating(true);
+    setUpdatingBookId(userBook.id);
+    // Actualización optimista
+    setUserBooks(prev => prev.map(ub => ub.id === userBook.id ? { ...ub, rating } : ub));
     try {
       await userBookService.updateBook(userBook.id, { rating });
-      await fetchBooks();
     } catch (e) {
       setError('No se pudo guardar la valoración');
+      setUserBooks(prev => prev.map(ub => ub.id === userBook.id ? { ...ub, rating: userBook.rating } : ub));
     } finally {
-      setUpdating(false);
+      setUpdatingBookId(null);
     }
   };
 
   // Use consistent UI components for loading and error states
-  if (loading || updating) return (
+  if (loading) return (
     <div className="flex justify-center items-center h-32">
-      <LoadingSpinner label={updating ? 'Actualizando...' : 'Cargando tu biblioteca...'} />
+      <LoadingSpinner label={'Cargando tu biblioteca...'} />
     </div>
   );
   if (error) return (
@@ -139,21 +145,19 @@ export default function UserLibrarySection() {
                 <StarRating
                   rating={userBook.rating || 0}
                   onChange={rating => handleRateBook(userBook, rating)}
-                  readOnly={!!userBook.rating}
+                  readOnly={false}
                   size="sm"
                   showValue={true}
                 />
-                {!userBook.rating && (
-                  <span className="text-xs text-blue-600 ml-1 truncate max-w-[80px]">Valora este libro</span>
-                )}
+                <span className="text-xs text-blue-600 ml-1 truncate max-w-[80px]">{userBook.rating ? 'Editar valoración' : 'Valora este libro'}</span>
               </div>
             )}
           </div>
-          {/* Acciones para mover libro de sección, usando menú compacto y solo si no es ABANDONED */}
-          {section !== 'ABANDONED' && (
+          {/* Acciones para mover libro de sección, solo si NO es ABANDONED ni READ */}
+          {section !== 'ABANDONED' && section !== 'READ' && (
             <div className="flex mt-2">
               <Menu as="div" className="relative inline-block text-left">
-                <Menu.Button className="text-xs px-2 py-1 rounded bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200 transition">
+                <Menu.Button className="text-xs px-2 py-1 rounded bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200 transition disabled:opacity-60" disabled={updatingBookId === userBook.id}>
                   Cambiar estado
                 </Menu.Button>
                 <Menu.Items className="absolute z-10 mt-1 w-40 bg-white border border-gray-200 rounded shadow-lg focus:outline-none">
@@ -163,7 +167,7 @@ export default function UserLibrarySection() {
                         <button
                           className={`block w-full text-left px-3 py-2 text-xs ${active ? 'bg-green-100 text-green-700' : ''}`}
                           onClick={() => handleMoveBook(userBook, 'READ')}
-                          disabled={updating}
+                          disabled={updatingBookId === userBook.id}
                         >
                           Marcar como leído
                         </button>
@@ -176,7 +180,7 @@ export default function UserLibrarySection() {
                         <button
                           className={`block w-full text-left px-3 py-2 text-xs ${active ? 'bg-yellow-100 text-yellow-700' : ''}`}
                           onClick={() => handleMoveBook(userBook, 'TO_READ')}
-                          disabled={updating}
+                          disabled={updatingBookId === userBook.id}
                         >
                           Marcar como pendiente
                         </button>
@@ -189,7 +193,7 @@ export default function UserLibrarySection() {
                         <button
                           className={`block w-full text-left px-3 py-2 text-xs ${active ? 'bg-red-100 text-red-700' : ''}`}
                           onClick={() => handleMoveBook(userBook, 'ABANDONED')}
-                          disabled={updating}
+                          disabled={updatingBookId === userBook.id}
                         >
                           Marcar como abandonado
                         </button>
