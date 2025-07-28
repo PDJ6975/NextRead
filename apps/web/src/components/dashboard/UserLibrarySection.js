@@ -149,59 +149,27 @@ export default function UserLibrarySection() {
                   size="sm"
                   showValue={true}
                 />
-                <span className="text-xs text-blue-600 ml-1 truncate max-w-[80px]">{userBook.rating ? 'Editar valoración' : 'Valora este libro'}</span>
+                <span className="text-xs text-blue-600 ml-1 truncate max-w-[80px]"></span>
               </div>
             )}
           </div>
-          {/* Acciones para mover libro de sección, solo si NO es ABANDONED ni READ */}
-          {section !== 'ABANDONED' && section !== 'READ' && (
-            <div className="flex mt-2">
-              <Menu as="div" className="relative inline-block text-left">
-                <Menu.Button className="text-xs px-2 py-1 rounded bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200 transition disabled:opacity-60" disabled={updatingBookId === userBook.id}>
-                  Cambiar estado
-                </Menu.Button>
-                <Menu.Items className="absolute z-10 mt-1 w-40 bg-white border border-gray-200 rounded shadow-lg focus:outline-none">
-                  {section !== 'READ' && (
-                    <Menu.Item>
-                      {({ active }) => (
-                        <button
-                          className={`block w-full text-left px-3 py-2 text-xs ${active ? 'bg-green-100 text-green-700' : ''}`}
-                          onClick={() => handleMoveBook(userBook, 'READ')}
-                          disabled={updatingBookId === userBook.id}
-                        >
-                          Marcar como leído
-                        </button>
-                      )}
-                    </Menu.Item>
-                  )}
-                  {section !== 'TO_READ' && (
-                    <Menu.Item>
-                      {({ active }) => (
-                        <button
-                          className={`block w-full text-left px-3 py-2 text-xs ${active ? 'bg-yellow-100 text-yellow-700' : ''}`}
-                          onClick={() => handleMoveBook(userBook, 'TO_READ')}
-                          disabled={updatingBookId === userBook.id}
-                        >
-                          Marcar como pendiente
-                        </button>
-                      )}
-                    </Menu.Item>
-                  )}
-                  {section !== 'ABANDONED' && (
-                    <Menu.Item>
-                      {({ active }) => (
-                        <button
-                          className={`block w-full text-left px-3 py-2 text-xs ${active ? 'bg-red-100 text-red-700' : ''}`}
-                          onClick={() => handleMoveBook(userBook, 'ABANDONED')}
-                          disabled={updatingBookId === userBook.id}
-                        >
-                          Marcar como abandonado
-                        </button>
-                      )}
-                    </Menu.Item>
-                  )}
-                </Menu.Items>
-              </Menu>
+          {/* Botones horizontales para libros por leer */}
+          {section === 'TO_READ' && (
+            <div className="flex gap-2 mt-2">
+              <button
+                className="text-xs px-2 py-1 rounded bg-green-100 text-green-700 hover:bg-green-200 border border-green-200 transition"
+                onClick={() => handleMoveBook(userBook, 'READ')}
+                disabled={updatingBookId === userBook.id}
+              >
+                Marcar como leído
+              </button>
+              <button
+                className="text-xs px-2 py-1 rounded bg-red-100 text-red-700 hover:bg-red-200 border border-red-200 transition"
+                onClick={() => handleMoveBook(userBook, 'ABANDONED')}
+                disabled={updatingBookId === userBook.id}
+              >
+                Marcar como abandonado
+              </button>
             </div>
           )}
         </div>
@@ -225,7 +193,7 @@ export default function UserLibrarySection() {
             {toReadBooks.length === 0 ? (
               <p className="text-gray-400 text-sm">No tienes libros pendientes por leer.</p>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="flex overflow-x-auto gap-6 pb-2" style={{ minHeight: 180 }}>
                 {toReadBooks.map(ub => renderBookCard(ub, 'TO_READ'))}
               </div>
             )}
@@ -236,7 +204,7 @@ export default function UserLibrarySection() {
             {readBooks.length === 0 ? (
               <p className="text-gray-400 text-sm">No tienes libros leídos aún.</p>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="flex overflow-x-auto gap-6 pb-2" style={{ minHeight: 180 }}>
                 {readBooks.map(ub => renderBookCard(ub, 'READ'))}
               </div>
             )}
@@ -247,7 +215,7 @@ export default function UserLibrarySection() {
             {abandonedBooks.length === 0 ? (
               <p className="text-gray-400 text-sm">No tienes libros abandonados.</p>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="flex overflow-x-auto gap-6 pb-2" style={{ minHeight: 180 }}>
                 {abandonedBooks.map(ub => renderBookCard(ub, 'ABANDONED'))}
               </div>
             )}
