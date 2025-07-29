@@ -65,32 +65,20 @@ class UserStatsService {
         let booksWithRating = 0;
 
         userBooks.forEach(userBook => {
-            // Contar por estado
             switch (userBook.status) {
                 case 'READ':
-                case 'READ_COMPLETELY':
                     stats.booksRead++;
-                    // Solo contar páginas de libros completamente leídos
                     if (userBook.book?.pages) {
                         stats.pagesRead += userBook.book.pages;
                     }
                     break;
-                case 'reading':
-                case 'READING':
-                    stats.booksReading++;
-                    break;
-                case 'want_to_read':
-                case 'WANT_TO_READ':
                 case 'TO_READ':
                     stats.booksWantToRead++;
                     break;
-                case 'abandoned':
                 case 'ABANDONED':
                     stats.booksAbandoned++;
                     break;
             }
-
-            // Calcular rating promedio
             if (userBook.rating && userBook.rating > 0) {
                 totalRating += userBook.rating;
                 booksWithRating++;
