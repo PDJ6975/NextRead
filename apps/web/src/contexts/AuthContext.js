@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect } from 'react';
 import { authService } from '../services/authService';
+import userProfileService from '../services/userProfileService';
 
 const AuthContext = createContext();
 
@@ -22,13 +23,14 @@ export function AuthProvider({ children }) {
 
     const verifyToken = async (token) => {
         try {
-            // Aquí podrías hacer una llamada al backend para verificar el token
-            // Por ahora, simplemente decodificamos el token para obtener info básica
             const payload = JSON.parse(atob(token.split('.')[1]));
+            // Obtener nickname y avatarUrl del backend
+            const profile = await userProfileService.getProfile();
             setUser({
                 id: payload.sub,
                 email: payload.email,
-                userName: payload.userName,
+                nickname: profile.nickname,
+                avatarUrl: profile.avatarUrl,
                 firstTime: payload.firstTime || false
             });
         } catch (error) {
@@ -42,14 +44,9 @@ export function AuthProvider({ children }) {
         try {
             const response = await authService.login(credentials);
             const { token, firstTime } = response.data;
-
             localStorage.setItem('token', token);
-
-            // Crear objeto usuario con la información necesaria
-            const userData = { firstTime };
-            setUser(userData);
-
-            return userData;
+            await verifyToken(token);
+            return { firstTime };
         } catch (error) {
             throw error;
         }

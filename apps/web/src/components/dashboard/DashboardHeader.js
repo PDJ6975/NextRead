@@ -2,10 +2,13 @@
 
 import { useState, useRef, useEffect } from 'react';
 import ProfileEditModal from '../profile/ProfileEditModal';
+import { useAuth } from '../../contexts/AuthContext';
+import userProfileService from '../../services/userProfileService';
 import { ChevronDown, User, Settings, LogOut, Bell } from 'lucide-react';
 import { Button } from '../ui/Button';
 
 export default function DashboardHeader({ user, onLogout }) {
+    const { refreshUser } = useAuth();
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const dropdownRef = useRef(null);
 
@@ -36,8 +39,8 @@ export default function DashboardHeader({ user, onLogout }) {
     };
 
     const getInitials = () => {
-        if (user?.fullName) {
-            return user.fullName
+        if (user?.nickname) {
+            return user.nickname
                 .split(' ')
                 .map(name => name[0])
                 .join('')
@@ -45,6 +48,24 @@ export default function DashboardHeader({ user, onLogout }) {
                 .substring(0, 2);
         }
         return user?.email?.[0]?.toUpperCase() || 'U';
+    };
+
+    // Renderiza el avatar real si existe, si no las iniciales
+    const renderAvatar = (size = 8) => {
+        if (user?.avatarUrl) {
+            return (
+                <img
+                    src={user.avatarUrl}
+                    alt="Avatar"
+                    className={`w-${size} h-${size} rounded-full object-cover border border-gray-200 bg-white`}
+                />
+            );
+        }
+        return (
+            <div className={`w-${size} h-${size} bg-indigo-600 text-white rounded-full flex items-center justify-center text-sm font-medium`}>
+                {getInitials()}
+            </div>
+        );
     };
 
     const [profileModalOpen, setProfileModalOpen] = useState(false);
@@ -102,14 +123,12 @@ export default function DashboardHeader({ user, onLogout }) {
                                 onClick={() => setDropdownOpen(!dropdownOpen)}
                                 className="flex items-center space-x-3 px-3 py-2 hover:bg-gray-100 rounded-lg"
                             >
-                                {/* Avatar */}
-                                <div className="w-8 h-8 bg-indigo-600 text-white rounded-full flex items-center justify-center text-sm font-medium">
-                                    {getInitials()}
-                                </div>
+                                {/* Avatar real o iniciales */}
+                                {renderAvatar(8)}
                                 {/* Información del usuario */}
                                 <div className="hidden sm:block text-left">
                                     <div className="text-sm font-medium text-gray-900 truncate max-w-32">
-                                        {user?.fullName || user?.email?.split('@')[0] || 'Usuario'}
+                                        {user?.nickname || user?.email?.split('@')[0] || 'Usuario'}
                                     </div>
                                     <div className="text-xs text-gray-500 truncate max-w-32">
                                         {user?.email}
@@ -126,12 +145,10 @@ export default function DashboardHeader({ user, onLogout }) {
                                     {/* Header del dropdown */}
                                     <div className="px-4 py-3 border-b border-gray-100">
                                         <div className="flex items-center space-x-3">
-                                            <div className="w-10 h-10 bg-indigo-600 text-white rounded-full flex items-center justify-center text-sm font-medium">
-                                                {getInitials()}
-                                            </div>
+                                            {renderAvatar(10)}
                                             <div className="flex-1 min-w-0">
                                                 <div className="text-sm font-medium text-gray-900 truncate">
-                                                    {user?.fullName || 'Usuario'}
+                                                    {user?.nickname || 'Usuario'}
                                                 </div>
                                                 <div className="text-xs text-gray-500 truncate">
                                                     {user?.email}
@@ -178,9 +195,12 @@ export default function DashboardHeader({ user, onLogout }) {
                 onClose={() => setProfileModalOpen(false)}
                 user={user}
                 onSave={async (data) => {
-                    // Aquí deberías llamar a la API para guardar los cambios
-                    // y actualizar el contexto de usuario si es necesario
-                    // Por ahora solo se cierra el modal
+                    if (data.fullName && data.fullName !== user.nickname) {
+                        await userProfileService.updateNickname(data.fullName);
+                    }
+                    // Si se implementa cambio de avatar, aquí también
+                    await refreshUser();
+                    setProfileModalOpen(false);
                 }}
             />
         </>

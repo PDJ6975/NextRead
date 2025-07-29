@@ -1,5 +1,7 @@
 package com.nextread.controller;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -48,13 +50,11 @@ public class UserController {
     }
 
     @PutMapping("/nickname")
-    public ResponseEntity<String> updateNickname(@RequestBody String nickname) {
-
+    public ResponseEntity<String> updateNickname(@RequestBody Map<String, String> body) {
+        String nickname = body.get("nickname");
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
-
         String updatedNickname = userService.updateNickname(nickname, currentUser);
-
         return ResponseEntity.ok(updatedNickname);
     }
 }

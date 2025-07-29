@@ -20,7 +20,7 @@ export default function ProfileEditModal({
   onSave,
 }) {
   const [currentIcon, setCurrentIcon] = useState(0);
-  const [username, setUsername] = useState(user?.fullName || user?.email?.split('@')[0] || '');
+  const [username, setUsername] = useState(user?.nickname || user?.email?.split('@')[0] || '');
   const [saving, setSaving] = useState(false);
 
   if (!isOpen) return null;
