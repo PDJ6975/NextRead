@@ -12,8 +12,9 @@ const userProfileService = {
     return data;
   },
   async updateAvatar(avatarUrl) {
+    // Enviar como string plano, no JSON
     const { data } = await apiClient.put('/users/avatar', avatarUrl, {
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'text/plain' },
     });
     return data;
   },

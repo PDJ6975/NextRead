@@ -185,7 +185,9 @@ export default function DashboardHeader({ user, onLogout }) {
                     if (data.fullName && data.fullName !== user.nickname) {
                         await userProfileService.updateNickname(data.fullName);
                     }
-                    // Si se implementa cambio de avatar, aquí también
+                    if (data.avatar && data.avatar !== user.avatarUrl) {
+                        await userProfileService.updateAvatar(data.avatar);
+                    }
                     await refreshUser();
                     setProfileModalOpen(false);
                 }}

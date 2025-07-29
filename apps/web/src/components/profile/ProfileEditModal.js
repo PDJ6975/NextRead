@@ -1,17 +1,20 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight, Check, X } from 'lucide-react';
 import { Button } from '../ui/Button';
 
 // Lista de iconos predefinidos (puedes añadir más SVGs o iconos de librerías)
+// Usar URLs absolutas para los avatares (importante para el backend)
+const AVATAR_BASE_URL = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
 const avatarIcons = [
-  '/avatars/avatar1.png',
-  '/avatars/avatar2.png',
-  '/avatars/avatar3.png',
-  '/avatars/avatar4.png',
-  '/avatars/avatar5.png',
+  `${AVATAR_BASE_URL}/avatars/avatar1.png`,
+  `${AVATAR_BASE_URL}/avatars/avatar2.png`,
+  `${AVATAR_BASE_URL}/avatars/avatar3.png`,
+  `${AVATAR_BASE_URL}/avatars/avatar4.png`,
+  `${AVATAR_BASE_URL}/avatars/avatar5.png`,
 ];
+
 
 export default function ProfileEditModal({
   isOpen,
@@ -19,9 +22,25 @@ export default function ProfileEditModal({
   user,
   onSave,
 }) {
-  const [currentIcon, setCurrentIcon] = useState(0);
+  // Sincronizar el avatar seleccionado con el avatar actual del usuario al abrir el modal
+  const getInitialIcon = () => {
+    if (!user?.avatarUrl) return 0;
+    const idx = avatarIcons.findIndex((url) => url === user.avatarUrl);
+    return idx >= 0 ? idx : 0;
+  };
+  const [currentIcon, setCurrentIcon] = useState(getInitialIcon());
   const [username, setUsername] = useState(user?.nickname || user?.email?.split('@')[0] || '');
   const [saving, setSaving] = useState(false);
+
+  // Actualizar el icono seleccionado si cambia el usuario o se abre el modal
+  // (por ejemplo, tras guardar cambios)
+  React.useEffect(() => {
+    if (isOpen) {
+      setCurrentIcon(getInitialIcon());
+      setUsername(user?.nickname || user?.email?.split('@')[0] || '');
+    }
+    // eslint-disable-next-line
+  }, [isOpen, user]);
 
   if (!isOpen) return null;
 
