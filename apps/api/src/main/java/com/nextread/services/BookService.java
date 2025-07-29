@@ -18,6 +18,7 @@ import com.nextread.repositories.AuthorRepository;
 import com.nextread.repositories.BookRepository;
 
 import org.springframework.transaction.annotation.Transactional;
+import com.nextread.dto.GeneratedRecommendationDTO;
 
 @Service
 public class BookService {
@@ -74,12 +75,17 @@ public class BookService {
         List<Book> localMatches = bookRepository.findByTitleIgnoreCase(title);
 
         if (!localMatches.isEmpty()) {
-            Book loadedBook = localMatches.get(0);
-            return loadedBook;
-        } else {
-            Book googleBook = findGoogleBook(title);
-            return googleBook;
+            // Buscar el primer libro local con datos completos
+            for (Book book : localMatches) {
+                if (hasCompleteBookData(book)) {
+                    return book;
+                }
+            }
         }
+
+        // Si no hay libros locales con datos completos, buscar en Google Books
+        Book googleBook = findGoogleBook(title);
+        return googleBook;
     }
 
     /**
@@ -209,15 +215,15 @@ public class BookService {
 
     /**
      * Consulta la API de Google Books para obtener información de un libro por
-     * título
-     * Extrae los campos relevantes del JSON de respuesta y los mapea a un BookDTO.
+     * título. Busca entre múltiples resultados y selecciona el que tenga datos
+     * válidos.
      * 
      * @param title El título del libro
-     * @return BookDTO con los datos del libro obtenidos de Google Books
-     * @throws RuntimeException si el libro no se encuentra en Google Books
+     * @return Book con los datos del libro obtenidos de Google Books
+     * @throws RuntimeException si el libro no se encuentra en Google Books o ningún
+     *                          resultado tiene datos válidos
      */
     private Book findGoogleBook(String title) {
-
         String url = "https://www.googleapis.com/books/v1/volumes?q=intitle:" + title.replace(" ", "+");
         JsonNode root = restTemplate.getForObject(url, JsonNode.class);
 
@@ -225,40 +231,95 @@ public class BookService {
             throw new RuntimeException("Libro no encontrado.");
         }
 
-        JsonNode item0 = root.path("items").get(0);
-        JsonNode info = item0.path("volumeInfo");
-        JsonNode identifiers = info.path("industryIdentifiers");
-        JsonNode imageLinks = info.path("imageLinks");
+        JsonNode items = root.path("items");
+        List<Book> candidateBooks = new ArrayList<>();
 
-        String isbn10 = null;
-        String isbn13 = null;
-        for (JsonNode idNode : identifiers) {
-            String type = idNode.path("type").asText();
-            String idVal = idNode.path("identifier").asText();
-            if ("ISBN_10".equals(type))
-                isbn10 = idVal;
-            if ("ISBN_13".equals(type))
-                isbn13 = idVal;
+        // Procesar todos los resultados disponibles (máximo 10 para eficiencia)
+        int maxResults = Math.min(items.size(), 10);
+
+        for (int i = 0; i < maxResults; i++) {
+            try {
+                JsonNode item = items.get(i);
+                JsonNode info = item.path("volumeInfo");
+                JsonNode identifiers = info.path("industryIdentifiers");
+                JsonNode imageLinks = info.path("imageLinks");
+
+                // Extraer ISBNs
+                String isbn10 = null;
+                String isbn13 = null;
+                for (JsonNode idNode : identifiers) {
+                    String type = idNode.path("type").asText();
+                    String idVal = idNode.path("identifier").asText();
+                    if ("ISBN_10".equals(type))
+                        isbn10 = idVal;
+                    if ("ISBN_13".equals(type))
+                        isbn13 = idVal;
+                }
+
+                // Extraer autores
+                List<String> authorNames = new ArrayList<>();
+                info.path("authors").forEach(a -> authorNames.add(a.asText()));
+
+                List<Author> authors = authorNames.stream()
+                        .map(name -> Author.builder().name(name).build())
+                        .collect(Collectors.toList());
+
+                // Construir el libro
+                Book book = Book.builder()
+                        .title(info.path("title").asText())
+                        .isbn10(isbn10)
+                        .isbn13(isbn13)
+                        .publisher(info.path("publisher").asText("Editorial desconocida"))
+                        .coverUrl(imageLinks.path("thumbnail").asText())
+                        .synopsis(info.path("description").asText())
+                        .pages(info.path("pageCount").asInt())
+                        .publishedYear(info.path("publishedDate").asText())
+                        .authors(authors)
+                        .build();
+
+                candidateBooks.add(book);
+            } catch (Exception e) {
+                // Continuar con el siguiente resultado si hay error en este
+                continue;
+            }
         }
-        String cover = imageLinks.path("thumbnail").asText();
-        List<String> authorNames = new ArrayList<>();
-        info.path("authors").forEach(a -> authorNames.add(a.asText()));
 
-        List<Author> authors = authorNames.stream()
-                .map(name -> Author.builder().name(name).build())
-                .collect(Collectors.toList());
+        // Buscar el primer libro con datos válidos
+        for (Book book : candidateBooks) {
+            if (hasCompleteBookData(book)) {
+                return book;
+            }
+        }
 
-        return Book.builder()
-                .title(info.path("title").asText())
-                .isbn10(isbn10)
-                .isbn13(isbn13)
-                .publisher(info.path("publisher").asText("Editorial desconocida")) // Añadir publisher
-                .coverUrl(cover)
-                .synopsis(info.path("description").asText())
-                .pages(info.path("pageCount").asInt())
-                .publishedYear(info.path("publishedDate").asText())
-                .authors(authors)
-                .build();
+        // Si ningún libro tiene datos completos, lanzar excepción
+        throw new RuntimeException("Ningún resultado de Google Books tiene datos completos para: " + title);
+    }
+
+    /**
+     * Verifica si un libro tiene los datos mínimos requeridos para ser considerado
+     * completo.
+     * Solo verifica campos obligatorios según la entidad Book.
+     * 
+     * @param book El libro a verificar
+     * @return true si el libro tiene los datos mínimos requeridos
+     */
+    private boolean hasCompleteBookData(Book book) {
+        if (book == null)
+            return false;
+
+        // Verificar campos obligatorios según la entidad Book (@Column(nullable =
+        // false))
+        boolean hasRequiredFields = book.getTitle() != null && !book.getTitle().trim().isEmpty() &&
+                book.getIsbn13() != null && !book.getIsbn13().trim().isEmpty() &&
+                book.getIsbn10() != null && !book.getIsbn10().trim().isEmpty() &&
+                book.getPublisher() != null && !book.getPublisher().trim().isEmpty() &&
+                book.getPages() > 0 &&
+                book.getPublishedYear() != null && !book.getPublishedYear().trim().isEmpty();
+
+        // Verificar que tenga al menos un autor (relación obligatoria)
+        boolean hasAuthors = book.getAuthors() != null && !book.getAuthors().isEmpty();
+
+        return hasRequiredFields && hasAuthors;
     }
 
     @Transactional
@@ -359,5 +420,64 @@ public class BookService {
         if (book.getPages() <= 0) {
             book.setPages(1);
         }
+    }
+
+    /**
+     * Busca un libro por título o lo crea si no existe usando datos de
+     * recomendación
+     * 
+     * @param recommendation DTO con los datos del libro recomendado
+     * @return El libro encontrado o creado
+     */
+    @Transactional
+    public Book findOrCreateBookFromRecommendation(GeneratedRecommendationDTO recommendation) {
+        // Buscar por título exacto
+        List<Book> existingBooks = bookRepository.findByTitleIgnoreCase(recommendation.getTitle().trim());
+        if (!existingBooks.isEmpty()) {
+            return existingBooks.get(0);
+        }
+
+        // Crear el libro directamente usando el builder de Book
+        Book newBook = Book.builder()
+                .title(recommendation.getTitle())
+                .synopsis(recommendation.getReason())
+                .publisher(
+                        recommendation.getPublisher() != null ? recommendation.getPublisher() : "Editorial desconocida")
+                .publishedYear(recommendation.getPublishedYear() != null ? recommendation.getPublishedYear()
+                        : "Año desconocido")
+                .pages(recommendation.getPages() != null ? recommendation.getPages() : 0)
+                .isbn13(recommendation.getIsbn13() != null ? recommendation.getIsbn13() : "0000000000000")
+                .isbn10(recommendation.getIsbn10() != null ? recommendation.getIsbn10() : "0000000000")
+                .coverUrl(recommendation.getCoverUrl())
+                .build();
+
+        // Manejar autores
+        if (recommendation.getAuthors() != null && !recommendation.getAuthors().isEmpty()) {
+            List<Author> bookAuthors = recommendation.getAuthors().stream()
+                    .map(authorName -> {
+                        var existingAuthor = authorRepository.findByName(authorName);
+                        if (existingAuthor.isPresent()) {
+                            return existingAuthor.get();
+                        } else {
+                            Author newAuthor = Author.builder().name(authorName).build();
+                            return authorRepository.save(newAuthor);
+                        }
+                    })
+                    .toList();
+            newBook.setAuthors(bookAuthors);
+        } else {
+            // Crear autor por defecto
+            var defaultAuthorOpt = authorRepository.findByName("Autor desconocido");
+            Author defaultAuthor;
+            if (defaultAuthorOpt.isPresent()) {
+                defaultAuthor = defaultAuthorOpt.get();
+            } else {
+                defaultAuthor = Author.builder().name("Autor desconocido").build();
+                defaultAuthor = authorRepository.save(defaultAuthor);
+            }
+            newBook.setAuthors(List.of(defaultAuthor));
+        }
+
+        return saveBook(newBook);
     }
 }

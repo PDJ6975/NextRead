@@ -42,6 +42,9 @@ public class ChatGPTServiceTest {
     private UserBookService userBookService;
 
     @Mock
+    private BookService bookService;
+
+    @Mock
     private RestTemplate restTemplate;
 
     @InjectMocks
@@ -120,7 +123,7 @@ public class ChatGPTServiceTest {
 
             // When & Then
             RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-                chatGPTService.generateRecommendations(testUser);
+                chatGPTService.generateRecommendations(testUser, new ArrayList<>());
             });
 
             assertEquals(
@@ -138,7 +141,7 @@ public class ChatGPTServiceTest {
 
             // When & Then
             RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-                chatGPTService.generateRecommendations(testUser);
+                chatGPTService.generateRecommendations(testUser, new ArrayList<>());
             });
 
             assertEquals("API key de OpenAI no configurada", exception.getMessage());
@@ -153,7 +156,7 @@ public class ChatGPTServiceTest {
 
             // When & Then
             RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-                chatGPTService.generateRecommendations(testUser);
+                chatGPTService.generateRecommendations(testUser, new ArrayList<>());
             });
 
             assertEquals("API key de OpenAI no configurada", exception.getMessage());
@@ -167,11 +170,12 @@ public class ChatGPTServiceTest {
             when(surveyService.findSurveyByUser(testUser)).thenReturn(testSurvey);
             when(userBookService.findUserBooks(testUser)).thenReturn(List.of(testUserBook));
 
+            // Usar un JSON válido con el contenido correctamente escapado
             String mockApiResponse = """
                     {
                         "choices": [{
                             "message": {
-                                "content": "[{\\"title\\": \\"The Hobbit\\", \\"reason\\": \\"Perfect fantasy book for fast readers\\"}]"
+                                "content": "[{\\"title\\": \\"The Hobbit\\", \\"reason\\": \\"Perfect fantasy book for fast readers\\"}, {\\"title\\": \\"Dune\\", \\"reason\\": \\"Epic science fiction\\"}, {\\"title\\": \\"1984\\", \\"reason\\": \\"Classic dystopian novel\\"}]"
                             }
                         }]
                     }
@@ -181,12 +185,18 @@ public class ChatGPTServiceTest {
             when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(HttpEntity.class), eq(String.class)))
                     .thenReturn(mockResponse);
 
+            // Mock the book service to return a valid book for enrichment
+            when(bookService.findRecommendedBook("The Hobbit")).thenReturn(testBook);
+            when(bookService.findRecommendedBook("Dune")).thenReturn(testBook);
+            when(bookService.findRecommendedBook("1984")).thenReturn(testBook);
+
             // When
-            List<GeneratedRecommendationDTO> result = chatGPTService.generateRecommendations(testUser);
+            List<GeneratedRecommendationDTO> result = chatGPTService.generateRecommendations(testUser,
+                    new ArrayList<>());
 
             // Then
             assertNotNull(result);
-            assertEquals(1, result.size());
+            assertEquals(3, result.size());
             assertEquals("The Hobbit", result.get(0).getTitle());
             assertEquals("Perfect fantasy book for fast readers", result.get(0).getReason());
 
@@ -218,7 +228,7 @@ public class ChatGPTServiceTest {
 
             // When & Then - Should not throw exception
             assertDoesNotThrow(() -> {
-                chatGPTService.generateRecommendations(testUser);
+                chatGPTService.generateRecommendations(testUser, new ArrayList<>());
             });
 
             verify(surveyService).findSurveyByUser(testUser);
@@ -263,7 +273,7 @@ public class ChatGPTServiceTest {
 
             // When & Then
             assertDoesNotThrow(() -> {
-                chatGPTService.generateRecommendations(testUser);
+                chatGPTService.generateRecommendations(testUser, new ArrayList<>());
             });
 
             verify(surveyService).findSurveyByUser(testUser);
@@ -281,7 +291,7 @@ public class ChatGPTServiceTest {
 
             // When & Then
             RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-                chatGPTService.generateRecommendations(testUser);
+                chatGPTService.generateRecommendations(testUser, new ArrayList<>());
             });
 
             assertTrue(exception.getMessage().contains("Error al generar recomendaciones"));
@@ -306,7 +316,7 @@ public class ChatGPTServiceTest {
 
             // When & Then - Should not throw the "first time" exception
             RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-                chatGPTService.generateRecommendations(testUser);
+                chatGPTService.generateRecommendations(testUser, new ArrayList<>());
             });
 
             // Should throw a different exception (not the first time validation)
@@ -472,7 +482,7 @@ public class ChatGPTServiceTest {
 
             // When
             String prompt = (String) ReflectionTestUtils.invokeMethod(chatGPTService, "buildPrompt", survey,
-                    new ArrayList<UserBook>());
+                    new ArrayList<UserBook>(), new ArrayList<Book>());
 
             // Then
             assertNotNull(prompt);
@@ -494,7 +504,8 @@ public class ChatGPTServiceTest {
             List<UserBook> userBooks = List.of(testUserBook);
 
             // When
-            String prompt = (String) ReflectionTestUtils.invokeMethod(chatGPTService, "buildPrompt", survey, userBooks);
+            String prompt = (String) ReflectionTestUtils.invokeMethod(chatGPTService, "buildPrompt", survey, userBooks,
+                    new ArrayList<Book>());
 
             // Then
             assertNotNull(prompt);
@@ -518,7 +529,7 @@ public class ChatGPTServiceTest {
 
             // When
             String prompt = (String) ReflectionTestUtils.invokeMethod(chatGPTService, "buildPrompt", testSurvey,
-                    userBooks);
+                    userBooks, new ArrayList<Book>());
 
             // Then
             assertNotNull(prompt);
@@ -543,12 +554,60 @@ public class ChatGPTServiceTest {
 
             // When
             String prompt = (String) ReflectionTestUtils.invokeMethod(chatGPTService, "buildPrompt", survey,
-                    new ArrayList<UserBook>());
+                    new ArrayList<UserBook>(), new ArrayList<Book>());
 
             // Then
             assertNotNull(prompt);
             assertTrue(prompt.contains("Fantasía"));
             assertTrue(prompt.contains("Ciencia Ficción"));
+        }
+
+        @Test
+        @DisplayName("Should build prompt with rejected books")
+        void shouldBuildPromptWithRejectedBooks() {
+            // Given
+            Survey survey = Survey.builder()
+                    .pace(PaceSelection.FAST)
+                    .selectedGenres(List.of(testGenre))
+                    .build();
+
+            List<UserBook> userBooks = new ArrayList<>();
+            List<Book> rejectedBooks = List.of(
+                    Book.builder().title("Rejected Book 1").build(),
+                    Book.builder().title("Rejected Book 2").build());
+
+            // When
+            String prompt = (String) ReflectionTestUtils.invokeMethod(chatGPTService, "buildPrompt", survey, userBooks,
+                    rejectedBooks);
+
+            // Then
+            assertNotNull(prompt);
+            assertTrue(prompt.contains("Libros rechazados recientemente"));
+            assertTrue(prompt.contains("Rejected Book 1"));
+            assertTrue(prompt.contains("Rejected Book 2"));
+            assertTrue(prompt.contains("Evita recomendar libros similares a estos"));
+        }
+
+        @Test
+        @DisplayName("Should build prompt without rejected books when list is empty")
+        void shouldBuildPromptWithoutRejectedBooksWhenListIsEmpty() {
+            // Given
+            Survey survey = Survey.builder()
+                    .pace(PaceSelection.FAST)
+                    .selectedGenres(List.of(testGenre))
+                    .build();
+
+            List<UserBook> userBooks = new ArrayList<>();
+            List<Book> rejectedBooks = new ArrayList<>();
+
+            // When
+            String prompt = (String) ReflectionTestUtils.invokeMethod(chatGPTService, "buildPrompt", survey, userBooks,
+                    rejectedBooks);
+
+            // Then
+            assertNotNull(prompt);
+            assertFalse(prompt.contains("Libros rechazados recientemente"));
+            assertFalse(prompt.contains("Evita recomendar libros similares a estos"));
         }
     }
 
@@ -594,15 +653,12 @@ public class ChatGPTServiceTest {
             // Given
             String jsonResponse = "[]";
 
-            // When
-            @SuppressWarnings("unchecked")
-            List<GeneratedRecommendationDTO> result = (List<GeneratedRecommendationDTO>) ReflectionTestUtils
-                    .invokeMethod(
-                            chatGPTService, "parseRecommendations", jsonResponse);
+            // When & Then
+            RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+                ReflectionTestUtils.invokeMethod(chatGPTService, "parseRecommendations", jsonResponse);
+            });
 
-            // Then
-            assertNotNull(result);
-            assertTrue(result.isEmpty());
+            assertTrue(exception.getMessage().contains("No se pudieron generar recomendaciones válidas"));
         }
 
         @Test

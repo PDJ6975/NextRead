@@ -40,11 +40,18 @@ public class RecommendationController {
      */
     @PostMapping("/generate")
     public ResponseEntity<List<GeneratedRecommendationDTO>> generateRecommendations() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User currentUser = (User) authentication.getPrincipal();
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            User currentUser = (User) authentication.getPrincipal();
 
-        List<GeneratedRecommendationDTO> recommendations = recommendationService.generateRecommendations(currentUser);
-        return ResponseEntity.ok(recommendations);
+            List<GeneratedRecommendationDTO> recommendations = recommendationService
+                    .generateRecommendations(currentUser);
+
+            return ResponseEntity.ok(recommendations);
+
+        } catch (Exception e) {
+            throw e;
+        }
     }
 
     /**

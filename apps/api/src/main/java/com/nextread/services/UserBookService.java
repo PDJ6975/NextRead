@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import com.nextread.dto.UserBookDTO;
@@ -21,13 +22,15 @@ public class UserBookService {
     private final UserBookRepository userBookRepository;
     private final BookService bookService;
     private final SurveyService surveyService;
+    private final RecommendationService recommendationService;
 
     @Autowired
     public UserBookService(UserBookRepository userBookRepository, BookService bookService,
-            SurveyService surveyService) {
+            SurveyService surveyService, @Lazy RecommendationService recommendationService) {
         this.userBookRepository = userBookRepository;
         this.bookService = bookService;
         this.surveyService = surveyService;
+        this.recommendationService = recommendationService;
     }
 
     /**
@@ -139,6 +142,16 @@ public class UserBookService {
 
         // Actualizar con los datos del DTO si se proporcionan
         UserBookDTO updatedUserBook = updateUserBook(newBookForUser.getId(), user, userBookDTO);
+
+        // Aceptar la recomendación si existe para este libro
+        try {
+            recommendationService.acceptRecommendation(user, bookToSave.getId());
+        } catch (Exception e) {
+            // No es crítico si falla la aceptación de recomendación
+            System.out.println(
+                    "⚠️ [UserBookService] No se pudo aceptar recomendación para libro: " + bookToSave.getTitle());
+        }
+
         return updatedUserBook;
     }
 

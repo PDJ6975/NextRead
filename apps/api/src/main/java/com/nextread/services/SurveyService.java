@@ -109,8 +109,11 @@ public class SurveyService {
 
     @Transactional(readOnly = true)
     public Survey findSurveyByUser(User user) {
-        return surveryRepository.findByUser(user)
+
+        Survey survey = surveryRepository.findByUser(user)
                 .orElseThrow(() -> new RuntimeException("El usuario no tiene encuesta asociada"));
+
+        return survey;
     }
 
     /**
