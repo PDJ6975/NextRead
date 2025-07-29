@@ -48,45 +48,7 @@ export default function HomePage() {
                             </div>
 
                             {/* Sidebar - Acciones Rápidas */}
-                            <div className="space-y-6">
-                                {/* Progreso del Usuario */}
-                                <Card>
-                                    <CardHeader>
-                                        <h3 className="text-lg font-semibold text-gray-900">
-                                            Tu progreso
-                                        </h3>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <div className="space-y-4">
-                                            <div>
-                                                <div className="flex justify-between text-sm mb-2">
-                                                    <span className="text-gray-600">Meta de lectura anual</span>
-                                                    <span className="font-medium text-gray-900">24 libros</span>
-                                                </div>
-                                                <div className="w-full bg-gray-200 rounded-full h-2">
-                                                    <div
-                                                        className="bg-indigo-600 h-2 rounded-full transition-all duration-300"
-                                                        style={{ width: '42%' }}
-                                                    />
-                                                </div>
-                                                <div className="text-xs text-gray-500 mt-1">
-                                                    10 de 24 libros (42%)
-                                                </div>
-                                            </div>
-
-                                            <div className="pt-4 border-t border-gray-100">
-                                                <div className="text-sm text-gray-600 mb-2">
-                                                    Racha de lectura
-                                                </div>
-                                                <div className="flex items-center space-x-2">
-                                                    <span className="text-2xl font-bold text-orange-600">7</span>
-                                                    <span className="text-sm text-gray-600">días consecutivos</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            </div>
+                            {/* Sidebar vacío para MVP, sin 'Tu progreso' */}
                         </div>
                     </div>
                 </div>

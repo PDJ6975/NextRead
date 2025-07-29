@@ -14,10 +14,32 @@ class UserStatsService {
             const response = await apiClient.get('/userbooks');
             const userBooks = response.data;
 
-            return this.calculateStats(userBooks);
+            // Obtener páginas de cada libro leído
+            const booksRead = userBooks.filter(ub => ub.status === 'READ');
+            let pagesRead = 0;
+            // Peticiones paralelas para obtener los datos de cada libro
+            const bookDetails = await Promise.all(
+                booksRead.map(async (ub) => {
+                    try {
+                        const res = await apiClient.get(`/books/${ub.bookId}`);
+                        return res.data;
+                    } catch (e) {
+                        return null;
+                    }
+                })
+            );
+            bookDetails.forEach(book => {
+                if (book && book.pages) {
+                    pagesRead += book.pages;
+                }
+            });
+
+            // Calcular el resto de estadísticas normalmente
+            const stats = this.calculateStats(userBooks);
+            stats.pagesRead = pagesRead;
+            return stats;
         } catch (error) {
             console.error('Error al obtener estadísticas del usuario:', error);
-
             // Si hay error, devolver estadísticas por defecto
             return this.getDefaultStats();
         }
