@@ -38,18 +38,20 @@
 
 ## Cambios a analizar como prioridad para el MVP
 
-1. **Perfil de usuario**
+1. **Perfil de usuario** (COMPLETADO)
 
    - Analizar si es necesario un perfil completo o basta con un pequeño componente para cambiar foto y nombre de usuario.
 
-2. **Botón de configuración**
+2. **Botón de configuración** (COMPLETADO)
 
    - Definir la utilidad real del botón de configuración. Valorar si debe ocultarse, dejarse como placeholder o reconvertirse para cambiar tema/idioma en el futuro.
 
-3. **Navegación anónima**
+3. **Navegación anónima y botón de generar recomendaciones**
 
    - Permitir que el usuario navegue por el dashboard sin iniciar sesión, mostrando la funcionalidad básica de la app.
    - Solicitar inicio de sesión solo al intentar generar recomendaciones o guardar progreso.
+   - Añadir un botón grande y visualmente destacado en el dashboard, visible para usuarios anónimos y autenticados.
+   - Si el usuario no está autenticado, al pulsar el botón debe abrirse el modal/login o redirigir a la página de registro/login.
 
 4. **Integración del botón de generar recomendaciones**
    - Mejorar la integración visual y funcional del botón de generar recomendaciones.
@@ -145,3 +147,39 @@ Este proceso debe aplicarse a cualquier nueva funcionalidad, mejora o correcció
 ## Resumen
 
 El frontend ya es funcional para el MVP. Las tareas prioritarias son optimizar la obtención de páginas leídas, mejorar la experiencia de usuario, pulir detalles visuales y analizar los cambios propuestos arriba. El resto de mejoras pueden planificarse tras el MVP.
+
+---
+
+## Navegación anónima y botón de generar recomendaciones
+
+### Pasos técnicos para implementar correctamente
+
+1. **Permitir acceso anónimo al dashboard**
+
+   - Modificar la lógica de rutas protegidas para que el dashboard sea accesible sin autenticación.
+   - Mostrar datos de ejemplo o estados vacíos en estadísticas y biblioteca si el usuario no está autenticado. (tal y como está ahora)
+
+2. **Botón "Generar recomendaciones" llamativo y centrado**
+
+   - Añadir un botón grande y visualmente destacado en el dashboard, visible para usuarios anónimos y autenticados, eliminando la sección propia de recomendaciones
+   - Si el usuario no está autenticado, al pulsar el botón debe abrirse el modal/login o redirigir a la página de registro/login.
+
+3. **Redirección tras login/registro**
+
+   - Tras autenticarse, redirigir automáticamente a la encuesta de preferencias inicial (si es registro), si es login, simplemente vuelve al dashboard.
+   - Al completar la encuesta, redirigir de vuelta al dashboard.
+
+4. **Integración de recomendaciones en la biblioteca**
+
+   - Si el usuario ya ha completado la encuesta y está autenticado, al volver a pulsar el botón se muestran las recomendaciones directamente en una sección de la biblioteca.
+   - Las recomendaciones deben integrarse visualmente con el resto de la biblioteca, usando portadas y acciones coherentes.
+
+5. **UX y feedback**
+
+   - Asegurarse de que el botón y las recomendaciones tengan animaciones y feedback visual moderno.
+   - Mostrar mensajes claros si el usuario intenta generar recomendaciones sin estar autenticado.
+
+---
+
+**Nota:**  
+Este flujo debe implementarse siguiendo el proceso de análisis, revisión de flujo actual, especificación clara y desarrollo profesional descrito en este documento.

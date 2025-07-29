@@ -103,19 +103,6 @@ export default function DashboardHeader({ user, onLogout }) {
                     <h1 className="text-xl font-bold text-indigo-600 whitespace-nowrap">NextRead</h1>
                     {/* Acciones del header */}
                     <div className="flex items-center space-x-4">
-                        {/* Notificaciones (futuro) */}
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            className="relative p-2 hover:bg-gray-100"
-                            title="Notificaciones"
-                        >
-                            <Bell className="w-5 h-5 text-gray-600" />
-                            {/* Badge de notificaciones */}
-                            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                                0
-                            </span>
-                        </Button>
                         {/* Usuario dropdown */}
                         <div className="relative" ref={dropdownRef}>
                             <Button
