@@ -52,16 +52,7 @@ export default function DashboardHeader({ user, onLogout }) {
             label: 'Mi Perfil',
             icon: User,
             action: () => {
-                console.log('Navigate to profile');
-                setDropdownOpen(false);
-            }
-        },
-        {
-            id: 'settings',
-            label: 'Configuración',
-            icon: Settings,
-            action: () => {
-                console.log('Navigate to settings');
+                // Aquí deberías navegar a la página de perfil si existe
                 setDropdownOpen(false);
             }
         },
@@ -84,16 +75,8 @@ export default function DashboardHeader({ user, onLogout }) {
     return (
         <div className="bg-white border-b border-gray-200 px-6 py-4">
             <div className="flex items-center justify-between">
-                {/* Saludo y descripción */}
-                <div className="flex-1">
-                    <h1 className="text-2xl font-bold text-gray-900 mb-1">
-                        {getGreeting()}
-                    </h1>
-                    <p className="text-gray-600 text-sm">
-                        Descubre tu próxima lectura favorita
-                    </p>
-                </div>
-
+                {/* Logo */}
+                <h1 className="text-xl font-bold text-indigo-600 whitespace-nowrap">NextRead</h1>
                 {/* Acciones del header */}
                 <div className="flex items-center space-x-4">
                     {/* Notificaciones (futuro) */}
@@ -109,7 +92,6 @@ export default function DashboardHeader({ user, onLogout }) {
                             0
                         </span>
                     </Button>
-
                     {/* Usuario dropdown */}
                     <div className="relative" ref={dropdownRef}>
                         <Button
@@ -121,7 +103,6 @@ export default function DashboardHeader({ user, onLogout }) {
                             <div className="w-8 h-8 bg-indigo-600 text-white rounded-full flex items-center justify-center text-sm font-medium">
                                 {getInitials()}
                             </div>
-
                             {/* Información del usuario */}
                             <div className="hidden sm:block text-left">
                                 <div className="text-sm font-medium text-gray-900 truncate max-w-32">
@@ -131,14 +112,11 @@ export default function DashboardHeader({ user, onLogout }) {
                                     {user?.email}
                                 </div>
                             </div>
-
                             {/* Chevron */}
                             <ChevronDown
-                                className={`w-4 h-4 text-gray-400 transition-transform ${dropdownOpen ? 'rotate-180' : ''
-                                    }`}
+                                className={`w-4 h-4 text-gray-400 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`}
                             />
                         </Button>
-
                         {/* Dropdown Menu */}
                         {dropdownOpen && (
                             <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
@@ -158,7 +136,6 @@ export default function DashboardHeader({ user, onLogout }) {
                                         </div>
                                     </div>
                                 </div>
-
                                 {/* Items del dropdown */}
                                 <div className="py-1">
                                     {dropdownItems.map((item) => {
@@ -170,7 +147,6 @@ export default function DashboardHeader({ user, onLogout }) {
                                                 />
                                             );
                                         }
-
                                         const Icon = item.icon;
                                         return (
                                             <button

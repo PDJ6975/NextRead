@@ -36,6 +36,28 @@
 
 ---
 
+## Cambios a analizar como prioridad para el MVP
+
+1. **Perfil de usuario**
+
+   - Analizar si es necesario un perfil completo o basta con un pequeño componente para cambiar foto y nombre de usuario.
+
+2. **Botón de configuración**
+
+   - Definir la utilidad real del botón de configuración. Valorar si debe ocultarse, dejarse como placeholder o reconvertirse para cambiar tema/idioma en el futuro.
+
+3. **Navegación anónima**
+
+   - Permitir que el usuario navegue por el dashboard sin iniciar sesión, mostrando la funcionalidad básica de la app.
+   - Solicitar inicio de sesión solo al intentar generar recomendaciones o guardar progreso.
+
+4. **Integración del botón de generar recomendaciones**
+   - Mejorar la integración visual y funcional del botón de generar recomendaciones.
+   - Centrar el botón y reducir su tamaño.
+   - Mostrar las recomendaciones generadas directamente en la sección de biblioteca, con portadas adaptadas y coherentes.
+
+---
+
 ## Flujo frontend-backend de las funcionalidades principales
 
 ### 1. Autenticación y registro
@@ -122,4 +144,4 @@ Este proceso debe aplicarse a cualquier nueva funcionalidad, mejora o correcció
 
 ## Resumen
 
-El frontend ya es funcional para el MVP. Las tareas prioritarias son optimizar la obtención de páginas leídas, mejorar la experiencia de usuario y pulir detalles visuales. El resto de mejoras pueden planificarse tras el MVP.
+El frontend ya es funcional para el MVP. Las tareas prioritarias son optimizar la obtención de páginas leídas, mejorar la experiencia de usuario, pulir detalles visuales y analizar los cambios propuestos arriba. El resto de mejoras pueden planificarse tras el MVP.
