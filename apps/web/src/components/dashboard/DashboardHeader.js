@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import ProfileEditModal from '../profile/ProfileEditModal';
 import { ChevronDown, User, Settings, LogOut, Bell } from 'lucide-react';
 import { Button } from '../ui/Button';
 
@@ -46,13 +47,14 @@ export default function DashboardHeader({ user, onLogout }) {
         return user?.email?.[0]?.toUpperCase() || 'U';
     };
 
+    const [profileModalOpen, setProfileModalOpen] = useState(false);
     const dropdownItems = [
         {
             id: 'profile',
             label: 'Mi Perfil',
             icon: User,
             action: () => {
-                // Aquí deberías navegar a la página de perfil si existe
+                setProfileModalOpen(true);
                 setDropdownOpen(false);
             }
         },
@@ -73,101 +75,114 @@ export default function DashboardHeader({ user, onLogout }) {
     ];
 
     return (
-        <div className="bg-white border-b border-gray-200 px-6 py-4">
-            <div className="flex items-center justify-between">
-                {/* Logo */}
-                <h1 className="text-xl font-bold text-indigo-600 whitespace-nowrap">NextRead</h1>
-                {/* Acciones del header */}
-                <div className="flex items-center space-x-4">
-                    {/* Notificaciones (futuro) */}
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        className="relative p-2 hover:bg-gray-100"
-                        title="Notificaciones"
-                    >
-                        <Bell className="w-5 h-5 text-gray-600" />
-                        {/* Badge de notificaciones */}
-                        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                            0
-                        </span>
-                    </Button>
-                    {/* Usuario dropdown */}
-                    <div className="relative" ref={dropdownRef}>
+        <>
+            <div className="bg-white border-b border-gray-200 px-6 py-4">
+                <div className="flex items-center justify-between">
+                    {/* Logo */}
+                    <h1 className="text-xl font-bold text-indigo-600 whitespace-nowrap">NextRead</h1>
+                    {/* Acciones del header */}
+                    <div className="flex items-center space-x-4">
+                        {/* Notificaciones (futuro) */}
                         <Button
                             variant="ghost"
-                            onClick={() => setDropdownOpen(!dropdownOpen)}
-                            className="flex items-center space-x-3 px-3 py-2 hover:bg-gray-100 rounded-lg"
+                            size="sm"
+                            className="relative p-2 hover:bg-gray-100"
+                            title="Notificaciones"
                         >
-                            {/* Avatar */}
-                            <div className="w-8 h-8 bg-indigo-600 text-white rounded-full flex items-center justify-center text-sm font-medium">
-                                {getInitials()}
-                            </div>
-                            {/* Información del usuario */}
-                            <div className="hidden sm:block text-left">
-                                <div className="text-sm font-medium text-gray-900 truncate max-w-32">
-                                    {user?.fullName || user?.email?.split('@')[0] || 'Usuario'}
-                                </div>
-                                <div className="text-xs text-gray-500 truncate max-w-32">
-                                    {user?.email}
-                                </div>
-                            </div>
-                            {/* Chevron */}
-                            <ChevronDown
-                                className={`w-4 h-4 text-gray-400 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`}
-                            />
+                            <Bell className="w-5 h-5 text-gray-600" />
+                            {/* Badge de notificaciones */}
+                            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                                0
+                            </span>
                         </Button>
-                        {/* Dropdown Menu */}
-                        {dropdownOpen && (
-                            <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
-                                {/* Header del dropdown */}
-                                <div className="px-4 py-3 border-b border-gray-100">
-                                    <div className="flex items-center space-x-3">
-                                        <div className="w-10 h-10 bg-indigo-600 text-white rounded-full flex items-center justify-center text-sm font-medium">
-                                            {getInitials()}
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <div className="text-sm font-medium text-gray-900 truncate">
-                                                {user?.fullName || 'Usuario'}
+                        {/* Usuario dropdown */}
+                        <div className="relative" ref={dropdownRef}>
+                            <Button
+                                variant="ghost"
+                                onClick={() => setDropdownOpen(!dropdownOpen)}
+                                className="flex items-center space-x-3 px-3 py-2 hover:bg-gray-100 rounded-lg"
+                            >
+                                {/* Avatar */}
+                                <div className="w-8 h-8 bg-indigo-600 text-white rounded-full flex items-center justify-center text-sm font-medium">
+                                    {getInitials()}
+                                </div>
+                                {/* Información del usuario */}
+                                <div className="hidden sm:block text-left">
+                                    <div className="text-sm font-medium text-gray-900 truncate max-w-32">
+                                        {user?.fullName || user?.email?.split('@')[0] || 'Usuario'}
+                                    </div>
+                                    <div className="text-xs text-gray-500 truncate max-w-32">
+                                        {user?.email}
+                                    </div>
+                                </div>
+                                {/* Chevron */}
+                                <ChevronDown
+                                    className={`w-4 h-4 text-gray-400 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`}
+                                />
+                            </Button>
+                            {/* Dropdown Menu */}
+                            {dropdownOpen && (
+                                <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+                                    {/* Header del dropdown */}
+                                    <div className="px-4 py-3 border-b border-gray-100">
+                                        <div className="flex items-center space-x-3">
+                                            <div className="w-10 h-10 bg-indigo-600 text-white rounded-full flex items-center justify-center text-sm font-medium">
+                                                {getInitials()}
                                             </div>
-                                            <div className="text-xs text-gray-500 truncate">
-                                                {user?.email}
+                                            <div className="flex-1 min-w-0">
+                                                <div className="text-sm font-medium text-gray-900 truncate">
+                                                    {user?.fullName || 'Usuario'}
+                                                </div>
+                                                <div className="text-xs text-gray-500 truncate">
+                                                    {user?.email}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                                {/* Items del dropdown */}
-                                <div className="py-1">
-                                    {dropdownItems.map((item) => {
-                                        if (item.type === 'divider') {
+                                    {/* Items del dropdown */}
+                                    <div className="py-1">
+                                        {dropdownItems.map((item) => {
+                                            if (item.type === 'divider') {
+                                                return (
+                                                    <div
+                                                        key={item.id}
+                                                        className="h-px bg-gray-100 mx-2 my-1"
+                                                    />
+                                                );
+                                            }
+                                            const Icon = item.icon;
                                             return (
-                                                <div
+                                                <button
                                                     key={item.id}
-                                                    className="h-px bg-gray-100 mx-2 my-1"
-                                                />
+                                                    onClick={item.action}
+                                                    className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-100 flex items-center space-x-3 transition-colors ${item.danger
+                                                        ? 'text-red-600 hover:bg-red-50'
+                                                        : 'text-gray-700'
+                                                        }`}
+                                                >
+                                                    <Icon className="w-4 h-4" />
+                                                    <span>{item.label}</span>
+                                                </button>
                                             );
-                                        }
-                                        const Icon = item.icon;
-                                        return (
-                                            <button
-                                                key={item.id}
-                                                onClick={item.action}
-                                                className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-100 flex items-center space-x-3 transition-colors ${item.danger
-                                                    ? 'text-red-600 hover:bg-red-50'
-                                                    : 'text-gray-700'
-                                                    }`}
-                                            >
-                                                <Icon className="w-4 h-4" />
-                                                <span>{item.label}</span>
-                                            </button>
-                                        );
-                                    })}
+                                        })}
+                                    </div>
                                 </div>
-                            </div>
-                        )}
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+            {/* Modal de edición de perfil */}
+            <ProfileEditModal
+                isOpen={profileModalOpen}
+                onClose={() => setProfileModalOpen(false)}
+                user={user}
+                onSave={async (data) => {
+                    // Aquí deberías llamar a la API para guardar los cambios
+                    // y actualizar el contexto de usuario si es necesario
+                    // Por ahora solo se cierra el modal
+                }}
+            />
+        </>
     );
 } 
