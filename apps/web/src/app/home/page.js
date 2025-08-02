@@ -25,6 +25,11 @@ export default function HomePage() {
         console.log('Nuevas recomendaciones generadas:', newRecommendations);
     };
 
+    // Callback para eliminar recomendación tras añadir a biblioteca
+    const handleRecommendationAdded = (recommendation) => {
+        setRecommendations(prev => prev.filter(rec => rec !== recommendation));
+    };
+
     return (
         <ProtectedRoute requiresFirstTime={false} allowAnonymous={true}>
             <DashboardLayout>
@@ -61,7 +66,10 @@ export default function HomePage() {
                     {/* Biblioteca del usuario - Solo mostrar si está autenticado */}
                     {user && (
                         <section>
-                            <UserLibrarySection recommendations={recommendations} />
+                            <UserLibrarySection 
+                                recommendations={recommendations} 
+                                onRecommendationAdded={handleRecommendationAdded}
+                            />
                         </section>
                     )}
                 </div>

@@ -10,7 +10,7 @@ import { Button } from '../ui/Button';
 import { Plus } from 'lucide-react';
 import { Menu } from '@headlessui/react';
 
-export default function UserLibrarySection({ recommendations = [] }) {
+export default function UserLibrarySection({ recommendations = [], onRecommendationAdded }) {
   const [userBooks, setUserBooks] = useState([]);
   const [booksDetails, setBooksDetails] = useState({});
   const [loading, setLoading] = useState(true);
@@ -119,6 +119,11 @@ export default function UserLibrarySection({ recommendations = [] }) {
       // Actualizar estado local
       setUserBooks(prev => [...prev, added]);
       setBooksDetails(prev => ({ ...prev, [added.bookId]: bookData }));
+
+      // Notificar al padre para eliminar la recomendación
+      if (typeof onRecommendationAdded === 'function') {
+        onRecommendationAdded(recommendation);
+      }
 
       console.log('Recomendación añadida a biblioteca:', recommendation.title);
     } catch (e) {
