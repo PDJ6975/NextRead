@@ -1,3 +1,4 @@
+import { X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { MiniBookSearch } from '../ui/MiniBookSearch';
 import userBookService from '../../services/userBookService';
@@ -11,6 +12,7 @@ import { Plus } from 'lucide-react';
 import { Menu } from '@headlessui/react';
 
 export default function UserLibrarySection({ recommendations = [], onRecommendationAdded }) {
+  const [selectedRecommendation, setSelectedRecommendation] = useState(null);
   const [userBooks, setUserBooks] = useState([]);
   const [booksDetails, setBooksDetails] = useState({});
   const [loading, setLoading] = useState(true);
@@ -262,7 +264,8 @@ export default function UserLibrarySection({ recommendations = [], onRecommendat
                 {recommendations.map((recommendation, index) => (
                   <div
                     key={`recommendation-${index}`}
-                    className="flex gap-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl border border-indigo-200 shadow-sm hover:shadow-lg transition-shadow duration-200 p-4 items-center min-h-[140px] min-w-[400px]"
+                    className="flex gap-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl border border-indigo-200 shadow-sm hover:shadow-lg transition-shadow duration-200 p-4 items-center min-h-[140px] min-w-[400px] cursor-pointer"
+                    onClick={() => setSelectedRecommendation(recommendation)}
                   >
                     <img
                       src={recommendation.coverUrl || 'https://placehold.co/96x140?text=Sin+portada'}
@@ -286,7 +289,7 @@ export default function UserLibrarySection({ recommendations = [], onRecommendat
                       <div className="flex items-center gap-2 mt-2">
                         <Button
                           size="sm"
-                          onClick={() => handleAddRecommendationToLibrary(recommendation)}
+                          onClick={e => { e.stopPropagation(); handleAddRecommendationToLibrary(recommendation); }}
                           className="text-xs px-3 py-1 bg-indigo-600 hover:bg-indigo-700"
                         >
                           <Plus className="w-3 h-3 mr-1" />
@@ -296,6 +299,62 @@ export default function UserLibrarySection({ recommendations = [], onRecommendat
                     </div>
                   </div>
                 ))}
+      {/* Modal de detalles de recomendación */}
+      {selectedRecommendation && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 relative animate-fade-in">
+            <button
+              className="absolute top-3 right-3 text-gray-400 hover:text-gray-700"
+              onClick={() => setSelectedRecommendation(null)}
+              aria-label="Cerrar"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <div className="flex gap-4 mb-4">
+              <img
+                src={selectedRecommendation.coverUrl || 'https://placehold.co/96x140?text=Sin+portada'}
+                alt={selectedRecommendation.title || 'Título no disponible'}
+                className="w-24 h-36 object-cover rounded-md border border-indigo-200 bg-gray-50 shadow-sm flex-shrink-0"
+              />
+              <div className="flex-1 min-w-0">
+                <h2 className="font-bold text-lg text-indigo-800 mb-1 truncate" title={selectedRecommendation.title}>
+                  {selectedRecommendation.title || 'Título no disponible'}
+                </h2>
+                <p className="text-xs text-gray-500 mb-1">
+                  <span className="font-medium">Editorial:</span> {selectedRecommendation.publisher || 'Desconocida'}
+                </p>
+                <p className="text-xs text-gray-500 mb-1">
+                  <span className="font-medium">Autores:</span> {Array.isArray(selectedRecommendation.authors)
+                    ? selectedRecommendation.authors.map(a => a.name || a).join(', ')
+                    : 'Desconocido'}
+                </p>
+                <p className="text-xs text-gray-500 mb-1">
+                  <span className="font-medium">Páginas:</span> {selectedRecommendation.pages || 'N/D'}
+                </p>
+                <p className="text-xs text-gray-500 mb-1">
+                  <span className="font-medium">ISBN:</span> {selectedRecommendation.isbn13 || selectedRecommendation.isbn10 || 'N/D'}
+                </p>
+              </div>
+            </div>
+            <div className="mb-2">
+              <span className="inline-block bg-indigo-100 text-indigo-700 text-xs px-2 py-1 rounded-full mb-2 font-medium">
+                Motivo de la recomendación
+              </span>
+              <p className="text-sm text-gray-700 mb-2">
+                {selectedRecommendation.reason || 'Sin motivo específico'}
+              </p>
+            </div>
+            <div>
+              <span className="inline-block bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-full mb-2 font-medium">
+                Sinopsis
+              </span>
+              <p className="text-sm text-gray-700 whitespace-pre-line">
+                {selectedRecommendation.synopsis || 'Sin sinopsis disponible'}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
               </div>
             </div>
           )}
