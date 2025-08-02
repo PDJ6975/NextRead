@@ -14,15 +14,8 @@ export default function HomePage() {
     const { user, logout } = useAuth();
     const [recommendations, setRecommendations] = useState([]);
 
-    const handleBookAdded = (book) => {
-        console.log('Libro añadido desde recomendaciones:', book.title);
-        // TODO: Actualizar lista de libros del usuario
-        // TODO: Mostrar toast de confirmación
-    };
-
     const handleRecommendationsGenerated = (newRecommendations) => {
         setRecommendations(newRecommendations);
-        console.log('Nuevas recomendaciones generadas:', newRecommendations);
     };
 
     // Callback para eliminar recomendación tras añadir a biblioteca

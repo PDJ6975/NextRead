@@ -111,8 +111,6 @@ export default function UserLibrarySection({ recommendations = [], onRecommendat
         pages: recommendation.pages,
         publishedYear: recommendation.publishedYear
       };
-
-      console.log('[UserLibrarySection] bookData a enviar:', bookData);
       const userBookData = { status: 'TO_READ' };
       const added = await userBookService.addBook(bookData, userBookData);
 
@@ -124,8 +122,6 @@ export default function UserLibrarySection({ recommendations = [], onRecommendat
       if (typeof onRecommendationAdded === 'function') {
         onRecommendationAdded(recommendation);
       }
-
-      console.log('Recomendación añadida a biblioteca:', recommendation.title);
     } catch (e) {
       setError('No se pudo añadir la recomendación');
       console.error('Error adding recommendation:', e);
