@@ -46,14 +46,14 @@
 
    - Definir la utilidad real del botón de configuración. Valorar si debe ocultarse, dejarse como placeholder o reconvertirse para cambiar tema/idioma en el futuro.
 
-3. **Navegación anónima y botón de generar recomendaciones**
+3. **Navegación anónima y botón de generar recomendaciones** (COMPLETADO)
 
    - Permitir que el usuario navegue por el dashboard sin iniciar sesión, mostrando la funcionalidad básica de la app.
    - Solicitar inicio de sesión solo al intentar generar recomendaciones o guardar progreso.
    - Añadir un botón grande y visualmente destacado en el dashboard, visible para usuarios anónimos y autenticados.
    - Si el usuario no está autenticado, al pulsar el botón debe abrirse el modal/login o redirigir a la página de registro/login.
 
-4. **Integración del botón de generar recomendaciones**
+4. **Integración del botón de generar recomendaciones** (COMPLETADO)
    - Mejorar la integración visual y funcional del botón de generar recomendaciones.
    - Centrar el botón y reducir su tamaño.
    - Mostrar las recomendaciones generadas directamente en la sección de biblioteca, con portadas adaptadas y coherentes.
