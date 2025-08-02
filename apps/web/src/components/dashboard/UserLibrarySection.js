@@ -100,18 +100,26 @@ export default function UserLibrarySection({ recommendations = [] }) {
     try {
       const bookData = {
         title: recommendation.title,
-        authors: [{ name: 'Autor por determinar' }], // Se puede mejorar con datos reales
+        authors: Array.isArray(recommendation.authors) && recommendation.authors.length > 0
+          ? recommendation.authors.map(a => typeof a === 'string' ? { name: a } : a)
+          : [{ name: 'Autor por determinar' }],
         coverUrl: recommendation.coverUrl,
-        synopsis: recommendation.reason
+        synopsis: recommendation.reason,
+        publisher: recommendation.publisher,
+        isbn10: recommendation.isbn10,
+        isbn13: recommendation.isbn13,
+        pages: recommendation.pages,
+        publishedYear: recommendation.publishedYear
       };
-      
+
+      console.log('[UserLibrarySection] bookData a enviar:', bookData);
       const userBookData = { status: 'TO_READ' };
       const added = await userBookService.addBook(bookData, userBookData);
-      
+
       // Actualizar estado local
       setUserBooks(prev => [...prev, added]);
       setBooksDetails(prev => ({ ...prev, [added.bookId]: bookData }));
-      
+
       console.log('Recomendación añadida a biblioteca:', recommendation.title);
     } catch (e) {
       setError('No se pudo añadir la recomendación');
