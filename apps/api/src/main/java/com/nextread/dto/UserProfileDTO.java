@@ -14,4 +14,5 @@ import lombok.Setter;
 public class UserProfileDTO {
     private String nickname;
     private String avatarUrl;
+    private Boolean firstTime;
 }

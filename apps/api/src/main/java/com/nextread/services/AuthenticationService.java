@@ -42,10 +42,14 @@ public class AuthenticationService {
 
     public User signUp(RegisterUserDTO input) {
         User user = new User(input.getEmail(), input.getUsername(), passwordEncoder.encode(input.getPassword()));
-        user.setAvatarUrl("https://via.placeholder.com/150/cccccc/ffffff?text=" + input.getUsername().charAt(0));
+        // Asignar avatar por defecto aleatorio de 5 posibles
+        // TODO: Cambiar la URL base a la del entorno de producción cuando se despliegue
+        // Asignar un avatar aleatorio de la carpeta avatars con URL absoluta para
+        // desarrollo local
+        int randomAvatar = new Random().nextInt(6) + 1;
+        user.setAvatarUrl("http://localhost:3000/avatars/avatar" + randomAvatar + ".png");
         user.setVerificationCode(generateVerificationCode());
-        user.setVerificationCodeExpiresAt(LocalDateTime.now().plusMinutes(15)); // Caduca a los 15 minutos, lo podemos
-                                                                                // cambiar
+        user.setVerificationCodeExpiresAt(LocalDateTime.now().plusMinutes(15));
         user.setEnabled(false);
         sendVerificationEmail(user);
 

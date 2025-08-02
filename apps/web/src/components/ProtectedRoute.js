@@ -4,28 +4,32 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../contexts/AuthContext';
 
-export default function ProtectedRoute({ children, requiresFirstTime = false }) {
+export default function ProtectedRoute({ children, requiresFirstTime = false, allowAnonymous = false }) {
     const { user, isLoading } = useAuth();
     const router = useRouter();
 
     useEffect(() => {
         if (!isLoading) {
-            if (!user) {
+            // Si permite acceso anónimo, no redirigir por falta de usuario
+            if (!user && !allowAnonymous) {
                 router.push('/auth/login');
                 return;
             }
 
-            if (requiresFirstTime && !user.firstTime) {
-                router.push('/home');
-                return;
-            }
+            // Solo aplicar validaciones de firstTime si el usuario está autenticado
+            if (user) {
+                if (requiresFirstTime && !user.firstTime) {
+                    router.push('/home');
+                    return;
+                }
 
-            if (!requiresFirstTime && user.firstTime) {
-                router.push('/survey');
-                return;
+                if (!requiresFirstTime && user.firstTime) {
+                    router.push('/survey');
+                    return;
+                }
             }
         }
-    }, [user, isLoading, router, requiresFirstTime]);
+    }, [user, isLoading, router, requiresFirstTime, allowAnonymous]);
 
     if (isLoading) {
         return (
@@ -35,15 +39,18 @@ export default function ProtectedRoute({ children, requiresFirstTime = false }) 
         );
     }
 
-    if (!user) {
+    // Si permite acceso anónimo, mostrar contenido incluso sin usuario
+    if (!user && !allowAnonymous) {
         return null;
     }
 
-    if (requiresFirstTime && !user.firstTime) {
+    // Si requiere firstTime pero el usuario no lo cumple (y está autenticado)
+    if (user && requiresFirstTime && !user.firstTime) {
         return null;
     }
 
-    if (!requiresFirstTime && user.firstTime) {
+    // Si no requiere firstTime pero el usuario sí tiene firstTime (y está autenticado)
+    if (user && !requiresFirstTime && user.firstTime) {
         return null;
     }
 

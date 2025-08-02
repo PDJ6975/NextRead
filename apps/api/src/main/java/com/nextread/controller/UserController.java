@@ -1,5 +1,7 @@
 package com.nextread.controller;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -13,25 +15,37 @@ import org.springframework.web.bind.annotation.RestController;
 import com.nextread.dto.UserProfileDTO;
 import com.nextread.entities.User;
 import com.nextread.services.UserService;
+import com.nextread.services.SurveyService;
 
 @RequestMapping("/users")
 @RestController
+
 public class UserController {
 
     private final UserService userService;
+    private final SurveyService surveyService;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, SurveyService surveyService) {
         this.userService = userService;
+        this.surveyService = surveyService;
     }
 
     @GetMapping("/me")
     public ResponseEntity<UserProfileDTO> authenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
+        Boolean firstTime = null;
+        try {
+            var survey = surveyService.findSurveyByUser(currentUser);
+            firstTime = survey != null ? survey.getFirstTime() : null;
+        } catch (Exception e) {
+            // Si no hay encuesta, dejar firstTime como null
+        }
         UserProfileDTO userDTO = UserProfileDTO.builder()
                 .nickname(currentUser.getNickname())
                 .avatarUrl(currentUser.getAvatarUrl())
+                .firstTime(firstTime)
                 .build();
         return ResponseEntity.ok(userDTO);
     }
@@ -48,13 +62,11 @@ public class UserController {
     }
 
     @PutMapping("/nickname")
-    public ResponseEntity<String> updateNickname(@RequestBody String nickname) {
-
+    public ResponseEntity<String> updateNickname(@RequestBody Map<String, String> body) {
+        String nickname = body.get("nickname");
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
-
         String updatedNickname = userService.updateNickname(nickname, currentUser);
-
         return ResponseEntity.ok(updatedNickname);
     }
 }

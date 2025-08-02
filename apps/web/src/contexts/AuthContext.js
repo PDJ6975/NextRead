@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect } from 'react';
 import { authService } from '../services/authService';
+import userProfileService from '../services/userProfileService';
 
 const AuthContext = createContext();
 
@@ -22,14 +23,16 @@ export function AuthProvider({ children }) {
 
     const verifyToken = async (token) => {
         try {
-            // Aquí podrías hacer una llamada al backend para verificar el token
-            // Por ahora, simplemente decodificamos el token para obtener info básica
             const payload = JSON.parse(atob(token.split('.')[1]));
+            // Obtener nickname, avatarUrl y firstTime del backend
+            const profile = await userProfileService.getProfile();
             setUser({
                 id: payload.sub,
                 email: payload.email,
-                userName: payload.userName,
-                firstTime: payload.firstTime || false
+                nickname: profile.nickname,
+                avatarUrl: profile.avatarUrl,
+                // Usar el valor real de firstTime del backend si existe, si no, fallback al del token
+                firstTime: typeof profile.firstTime !== 'undefined' ? profile.firstTime : (payload.firstTime !== false)
             });
         } catch (error) {
             localStorage.removeItem('token');
@@ -42,14 +45,9 @@ export function AuthProvider({ children }) {
         try {
             const response = await authService.login(credentials);
             const { token, firstTime } = response.data;
-
             localStorage.setItem('token', token);
-
-            // Crear objeto usuario con la información necesaria
-            const userData = { firstTime };
-            setUser(userData);
-
-            return userData;
+            await verifyToken(token);
+            return { firstTime };
         } catch (error) {
             throw error;
         }
@@ -67,6 +65,17 @@ export function AuthProvider({ children }) {
     const verify = async (verificationData) => {
         try {
             const response = await authService.verify(verificationData);
+            
+            // Si el backend devuelve un token tras la verificación, hacer login automático
+            if (response.data.token) {
+                localStorage.setItem('token', response.data.token);
+                await verifyToken(response.data.token);
+                return { 
+                    autoLogin: true, 
+                    firstTime: response.data.firstTime 
+                };
+            }
+            
             return response.data;
         } catch (error) {
             throw error;

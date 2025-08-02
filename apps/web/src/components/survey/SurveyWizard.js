@@ -9,7 +9,7 @@ import { SurveyConfirmation } from './SurveyConfirmation';
 
 export function SurveyWizard({ initialSurvey = null, isFirstTime = true }) {
     const router = useRouter();
-    const { updateUser } = useAuth();
+    const { updateUser, refreshUser } = useAuth();
     const [currentStep, setCurrentStep] = useState(0);
     const [surveyData, setSurveyData] = useState({
         pace: initialSurvey?.pace || '',
@@ -176,13 +176,11 @@ export function SurveyWizard({ initialSurvey = null, isFirstTime = true }) {
                 }
             }
 
-            // Actualizar el estado del usuario para reflejar que ya no es primera vez
-            updateUser({ firstTime: false });
 
-            // Pequeño delay para asegurar que el estado se actualice antes de redirigir
-            setTimeout(() => {
-                router.push('/home');
-            }, 100);
+            // Refrescar el usuario desde el backend para obtener el estado real de firstTime
+            await refreshUser();
+            // Redirigir al dashboard
+            router.push('/home');
 
         } catch (error) {
             setError('Error al guardar la encuesta. Por favor, inténtalo de nuevo.');
