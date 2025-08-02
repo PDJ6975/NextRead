@@ -17,7 +17,7 @@ function VerifyContent() {
     });
     const [isLoading, setIsLoading] = useState(false);
     const [isResending, setIsResending] = useState(false);
-    const { verify } = useAuth();
+    const { verify, login } = useAuth();
     const { errors, validate, setErrors } = useValidation(verifySchema);
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -55,10 +55,16 @@ function VerifyContent() {
         setIsLoading(true);
 
         try {
-            await verify(formData);
+            const response = await verify(formData);
 
-            // Redirigir a página de login después de verificación exitosa
-            router.push('/auth/login?verified=true');
+            // Si hubo auto-login tras verificación, redirigir al dashboard
+            // El ProtectedRoute se encargará de redirigir a /survey si es firstTime
+            if (response && response.autoLogin) {
+                router.push('/home');
+            } else {
+                // Redirigir a login con mensaje de verificación exitosa
+                router.push('/auth/login?verified=true');
+            }
         } catch (error) {
             console.error('Error en verificación:', error);
 

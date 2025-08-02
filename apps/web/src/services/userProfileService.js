@@ -3,7 +3,8 @@ import apiClient from '../lib/apiClient';
 const userProfileService = {
   async getProfile() {
     const { data } = await apiClient.get('/users/me');
-    return data; // { nickname, avatarUrl }
+    // Se espera que el backend devuelva { nickname, avatarUrl, firstTime }
+    return data;
   },
   async updateNickname(nickname) {
     const { data } = await apiClient.put('/users/nickname', { nickname }, {

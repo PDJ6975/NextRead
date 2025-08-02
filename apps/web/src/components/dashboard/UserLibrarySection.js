@@ -6,9 +6,11 @@ import { Card, CardHeader, CardContent } from '../ui/Card';
 import LoadingSpinner from '../ui/LoadingSpinner';
 import { EmptyLibrary } from '../ui/EmptyState';
 import { StarRating } from '../ui/StarRating';
+import { Button } from '../ui/Button';
+import { Plus } from 'lucide-react';
 import { Menu } from '@headlessui/react';
 
-export default function UserLibrarySection() {
+export default function UserLibrarySection({ recommendations = [] }) {
   const [userBooks, setUserBooks] = useState([]);
   const [booksDetails, setBooksDetails] = useState({});
   const [loading, setLoading] = useState(true);
@@ -90,6 +92,30 @@ export default function UserLibrarySection() {
       setUserBooks(prev => prev.map(ub => ub.id === userBook.id ? { ...ub, rating: userBook.rating } : ub));
     } finally {
       setUpdatingBookId(null);
+    }
+  };
+
+  // Función para añadir recomendación a la biblioteca
+  const handleAddRecommendationToLibrary = async (recommendation) => {
+    try {
+      const bookData = {
+        title: recommendation.title,
+        authors: [{ name: 'Autor por determinar' }], // Se puede mejorar con datos reales
+        coverUrl: recommendation.coverUrl,
+        synopsis: recommendation.reason
+      };
+      
+      const userBookData = { status: 'TO_READ' };
+      const added = await userBookService.addBook(bookData, userBookData);
+      
+      // Actualizar estado local
+      setUserBooks(prev => [...prev, added]);
+      setBooksDetails(prev => ({ ...prev, [added.bookId]: bookData }));
+      
+      console.log('Recomendación añadida a biblioteca:', recommendation.title);
+    } catch (e) {
+      setError('No se pudo añadir la recomendación');
+      console.error('Error adding recommendation:', e);
     }
   };
 
@@ -217,6 +243,54 @@ export default function UserLibrarySection() {
           </div>
         </CardHeader>
         <CardContent>
+          {/* Sección de Recomendaciones */}
+          {recommendations.length > 0 && (
+            <div className="mb-8">
+              <h3 className="text-lg font-semibold text-indigo-700 mb-3 flex items-center gap-2">
+                ✨ Recomendaciones para ti
+              </h3>
+              <div className="flex overflow-x-auto gap-6 pb-2" style={{ minHeight: 180 }}>
+                {recommendations.map((recommendation, index) => (
+                  <div
+                    key={`recommendation-${index}`}
+                    className="flex gap-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl border border-indigo-200 shadow-sm hover:shadow-lg transition-shadow duration-200 p-4 items-center min-h-[140px] min-w-[400px]"
+                  >
+                    <img
+                      src={recommendation.coverUrl || 'https://placehold.co/96x140?text=Sin+portada'}
+                      alt={recommendation.title || 'Título no disponible'}
+                      className="w-20 h-32 object-cover rounded-md border border-indigo-200 bg-gray-50 shadow-sm flex-shrink-0"
+                    />
+                    <div className="flex-1 flex flex-col justify-between h-full min-w-0">
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-xs bg-indigo-600 text-white px-2 py-1 rounded-full font-medium">
+                            ✨ Recomendado
+                          </span>
+                        </div>
+                        <h3 className="font-semibold text-base text-gray-900 truncate" title={recommendation.title}>
+                          {recommendation.title || 'Título no disponible'}
+                        </h3>
+                        <p className="text-sm text-gray-600 mb-2 line-clamp-2" title={recommendation.reason}>
+                          {recommendation.reason || 'Recomendación personalizada'}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2 mt-2">
+                        <Button
+                          size="sm"
+                          onClick={() => handleAddRecommendationToLibrary(recommendation)}
+                          className="text-xs px-3 py-1 bg-indigo-600 hover:bg-indigo-700"
+                        >
+                          <Plus className="w-3 h-3 mr-1" />
+                          Añadir a biblioteca
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          
           {/* Sección TO_READ */}
           <div className="mb-8">
             <h3 className="text-lg font-semibold text-yellow-700 mb-3 flex items-center gap-2">📚 Por leer</h3>

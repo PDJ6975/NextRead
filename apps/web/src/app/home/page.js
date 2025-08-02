@@ -4,13 +4,15 @@ import ProtectedRoute from '../../components/ProtectedRoute';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import DashboardHeader from '../../components/dashboard/DashboardHeader';
 import DashboardStats from '../../components/dashboard/DashboardStats';
-import RecommendationsSection from '../../components/dashboard/RecommendationsSection';
+import GenerateRecommendationsButton from '../../components/dashboard/GenerateRecommendationsButton';
 import { Card, CardContent, CardHeader } from '../../components/ui/Card';
 import UserLibrarySection from '../../components/dashboard/UserLibrarySection';
 import { useAuth } from '../../contexts/AuthContext';
+import { useState } from 'react';
 
 export default function HomePage() {
     const { user, logout } = useAuth();
+    const [recommendations, setRecommendations] = useState([]);
 
     const handleBookAdded = (book) => {
         console.log('Libro añadido desde recomendaciones:', book.title);
@@ -18,30 +20,50 @@ export default function HomePage() {
         // TODO: Mostrar toast de confirmación
     };
 
+    const handleRecommendationsGenerated = (newRecommendations) => {
+        setRecommendations(newRecommendations);
+        console.log('Nuevas recomendaciones generadas:', newRecommendations);
+    };
+
     return (
-        <ProtectedRoute requiresFirstTime={false}>
+        <ProtectedRoute requiresFirstTime={false} allowAnonymous={true}>
             <DashboardLayout>
                 <DashboardHeader user={user} onLogout={logout} />
                 <div className="flex-1 p-6 space-y-6">
-                    {/* Estadísticas del Usuario */}
-                    <section>
-                        <DashboardStats />
+                    {/* Estadísticas del Usuario - Solo mostrar si está autenticado */}
+                    {user ? (
+                        <section>
+                            <DashboardStats />
+                        </section>
+                    ) : (
+                        /* Mensaje de bienvenida para usuarios anónimos */
+                        <section className="text-center py-8">
+                            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-8">
+                                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                                    ¡Bienvenido a NextRead! 📚
+                                </h2>
+                                <p className="text-gray-600 max-w-2xl mx-auto">
+                                    Descubre tu próximo libro favorito con recomendaciones personalizadas. 
+                                    Regístrate para comenzar tu viaje de lectura y guardar tu progreso.
+                                </p>
+                            </div>
+                        </section>
+                    )}
+                    
+                    {/* Botón Central de Generar Recomendaciones */}
+                    <section className="py-12">
+                        <GenerateRecommendationsButton 
+                            onRecommendationsGenerated={handleRecommendationsGenerated}
+                            className="px-6"
+                        />
                     </section>
-                    {/* Grid de Contenido Principal */}
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        {/* Columna Principal - Recomendaciones */}
-                        <div className="lg:col-span-2 space-y-6">
-                            {/* Sección de Recomendaciones */}
-                            <RecommendationsSection
-                                maxRecommendations={6}
-                                onBookAdded={handleBookAdded}
-                            />
-                            {/* Sección de Historial de Libros */}
-                            {/* Biblioteca del usuario */}
-                            <UserLibrarySection />
-                        </div>
-                        {/* Sidebar vacío para MVP, sin 'Tu progreso' */}
-                    </div>
+
+                    {/* Biblioteca del usuario - Solo mostrar si está autenticado */}
+                    {user && (
+                        <section>
+                            <UserLibrarySection recommendations={recommendations} />
+                        </section>
+                    )}
                 </div>
             </DashboardLayout>
         </ProtectedRoute>

@@ -15,25 +15,37 @@ import org.springframework.web.bind.annotation.RestController;
 import com.nextread.dto.UserProfileDTO;
 import com.nextread.entities.User;
 import com.nextread.services.UserService;
+import com.nextread.services.SurveyService;
 
 @RequestMapping("/users")
 @RestController
+
 public class UserController {
 
     private final UserService userService;
+    private final SurveyService surveyService;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, SurveyService surveyService) {
         this.userService = userService;
+        this.surveyService = surveyService;
     }
 
     @GetMapping("/me")
     public ResponseEntity<UserProfileDTO> authenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = (User) authentication.getPrincipal();
+        Boolean firstTime = null;
+        try {
+            var survey = surveyService.findSurveyByUser(currentUser);
+            firstTime = survey != null ? survey.getFirstTime() : null;
+        } catch (Exception e) {
+            // Si no hay encuesta, dejar firstTime como null
+        }
         UserProfileDTO userDTO = UserProfileDTO.builder()
                 .nickname(currentUser.getNickname())
                 .avatarUrl(currentUser.getAvatarUrl())
+                .firstTime(firstTime)
                 .build();
         return ResponseEntity.ok(userDTO);
     }

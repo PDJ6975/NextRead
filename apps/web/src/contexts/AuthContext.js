@@ -24,14 +24,15 @@ export function AuthProvider({ children }) {
     const verifyToken = async (token) => {
         try {
             const payload = JSON.parse(atob(token.split('.')[1]));
-            // Obtener nickname y avatarUrl del backend
+            // Obtener nickname, avatarUrl y firstTime del backend
             const profile = await userProfileService.getProfile();
             setUser({
                 id: payload.sub,
                 email: payload.email,
                 nickname: profile.nickname,
                 avatarUrl: profile.avatarUrl,
-                firstTime: payload.firstTime || false
+                // Usar el valor real de firstTime del backend si existe, si no, fallback al del token
+                firstTime: typeof profile.firstTime !== 'undefined' ? profile.firstTime : (payload.firstTime !== false)
             });
         } catch (error) {
             localStorage.removeItem('token');
@@ -64,6 +65,17 @@ export function AuthProvider({ children }) {
     const verify = async (verificationData) => {
         try {
             const response = await authService.verify(verificationData);
+            
+            // Si el backend devuelve un token tras la verificación, hacer login automático
+            if (response.data.token) {
+                localStorage.setItem('token', response.data.token);
+                await verifyToken(response.data.token);
+                return { 
+                    autoLogin: true, 
+                    firstTime: response.data.firstTime 
+                };
+            }
+            
             return response.data;
         } catch (error) {
             throw error;
