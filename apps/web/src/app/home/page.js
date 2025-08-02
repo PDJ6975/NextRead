@@ -1,11 +1,11 @@
 'use client';
 
 import ProtectedRoute from '../../components/ProtectedRoute';
-import DashboardLayout from '../../components/layout/DashboardLayout';
-import DashboardHeader from '../../components/dashboard/DashboardHeader';
+import DashboardLayoutCozy from '../../components/layout/DashboardLayoutCozy';
+import DashboardHeaderCozy from '../../components/dashboard/DashboardHeaderCozy';
 import DashboardStats from '../../components/dashboard/DashboardStats';
 import GenerateRecommendationsButton from '../../components/dashboard/GenerateRecommendationsButton';
-import { Card, CardContent, CardHeader } from '../../components/ui/Card';
+import { CardCozy } from '../../components/ui/cozy/CardCozy';
 import UserLibrarySection from '../../components/dashboard/UserLibrarySection';
 import { useAuth } from '../../contexts/AuthContext';
 import { useState } from 'react';
@@ -25,26 +25,35 @@ export default function HomePage() {
 
     return (
         <ProtectedRoute requiresFirstTime={false} allowAnonymous={true}>
-            <DashboardLayout>
-                <DashboardHeader user={user} onLogout={logout} />
-                <div className="flex-1 p-6 space-y-6">
+            <DashboardLayoutCozy>
+                <DashboardHeaderCozy user={user} onLogout={logout} />
+                <div className="flex-1 space-y-8">
                     {/* Estadísticas del Usuario - Solo mostrar si está autenticado */}
                     {user ? (
                         <section>
                             <DashboardStats />
                         </section>
                     ) : (
-                        /* Mensaje de bienvenida para usuarios anónimos */
-                        <section className="text-center py-8">
-                            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-8">
-                                <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                                    ¡Bienvenido a NextRead! 📚
-                                </h2>
-                                <p className="text-gray-600 max-w-2xl mx-auto">
-                                    Descubre tu próximo libro favorito con recomendaciones personalizadas. 
-                                    Regístrate para comenzar tu viaje de lectura y guardar tu progreso.
-                                </p>
-                            </div>
+                        /* Mensaje de bienvenida cozy para usuarios anónimos */
+                        <section className="text-center py-12">
+                            <CardCozy variant="magical" className="max-w-4xl mx-auto p-12">
+                                <div className="space-y-6">
+                                    <div className="text-6xl mb-4">📚✨</div>
+                                    <h2 className="text-4xl font-bold font-cozy-display text-cozy-warm-brown mb-4">
+                                        ¡Bienvenido a tu refugio literario!
+                                    </h2>
+                                    <p className="text-lg text-cozy-dark-gray max-w-3xl mx-auto font-cozy leading-relaxed">
+                                        Descubre tu próximo libro favorito en este acogedor rincón de lectura. 
+                                        Aquí encontrarás recomendaciones personalizadas, un lugar para guardar tus libros 
+                                        y un espacio cálido para que tu amor por la lectura crezca día a día.
+                                    </p>
+                                    <div className="flex items-center justify-center space-x-3 text-cozy-sage pt-4">
+                                        <span className="text-2xl">🌿</span>
+                                        <span className="font-cozy text-cozy-medium-gray">Regístrate para comenzar tu viaje literario</span>
+                                        <span className="text-2xl">🌿</span>
+                                    </div>
+                                </div>
+                            </CardCozy>
                         </section>
                     )}
                     
@@ -66,7 +75,7 @@ export default function HomePage() {
                         </section>
                     )}
                 </div>
-            </DashboardLayout>
+            </DashboardLayoutCozy>
         </ProtectedRoute>
     );
 } 

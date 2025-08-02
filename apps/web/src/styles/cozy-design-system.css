@@ -187,6 +187,26 @@
   }
 }
 
+@keyframes cozy-sparkle {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1) rotate(180deg);
+  }
+}
+
+@keyframes cozy-float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
 /* Clases de animación */
 .cozy-animate-fade-in {
   animation: cozy-fade-in 0.5s ease-out;
@@ -202,6 +222,14 @@
 
 .cozy-animate-bounce-in {
   animation: cozy-bounce-in 0.6s ease-out;
+}
+
+.cozy-animate-sparkle {
+  animation: cozy-sparkle 2s ease-in-out infinite;
+}
+
+.cozy-animate-float {
+  animation: cozy-float 3s ease-in-out infinite;
 }
 
 /* ================================

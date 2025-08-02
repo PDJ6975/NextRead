@@ -153,6 +153,28 @@ const LoadingCozyIcon = ({ className = '', ...props }) => (
   </IconCozy>
 );
 
+// Icono mágico cozy (varita con estrella)
+const MagicCozyIcon = ({ className = '', animated = true, ...props }) => (
+  <IconCozy className={clsx(className, animated && 'cozy-animate-sparkle')} {...props}>
+    <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full">
+      {/* Varita mágica */}
+      <rect x="4" y="18" width="12" height="1.5" rx="0.75" transform="rotate(-45 10 18.75)" opacity="0.8"/>
+      
+      {/* Estrella en la punta */}
+      <polygon points="19,5 20.5,8 24,8.5 21.5,11 22,15 19,13 16,15 16.5,11 14,8.5 17.5,8" opacity="0.9"/>
+      
+      {/* Partículas mágicas */}
+      <circle cx="8" cy="8" r="1" opacity="0.6"/>
+      <circle cx="15" cy="12" r="0.8" opacity="0.5"/>
+      <circle cx="6" cy="15" r="0.6" opacity="0.7"/>
+      <circle cx="11" cy="6" r="0.7" opacity="0.6"/>
+      
+      {/* Estelas mágicas */}
+      <path d="M8 8l2 2M15 12l-2 2M6 15l2-2" stroke="currentColor" strokeWidth="0.5" opacity="0.4"/>
+    </svg>
+  </IconCozy>
+);
+
 export {
   IconCozy,
   BookCozyIcon,
@@ -164,4 +186,5 @@ export {
   SearchCozyIcon,
   UserCozyIcon,
   LoadingCozyIcon,
+  MagicCozyIcon,
 };

@@ -1,4 +1,5 @@
 import "./globals.css";
+import "../styles/cozy-design-system.css";
 import { AuthProvider } from "../contexts/AuthContext";
 
 export const metadata = {
