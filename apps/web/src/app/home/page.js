@@ -30,7 +30,7 @@ export default function HomePage() {
                 <div className="flex-1 space-y-8">
                     {/* Estadísticas del Usuario - Solo mostrar si está autenticado */}
                     {user ? (
-                        <section>
+                        <section className="pt-8">
                             <DashboardStatsCozy />
                         </section>
                     ) : (

@@ -193,21 +193,14 @@ export default function DashboardStatsCozy() {
             icon: StarCozyIcon,
             variant: 'rating',
             description: loading ? 'Cargando...' : userStats.averageRating > 0 ? 'De tus libros favoritos' : 'Aún no has valorado libros'
-        },
-        {
-            title: 'Lectura Actual',
-            value: loading ? 0 : userStats.booksReading,
-            icon: PlantCozyIcon,
-            variant: 'reading',
-            description: loading ? 'Cargando...' : userStats.booksReading > 0 ? 'Libros en progreso' : 'Comienza un nuevo libro'
         }
     ];
 
     // Estado de error con estilo cozy
     if (error) {
         return (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {[...Array(4)].map((_, index) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[...Array(3)].map((_, index) => (
                     <CardCozy key={index} variant="default" className="border-cozy-terracotta/30">
                         <div className="p-6">
                             <div className="flex items-center justify-center h-20">
@@ -238,7 +231,7 @@ export default function DashboardStatsCozy() {
             </div>
 
             {/* Grid de estadísticas */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {statsConfigCozy.map((stat, index) => (
                     <div 
                         key={index}

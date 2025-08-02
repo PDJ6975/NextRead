@@ -13,6 +13,7 @@ import { BookCozyIcon, HeartCozyIcon, StarCozyIcon } from '../ui/cozy/IconCozy';
 
 export default function UserLibrarySectionCozy({ recommendations = [], onRecommendationAdded }) {
   const [selectedRecommendation, setSelectedRecommendation] = useState(null);
+  const [selectedBook, setSelectedBook] = useState(null); // Para el modal de detalles del libro
   const [userBooks, setUserBooks] = useState([]);
   const [booksDetails, setBooksDetails] = useState({});
   const [loading, setLoading] = useState(true);

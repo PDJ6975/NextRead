@@ -191,7 +191,7 @@ export default function DashboardHeaderCozy({ user, onLogout }) {
 
                                 {/* Dropdown menu cozy */}
                                 {dropdownOpen && user && (
-                                    <div className="absolute right-0 mt-2 w-64 bg-white/95 backdrop-blur-md rounded-xl shadow-xl border border-cozy-sage/20 py-2 z-50 cozy-texture-linen">
+                                    <div className="absolute right-0 mt-2 w-64 bg-white/95 backdrop-blur-md rounded-xl shadow-xl border border-cozy-sage/20 py-2 z-[100] cozy-texture-linen">
                                         {/* Header del dropdown */}
                                         <div className="px-4 py-3 border-b border-cozy-sage/10">
                                             <div className="flex items-center space-x-3">
