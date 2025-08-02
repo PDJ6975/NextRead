@@ -18,5 +18,7 @@ export {
   SearchCozyIcon,
   UserCozyIcon,
   LoadingCozyIcon,
+  MagicCozyIcon,
 } from './IconCozy';
 export { default as CozyShowcase } from './CozyShowcase';
+export { default as BookCardCozy } from './BookCardCozy';

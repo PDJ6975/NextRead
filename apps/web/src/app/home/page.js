@@ -3,10 +3,10 @@
 import ProtectedRoute from '../../components/ProtectedRoute';
 import DashboardLayoutCozy from '../../components/layout/DashboardLayoutCozy';
 import DashboardHeaderCozy from '../../components/dashboard/DashboardHeaderCozy';
-import DashboardStats from '../../components/dashboard/DashboardStats';
-import GenerateRecommendationsButton from '../../components/dashboard/GenerateRecommendationsButton';
+import DashboardStatsCozy from '../../components/dashboard/DashboardStatsCozy';
+import GenerateRecommendationsButtonCozy from '../../components/dashboard/GenerateRecommendationsButtonCozy';
 import { CardCozy } from '../../components/ui/cozy/CardCozy';
-import UserLibrarySection from '../../components/dashboard/UserLibrarySection';
+import UserLibrarySectionCozy from '../../components/dashboard/UserLibrarySectionCozy';
 import { useAuth } from '../../contexts/AuthContext';
 import { useState } from 'react';
 
@@ -31,7 +31,7 @@ export default function HomePage() {
                     {/* Estadísticas del Usuario - Solo mostrar si está autenticado */}
                     {user ? (
                         <section>
-                            <DashboardStats />
+                            <DashboardStatsCozy />
                         </section>
                     ) : (
                         /* Mensaje de bienvenida cozy para usuarios anónimos */
@@ -59,7 +59,7 @@ export default function HomePage() {
                     
                     {/* Botón Central de Generar Recomendaciones */}
                     <section className="py-12">
-                        <GenerateRecommendationsButton 
+                        <GenerateRecommendationsButtonCozy 
                             onRecommendationsGenerated={handleRecommendationsGenerated}
                             className="px-6"
                         />
@@ -68,7 +68,7 @@ export default function HomePage() {
                     {/* Biblioteca del usuario - Solo mostrar si está autenticado */}
                     {user && (
                         <section>
-                            <UserLibrarySection 
+                            <UserLibrarySectionCozy 
                                 recommendations={recommendations} 
                                 onRecommendationAdded={handleRecommendationAdded}
                             />
