@@ -13,11 +13,36 @@ export default function BookCardCozy({
     onDelete,
     onView,
     onRatingChange,
+    onStatusChange, // Nueva prop para cambiar estado
     className = ''
 }) {
     const [imageError, setImageError] = useState(false);
     const [currentRating, setCurrentRating] = useState(book?.rating || 0);
     const [hoverRating, setHoverRating] = useState(0);
+
+    // Función para procesar autores correctamente
+    const getAuthorsText = (book) => {
+        if (!book) return 'Autor desconocido';
+        
+        // Si ya tiene la propiedad author (formato legacy)
+        if (book.author) return book.author;
+        
+        // Si tiene authors array
+        if (book.authors && Array.isArray(book.authors)) {
+            if (book.authors.length === 0) return 'Autor desconocido';
+            
+            return book.authors
+                .map(author => {
+                    if (typeof author === 'string') return author;
+                    if (typeof author === 'object' && author.name) return author.name;
+                    return 'Autor desconocido';
+                })
+                .filter(name => name !== 'Autor desconocido')
+                .join(', ') || 'Autor desconocido';
+        }
+        
+        return 'Autor desconocido';
+    };
 
     // Configuración de variantes visuales
     const variantConfig = {
@@ -76,7 +101,7 @@ export default function BookCardCozy({
     // Generar placeholder cozy específico para biblioteca
     const getLibraryPlaceholderDataUri = (title, status) => {
         const cleanTitle = (title || 'Mi Libro').substring(0, 12);
-        const emoji = status === 'read' ? '✅' : status === 'ABANDONED' ? '�' : '📚';
+        const emoji = status === 'READ' ? '✅' : status === 'ABANDONED' ? '�' : '📚';
         
         const svg = `
             <svg width="200" height="300" xmlns="http://www.w3.org/2000/svg">
@@ -103,6 +128,75 @@ export default function BookCardCozy({
             </svg>
         `;
         return `data:image/svg+xml;base64,${btoa(svg)}`;
+    };
+
+    // Función para obtener botones de acción según el estado
+    const getActionButtons = () => {
+        const currentStatus = book?.status;
+        const buttons = [];
+
+        switch (currentStatus) {
+            case 'TO_READ':
+                buttons.push(
+                    <ButtonCozy
+                        key="mark-read"
+                        variant="primary"
+                        size="sm"
+                        onClick={() => onStatusChange?.(book, 'READ')}
+                        className="flex-1"
+                    >
+                        ✅ Marcar como leído
+                    </ButtonCozy>
+                );
+                buttons.push(
+                    <ButtonCozy
+                        key="abandon"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onStatusChange?.(book, 'ABANDONED')}
+                        className="px-3 text-cozy-medium-gray"
+                    >
+                        💤
+                    </ButtonCozy>
+                );
+                break;
+
+            case 'READ':
+                // Los libros leídos NO pueden ser movidos a ninguna sección
+                // Solo rating (ya implementado) y el botón "Ver detalles" está arriba
+                return []; // No hay botones de estado para libros leídos
+
+            case 'ABANDONED':
+                // Los libros pausados pueden ir a "Por leer" y "Leídos"
+                buttons.push(
+                    <ButtonCozy
+                        key="back-to-read"
+                        variant="primary"
+                        size="sm"
+                        onClick={() => onStatusChange?.(book, 'TO_READ')}
+                        className="flex-1"
+                    >
+                        📚 Retomar
+                    </ButtonCozy>
+                );
+                buttons.push(
+                    <ButtonCozy
+                        key="mark-read"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onStatusChange?.(book, 'READ')}
+                        className="px-3"
+                    >
+                        ✅
+                    </ButtonCozy>
+                );
+                break;
+
+            default:
+                return null;
+        }
+
+        return buttons;
     };
 
     const handleRatingClick = (rating) => {
@@ -148,7 +242,7 @@ export default function BookCardCozy({
                                         {book?.title || 'Título no disponible'}
                                     </h3>
                                     <p className="text-sm text-cozy-dark-gray font-cozy line-clamp-1">
-                                        {book?.author || 'Autor desconocido'}
+                                        {getAuthorsText(book)}
                                     </p>
                                 </div>
                                 
@@ -226,7 +320,7 @@ export default function BookCardCozy({
                             {book?.title || 'Título no disponible'}
                         </h3>
                         <p className="text-sm text-cozy-dark-gray font-cozy line-clamp-1">
-                            {book?.author || 'Autor desconocido'}
+                            {getAuthorsText(book)}
                         </p>
                     </div>
 
@@ -257,36 +351,26 @@ export default function BookCardCozy({
                         </div>
                     )}
 
-                    {/* Botones de acción */}
+                    {/* Botones de acción de estado */}
                     {config.showFullActions && (
-                        <div className="flex space-x-2 pt-2">
+                        <div className="space-y-2 pt-2">
+                            {/* Botón Ver detalles siempre presente */}
                             <ButtonCozy
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => onView?.(book)}
-                                className="flex-1"
+                                className="w-full"
                             >
                                 <Eye className="w-4 h-4 mr-1" />
-                                Ver
+                                Ver detalles
                             </ButtonCozy>
                             
-                            <ButtonCozy
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => onEdit?.(book)}
-                                className="px-3"
-                            >
-                                <Edit3 className="w-4 h-4" />
-                            </ButtonCozy>
-
-                            <ButtonCozy
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => onDelete?.(book)}
-                                className="px-3 text-cozy-terracotta hover:text-red-600"
-                            >
-                                <Trash2 className="w-4 h-4" />
-                            </ButtonCozy>
+                            {/* Botones de cambio de estado */}
+                            {getActionButtons()?.length > 0 && (
+                                <div className="flex space-x-2">
+                                    {getActionButtons()}
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>

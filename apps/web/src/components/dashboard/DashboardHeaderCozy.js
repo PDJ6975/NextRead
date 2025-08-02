@@ -191,33 +191,9 @@ export default function DashboardHeaderCozy({ user, onLogout }) {
 
                                 {/* Dropdown menu cozy */}
                                 {dropdownOpen && user && (
-                                    <div className="absolute right-0 mt-2 w-64 bg-white/95 backdrop-blur-md rounded-xl shadow-xl border border-cozy-sage/20 py-2 z-[100] cozy-texture-linen">
-                                        {/* Header del dropdown */}
-                                        <div className="px-4 py-3 border-b border-cozy-sage/10">
-                                            <div className="flex items-center space-x-3">
-                                                {renderAvatar(10)}
-                                                <div>
-                                                    <p className="font-medium text-cozy-warm-brown font-cozy">
-                                                        {user?.nickname || 'Usuario'}
-                                                    </p>
-                                                    <p className="text-xs text-cozy-medium-gray">{user?.email}</p>
-                                                </div>
-                                            </div>
-                                        </div>
-
+                                    <div className="absolute right-0 mt-2 w-48 bg-white/95 backdrop-blur-md rounded-xl shadow-xl border border-cozy-sage/20 py-2 z-[100] cozy-texture-linen">
                                         {/* Opciones del menú */}
                                         <div className="py-2">
-                                            <button
-                                                onClick={() => {
-                                                    setDropdownOpen(false);
-                                                    router.push('/home');
-                                                }}
-                                                className="flex items-center space-x-3 w-full px-4 py-2 text-sm text-cozy-dark-gray hover:bg-cozy-sage/10 transition-colors font-cozy"
-                                            >
-                                                <Home className="w-4 h-4 text-cozy-sage" />
-                                                <span>Dashboard</span>
-                                            </button>
-                                            
                                             <button
                                                 onClick={() => {
                                                     setDropdownOpen(false);
@@ -226,7 +202,7 @@ export default function DashboardHeaderCozy({ user, onLogout }) {
                                                 className="flex items-center space-x-3 w-full px-4 py-2 text-sm text-cozy-dark-gray hover:bg-cozy-sage/10 transition-colors font-cozy"
                                             >
                                                 <Settings className="w-4 h-4 text-cozy-sage" />
-                                                <span>Editar Perfil</span>
+                                                <span>Mi Perfil</span>
                                             </button>
                                         </div>
 

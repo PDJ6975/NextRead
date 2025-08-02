@@ -22,6 +22,11 @@ export default function UserLibrarySectionCozy({ recommendations = [], onRecomme
   const [addingBook, setAddingBook] = useState(false);
   const [activeShelf, setActiveShelf] = useState('TO_READ'); // Estantería activa
 
+  // Función para manejar la vista de detalles del libro
+  const handleViewBook = (book) => {
+    setSelectedBook(book);
+  };
+
   // Añadir libro manualmente a POR_LEER
   const handleAddBookToRead = async (book) => {
     if (userBooks.some(ub => ub.bookId === book.id)) return;
@@ -397,9 +402,8 @@ export default function UserLibrarySectionCozy({ recommendations = [], onRecomme
                       book={bookData}
                       variant="default"
                       onRatingChange={(book, rating) => handleRateBook(userBook, rating)}
-                      onEdit={(book) => console.log('Editar:', book)}
-                      onDelete={(book) => console.log('Eliminar:', book)}
-                      onView={(book) => console.log('Ver:', book)}
+                      onStatusChange={(book, newStatus) => handleMoveBook(userBook, newStatus)}
+                      onView={handleViewBook}
                       className={updatingBookId === userBook.id ? 'opacity-50' : ''}
                     />
                   );
@@ -491,6 +495,96 @@ export default function UserLibrarySectionCozy({ recommendations = [], onRecomme
                     Cerrar
                   </ButtonCozy>
                 </div>
+              </div>
+            </div>
+          </CardCozy>
+        </div>
+      )}
+
+      {/* Modal de detalles de libro */}
+      {selectedBook && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <CardCozy variant="dreamy" className="max-w-lg w-full mx-4 relative animate-float-in">
+            <ButtonCozy
+              variant="ghost"
+              size="sm"
+              className="absolute top-3 right-3 z-10"
+              onClick={() => setSelectedBook(null)}
+              aria-label="Cerrar"
+            >
+              <X className="w-4 h-4" />
+            </ButtonCozy>
+            
+            <div className="p-6">
+              <div className="flex gap-4 mb-4">
+                <div className="flex-shrink-0">
+                  <div className="w-32 h-48 overflow-hidden rounded-lg bg-cozy-cream shadow-md">
+                    <img
+                      src={selectedBook.coverUrl || 'https://placehold.co/128x192?text=Sin+portada'}
+                      alt={selectedBook.title || 'Título no disponible'}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                </div>
+                
+                <div className="flex-1 min-w-0 space-y-3">
+                  <h2 className="font-bold text-xl text-cozy-warm-brown font-cozy-display line-clamp-2">
+                    {selectedBook.title || 'Título no disponible'}
+                  </h2>
+                  
+                  <div className="space-y-2 text-sm text-cozy-dark-gray font-cozy">
+                    <p><strong>Autores:</strong> {
+                      selectedBook.authors && Array.isArray(selectedBook.authors)
+                        ? selectedBook.authors.map(a => typeof a === 'string' ? a : a.name || 'Desconocido').join(', ')
+                        : selectedBook.author || 'Desconocido'
+                    }</p>
+                    <p><strong>Editorial:</strong> {selectedBook.publisher || 'Desconocida'}</p>
+                    <p><strong>Páginas:</strong> {selectedBook.pages || 'N/D'}</p>
+                    <p><strong>Publicación:</strong> {selectedBook.publishedYear || 'N/D'}</p>
+                    <p><strong>ISBN:</strong> {selectedBook.isbn13 || selectedBook.isbn10 || 'N/D'}</p>
+                  </div>
+
+                  {/* Rating si está disponible */}
+                  {selectedBook.status === 'READ' && selectedBook.rating && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-cozy-warm-brown">Mi valoración:</span>
+                      <div className="flex">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <StarCozyIcon
+                            key={star}
+                            className={`w-4 h-4 ${
+                              star <= selectedBook.rating
+                                ? 'text-cozy-soft-yellow'
+                                : 'text-cozy-light-gray'
+                            }`}
+                            filled={star <= selectedBook.rating}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              {/* Sinopsis si está disponible */}
+              {selectedBook.synopsis && (
+                <div className="space-y-2">
+                  <span className="inline-block bg-cozy-sage/20 text-cozy-forest text-xs px-3 py-1 rounded-full font-cozy font-medium">
+                    📖 Sinopsis
+                  </span>
+                  <p className="text-sm text-cozy-dark-gray font-cozy leading-relaxed whitespace-pre-line">
+                    {selectedBook.synopsis}
+                  </p>
+                </div>
+              )}
+              
+              <div className="flex justify-end pt-4 border-t border-cozy-light-gray">
+                <ButtonCozy
+                  variant="ghost"
+                  onClick={() => setSelectedBook(null)}
+                >
+                  Cerrar
+                </ButtonCozy>
               </div>
             </div>
           </CardCozy>
