@@ -84,8 +84,8 @@ export default function GenerateRecommendationsButtonCozy({
   }
 
   return (
-    <CardCozy variant="dreamy" interactive={true} className={`${className} group cursor-pointer`}>
-      <div className="p-6 text-center space-y-4" onClick={handleClick}>
+    <CardCozy variant="dreamy" interactive={true} className={`${className} group`}>
+      <div className="p-6 text-center space-y-4">
         {/* Fondo decorativo con partículas */}
         <div className={`absolute inset-0 transition-opacity duration-500 ${
           sparkleAnimation ? 'opacity-100' : 'opacity-0'
