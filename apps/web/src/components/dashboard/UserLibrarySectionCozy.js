@@ -6,10 +6,8 @@ import { MiniBookSearchCozy } from '../ui/MiniBookSearchCozy';
 import userBookService from '../../services/userBookService';
 import { bookService } from '../../services/bookService';
 import { CardCozy } from '../ui/cozy/CardCozy';
-import LoadingSpinner from '../ui/LoadingSpinner';
-import { EmptyLibrary } from '../ui/EmptyState';
 import { ButtonCozy, BookCardCozy } from '../ui/cozy';
-import { BookCozyIcon, HeartCozyIcon, StarCozyIcon } from '../ui/cozy/IconCozy';
+import { BookCozyIcon, HeartCozyIcon, StarCozyIcon, LoadingCozyIcon } from '../ui/cozy/IconCozy';
 
 export default function UserLibrarySectionCozy({ recommendations = [], onRecommendationAdded }) {
   const [selectedRecommendation, setSelectedRecommendation] = useState(null);
@@ -131,7 +129,14 @@ export default function UserLibrarySectionCozy({ recommendations = [], onRecomme
 
   if (loading) return (
     <div className="flex justify-center items-center h-32">
-      <LoadingSpinner label={'Explorando tu biblioteca...'} />
+      <CardCozy variant="dreamy" className="p-6">
+        <div className="text-center">
+          <LoadingCozyIcon className="w-8 h-8 mx-auto mb-2 text-cozy-sage" />
+          <p className="text-cozy-dark-gray font-cozy text-sm">
+            Explorando tu biblioteca mágica...
+          </p>
+        </div>
+      </CardCozy>
     </div>
   );
 
@@ -145,8 +150,25 @@ export default function UserLibrarySectionCozy({ recommendations = [], onRecomme
 
   if (!userBooks.length) return (
     <CardCozy variant="dreamy" className="my-8">
-      <div className="p-6">
-        <EmptyLibrary />
+      <div className="p-12 text-center">
+        {/* SVG de estantería vacía */}
+        <div className="mb-6">
+          <svg className="w-24 h-24 mx-auto text-cozy-sage opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+          </svg>
+        </div>
+        
+        <h3 className="text-xl font-bold text-cozy-warm-brown font-cozy-display mb-2">
+          📚 Tu biblioteca está esperando
+        </h3>
+        
+        <p className="text-cozy-dark-gray font-cozy mb-4 max-w-md mx-auto">
+          Aún no has añadido ningún libro a tu biblioteca personal. ¡Comienza explorando nuestras recomendaciones mágicas!
+        </p>
+        
+        <p className="text-sm text-cozy-medium-gray font-cozy">
+          💡 Consejo: Completa la encuesta para obtener recomendaciones personalizadas
+        </p>
       </div>
     </CardCozy>
   );
