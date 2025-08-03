@@ -407,9 +407,58 @@ Transformar la interfaz actual de NextRead_NOAI hacia un diseño "cozy" inspirad
 
 ---
 
-### Fase 5: Detalles y Pulido (Semana 5)
+### ✅ Fase 5: Detalles y Pulido (EN PROGRESO)
 
-#### 5.1 Efectos Ambientales
+#### 5.1 Migración de Páginas de Autenticación ✅
+
+- [x] **Página de Login Cozy**
+
+  - ✅ Migrada de componentes UI originales a cozy (ButtonCozy, InputCozy, CardCozy)
+  - ✅ Fondo gradiente cozy (cream → mint) con animaciones float
+  - ✅ Iconografía temática con IconCozy (book, heart, plant)
+  - ✅ Paleta de colores cozy (sage, terracotta, forest)
+  - ✅ Tipografía cozy (Comfortaa para títulos, Nunito para texto)
+  - ✅ Mensajes de estado con diseño cozy y iconos contextuals
+  - ✅ Estados loading con componentes cozy
+
+- [x] **Página de Register Cozy**
+
+  - ✅ CardCozy vintage con animación float
+  - ✅ IconCozy magic para el header principal
+  - ✅ Formulario completo con InputCozy warm variant
+  - ✅ ButtonCozy magical para acción principal
+  - ✅ Iconografía específica por campo (plant, book, star, heart)
+  - ✅ Manejo de errores con estilo cozy
+  - ✅ Navegación con transiciones suaves
+
+- [x] **Página de Verify Cozy**
+
+  - ✅ Header con IconCozy star y mensaje mágico
+  - ✅ InputCozy magical variant para código de verificación
+  - ✅ ButtonCozy dreamy para verificación principal
+  - ✅ ButtonCozy ghost para reenvío de código
+  - ✅ Estados diferenciados para éxito/error con iconos
+  - ✅ Navegación cozy con iconos plant
+
+- [x] **Página Root Cozy**
+
+  - ✅ Loading state cozy durante redirección
+  - ✅ CardCozy dreamy con IconCozy loading
+  - ✅ Mensaje de bienvenida cozy coherente
+
+- [x] **ProfileEditModalCozy**
+
+  - ✅ Migrado de componentes UI originales a cozy (ButtonCozy, InputCozy, CardCozy)
+  - ✅ Modal con backdrop blur cozy y CardCozy dreamy
+  - ✅ Carrusel de avatares con marco decorativo gradiente
+  - ✅ Indicadores de posición cozy con puntos animados
+  - ✅ IconCozy personalizado para navegación y acciones
+  - ✅ Elementos decorativos flotantes (estrellas, iconos)
+  - ✅ Integración completa con userProfileService
+  - ✅ Estados loading y disabled con estilo cozy
+  - ✅ DashboardHeaderCozy actualizado para usar la versión cozy
+
+#### 5.2 Efectos Ambientales
 
 - [ ] **Partículas Flotantes**
 

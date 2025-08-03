@@ -2,6 +2,8 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { CardCozy } from '../components/ui/cozy/CardCozy';
+import { IconCozy } from '../components/ui/cozy/IconCozy';
 
 export default function RootRedirect() {
   const router = useRouter();
@@ -11,10 +13,15 @@ export default function RootRedirect() {
     router.replace('/home');
   }, [router]);
 
-  // Solo mostrar loading mientras se hace la redirección
+  // Loading cozy mientras se hace la redirección
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+    <div className="min-h-screen bg-gradient-to-br from-cozy-cream to-cozy-mint flex items-center justify-center">
+      <CardCozy variant="dreamy" className="p-12">
+        <div className="flex flex-col items-center space-y-4">
+          <IconCozy name="loading" size="lg" className="text-cozy-sage animate-spin" />
+          <p className="text-cozy-medium-gray font-nunito">Iniciando NextRead...</p>
+        </div>
+      </CardCozy>
     </div>
   );
 }

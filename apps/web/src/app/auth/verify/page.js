@@ -3,9 +3,10 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '../../../contexts/AuthContext';
-import { Button } from '../../../components/ui/Button';
-import { Input } from '../../../components/ui/Input';
-import { Card, CardContent, CardHeader } from '../../../components/ui/Card';
+import { ButtonCozy } from '../../../components/ui/cozy/ButtonCozy';
+import { InputCozy } from '../../../components/ui/cozy/InputCozy';
+import { CardCozy } from '../../../components/ui/cozy/CardCozy';
+import { IconCozy } from '../../../components/ui/cozy/IconCozy';
 import { useValidation } from '../../../hooks/useValidation';
 import { verifySchema } from '../../../lib/validationSchemas';
 import { authService } from '../../../services/authService';
@@ -99,31 +100,53 @@ function VerifyContent() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-            <Card className="w-full max-w-md">
-                <CardHeader className="text-center">
-                    <h1 className="text-2xl font-bold text-gray-900 mb-2">Verificar Email</h1>
-                    <p className="text-gray-600">
-                        Hemos enviado un código de verificación a tu email
+        <div className="min-h-screen bg-gradient-to-br from-cozy-cream to-cozy-mint flex items-center justify-center p-4">
+            <CardCozy variant="vintage" className="w-full max-w-md cozy-animate-float p-8">
+                {/* Header con icono cozy */}
+                <div className="text-center mb-8">
+                    <div className="flex justify-center mb-4">
+                        <IconCozy 
+                            name="star" 
+                            size="lg" 
+                            className="text-cozy-soft-yellow"
+                        />
+                    </div>
+                    <h1 className="text-2xl font-bold text-cozy-dark-gray mb-2 font-comfortaa">
+                        Verificar Email
+                    </h1>
+                    <p className="text-cozy-medium-gray font-nunito">
+                        Hemos enviado un código mágico a tu email ✨
                     </p>
-                </CardHeader>
-                <CardContent>
-                    <form onSubmit={handleSubmit} className="space-y-4">
+                </div>
+
+                <div className="space-y-8">
+                    <form onSubmit={handleSubmit} className="space-y-6">
                         {errors.general && (
-                            <div className={`border rounded-md p-3 ${errors.general.includes('exitosamente')
-                                ? 'bg-green-50 border-green-200'
-                                : 'bg-red-50 border-red-200'
+                            <div className={`border rounded-lg p-3 ${errors.general.includes('exitosamente')
+                                ? 'bg-cozy-sage/10 border-cozy-sage/30'
+                                : 'bg-cozy-terracotta/10 border-cozy-terracotta/30'
                                 }`}>
-                                <p className={`text-sm ${errors.general.includes('exitosamente')
-                                    ? 'text-green-600'
-                                    : 'text-red-600'
-                                    }`}>
-                                    {errors.general}
-                                </p>
+                                <div className="flex items-center space-x-2">
+                                    <IconCozy 
+                                        name={errors.general.includes('exitosamente') ? 'star' : 'heart'} 
+                                        size="sm" 
+                                        className={errors.general.includes('exitosamente') 
+                                            ? 'text-cozy-sage' 
+                                            : 'text-cozy-terracotta'
+                                        } 
+                                    />
+                                    <p className={`text-sm font-nunito ${errors.general.includes('exitosamente')
+                                        ? 'text-cozy-forest'
+                                        : 'text-cozy-terracotta'
+                                        }`}>
+                                        {errors.general}
+                                    </p>
+                                </div>
                             </div>
                         )}
 
-                        <Input
+                        <InputCozy
+                            variant="warm"
                             label="Email"
                             name="email"
                             type="email"
@@ -131,10 +154,12 @@ function VerifyContent() {
                             onChange={handleChange}
                             error={errors.email}
                             placeholder="tu@email.com"
+                            icon="book"
                             required
                         />
 
-                        <Input
+                        <InputCozy
+                            variant="magical"
                             label="Código de verificación"
                             name="verificationCode"
                             type="text"
@@ -143,42 +168,51 @@ function VerifyContent() {
                             error={errors.verificationCode}
                             placeholder="Ingresa el código de 6 dígitos"
                             maxLength={6}
+                            icon="star"
                             required
                         />
 
-                        <Button
+                        <ButtonCozy
+                            variant="warm"
                             type="submit"
                             className="w-full"
                             loading={isLoading}
                             disabled={isLoading}
                         >
                             {isLoading ? 'Verificando...' : 'Verificar Código'}
-                        </Button>
+                        </ButtonCozy>
                     </form>
 
-                    <div className="mt-6 text-center space-y-2">
-                        <p className="text-sm text-gray-600">
+                    {/* Sección de reenvío con estilo cozy */}
+                    <div className="text-center space-y-3">
+                        <p className="text-sm text-cozy-medium-gray font-nunito">
                             ¿No recibiste el código?
                         </p>
-                        <button
+                        <ButtonCozy
+                            variant="ghost"
                             onClick={handleResendCode}
                             disabled={isResending}
-                            className="text-blue-600 hover:text-blue-700 font-medium text-sm disabled:opacity-50"
+                            className="text-sm"
                         >
-                            {isResending ? 'Reenviando...' : 'Reenviar código'}
-                        </button>
+                            <div className="flex items-center space-x-1">
+                                <IconCozy name="magic" size="sm" />
+                                <span>{isResending ? 'Reenviando...' : 'Reenviar código'}</span>
+                            </div>
+                        </ButtonCozy>
                     </div>
 
-                    <div className="mt-4 text-center">
+                    {/* Enlace de navegación */}
+                    <div className="text-center pt-2">
                         <button
                             onClick={() => router.push('/auth/login')}
-                            className="text-sm text-gray-600 hover:text-gray-700"
+                            className="text-sm text-cozy-medium-gray hover:text-cozy-dark-gray transition-colors duration-200 flex items-center justify-center space-x-1"
                         >
-                            Volver al inicio de sesión
+                            <IconCozy name="plant" size="sm" />
+                            <span>Volver al inicio de sesión</span>
                         </button>
                     </div>
-                </CardContent>
-            </Card>
+                </div>
+            </CardCozy>
         </div>
     );
 }
@@ -186,8 +220,13 @@ function VerifyContent() {
 export default function VerifyPage() {
     return (
         <Suspense fallback={
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+            <div className="min-h-screen bg-gradient-to-br from-cozy-cream to-cozy-mint flex items-center justify-center">
+                <CardCozy variant="dreamy" className="p-12">
+                    <div className="flex flex-col items-center space-y-4">
+                        <IconCozy name="loading" size="lg" className="text-cozy-sage animate-spin" />
+                        <p className="text-cozy-medium-gray font-nunito">Cargando...</p>
+                    </div>
+                </CardCozy>
             </div>
         }>
             <VerifyContent />

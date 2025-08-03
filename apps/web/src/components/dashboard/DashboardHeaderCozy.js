@@ -2,8 +2,9 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import ProfileEditModal from '../profile/ProfileEditModal';
+import ProfileEditModalCozy from '../profile/ProfileEditModalCozy';
 import { useAuth } from '../../contexts/AuthContext';
+import userProfileService from '../../services/userProfileService';
 import { ChevronDown, User, Settings, LogOut, Bell, BookOpen, Home, Sparkles } from 'lucide-react';
 import { ButtonCozy } from '../ui/cozy/ButtonCozy';
 import IconCozy, { BookCozyIcon, HeartCozyIcon, MagicCozyIcon } from '../ui/cozy/IconCozy';
@@ -233,11 +234,20 @@ export default function DashboardHeaderCozy({ user, onLogout }) {
 
             {/* Modal de edición de perfil */}
             {profileModalOpen && (
-                <ProfileEditModal
+                <ProfileEditModalCozy
                     isOpen={profileModalOpen}
                     onClose={() => setProfileModalOpen(false)}
                     user={user}
-                    onUserUpdate={refreshUser}
+                    onSave={async (data) => {
+                        if (data.fullName && data.fullName !== user.nickname) {
+                            await userProfileService.updateNickname(data.fullName);
+                        }
+                        if (data.avatar && data.avatar !== user.avatarUrl) {
+                            await userProfileService.updateAvatar(data.avatar);
+                        }
+                        await refreshUser();
+                        setProfileModalOpen(false);
+                    }}
                 />
             )}
         </>
