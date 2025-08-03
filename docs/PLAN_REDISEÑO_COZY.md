@@ -768,3 +768,467 @@ Este plan transformará NextRead_NOAI de una aplicación funcional pero genéric
 La implementación por fases garantiza que podamos entregar valor incrementalmente y ajustar el rumbo basado en feedback temprano. El resultado final será una aplicación que los usuarios no solo usen, sino que amen usar.
 
 **¿Estás listo para hacer de NextRead el hogar digital más acogedor para los amantes de los libros?** 📚✨
+
+---
+
+## 📚 Fase 6: Biblioteca Interactiva Cozy con Drag & Drop (NUEVA EXTENSIÓN)
+
+### 🎯 Análisis de la Visión
+
+**Transformación Objetivo:**
+
+- **De:** Lista/grid estática de libros agrupados por pestañas
+- **A:** Estantería visual interactiva con drag & drop y apilamiento de recomendaciones
+
+**Beneficios UX:**
+
+- Interacción más intuitiva y natural
+- Feedback visual inmediato
+- Experiencia gamificada y satisfactoria
+- Conexión emocional con la biblioteca personal
+
+### 🏗️ Arquitectura del Nuevo Sistema
+
+#### 1. Componentes Principales
+
+```
+📚 InteractiveLibraryCozy/
+├── 📖 BookshelfCozy.js           // Contenedor principal de estantería
+├── 📚 ShelfSectionCozy.js        // Sección individual (TO_READ, READING, etc.)
+├── 📘 DraggableBookCozy.js       // Libro individual con drag capability
+├── 🎯 RecommendationStackCozy.js // Pila de recomendaciones encima
+├── 📋 BookDetailsModalCozy.js    // Modal mejorado para detalles
+└── 🔄 DragDropContextCozy.js     // Provider para drag & drop
+```
+
+#### 2. Estados y Lógica
+
+```javascript
+// Estados de la biblioteca
+const libraryStates = {
+  TO_READ: { label: "📚 Por Leer", color: "sage", capacity: "infinite" },
+  READ: { label: "✅ Leídos", color: "forest", capacity: "infinite" },
+  ABANDONED: { label: "💤 Pausados", color: "gray", capacity: "infinite" },
+};
+
+// Eventos de drag & drop
+const dragEvents = {
+  onDragStart: (bookId, sourceSection) => {},
+  onDragOver: (targetSection) => {},
+  onDrop: (bookId, targetSection, sourceSection) => {},
+  onDragEnd: () => {},
+};
+```
+
+### 🎨 Diseño Visual Detallado
+
+#### 1. Estructura de Estantería
+
+```jsx
+// Layout inspirado en la imagen
+<BookshelfContainer>
+  {/* Recomendaciones apiladas encima */}
+  <RecommendationStackCozy recommendations={recommendations} />
+
+  {/* Estantería principal con 3 secciones */}
+  <ShelfGrid>
+    <ShelfSectionCozy
+      status="TO_READ"
+      books={toReadBooks}
+      onDrop={handleBookMove}
+      acceptsFrom={["recommendations", "ABANDONED"]}
+    />
+    <ShelfSectionCozy
+      status="READ"
+      books={readBooks}
+      onDrop={handleBookMove}
+      acceptsFrom={["TO_READ", "ABANDONED"]}
+    />
+    <ShelfSectionCozy
+      status="ABANDONED"
+      books={abandonedBooks}
+      onDrop={handleBookMove}
+      acceptsFrom={["TO_READ"]}
+    />
+  </ShelfGrid>
+</BookshelfContainer>
+```
+
+#### 2. Estilos Visuales Cozy
+
+```css
+/* Estantería de madera */
+.bookshelf-section {
+  background: linear-gradient(135deg, #d4a574 0%, #c49464 100%);
+  border: 3px solid #8d5524;
+  border-radius: 12px 12px 0 0;
+  box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.3), 0 8px 20px rgba(139, 85, 36, 0.15);
+  position: relative;
+}
+
+/* Textura de madera sutil */
+.bookshelf-section::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent 2px,
+    rgba(139, 85, 36, 0.1) 2px,
+    rgba(139, 85, 36, 0.1) 4px
+  );
+  border-radius: inherit;
+}
+
+/* Libros en perspectiva */
+.draggable-book {
+  transform: perspective(100px) rotateY(-5deg);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.draggable-book:hover {
+  transform: perspective(100px) rotateY(0deg) translateY(-8px);
+  z-index: 10;
+}
+
+/* Estado dragging */
+.book-dragging {
+  transform: rotate(10deg) scale(1.1);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+}
+
+/* Drop zones */
+.shelf-drop-active {
+  background: rgba(156, 175, 136, 0.2);
+  border: 2px dashed #9caf88;
+}
+```
+
+### 🔧 Implementación Técnica
+
+#### 1. Tecnologías Necesarias
+
+```json
+{
+  "dependencies": {
+    "@dnd-kit/core": "^6.0.8",
+    "@dnd-kit/sortable": "^7.0.2",
+    "@dnd-kit/utilities": "^3.2.1",
+    "framer-motion": "^10.16.4"
+  }
+}
+```
+
+#### 2. Hooks Personalizados
+
+```javascript
+// useLibraryDragDrop.js
+export function useLibraryDragDrop(books, onBookMove) {
+  const [draggedBook, setDraggedBook] = useState(null);
+  const [dropTarget, setDropTarget] = useState(null);
+
+  const handleDragStart = useCallback(
+    (event) => {
+      const { active } = event;
+      const book = books.find((b) => b.id === active.id);
+      setDraggedBook(book);
+    },
+    [books]
+  );
+
+  const handleDragOver = useCallback((event) => {
+    const { over } = event;
+    setDropTarget(over?.id || null);
+  }, []);
+
+  const handleDragEnd = useCallback(
+    (event) => {
+      const { active, over } = event;
+
+      if (over && active.id !== over.id) {
+        const sourceBook = books.find((b) => b.id === active.id);
+        const targetStatus = over.id;
+
+        onBookMove(sourceBook, targetStatus);
+      }
+
+      setDraggedBook(null);
+      setDropTarget(null);
+    },
+    [books, onBookMove]
+  );
+
+  return {
+    draggedBook,
+    dropTarget,
+    handleDragStart,
+    handleDragOver,
+    handleDragEnd,
+  };
+}
+```
+
+#### 3. Componente DraggableBookCozy
+
+```javascript
+// DraggableBookCozy.js
+import { useDraggable } from "@dnd-kit/core";
+import { motion } from "framer-motion";
+
+export function DraggableBookCozy({ book, onDetails, isDragging }) {
+  const { attributes, listeners, setNodeRef, transform } = useDraggable({
+    id: book.id,
+    data: { book },
+  });
+
+  const style = transform
+    ? {
+        transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+      }
+    : undefined;
+
+  return (
+    <motion.div
+      ref={setNodeRef}
+      style={style}
+      {...listeners}
+      {...attributes}
+      className={`draggable-book ${isDragging ? "book-dragging" : ""}`}
+      onClick={(e) => {
+        e.stopPropagation();
+        onDetails(book);
+      }}
+      whileHover={{ y: -8, rotateY: 0 }}
+      whileTap={{ scale: 1.05 }}
+    >
+      <BookSpineCozy book={book} />
+    </motion.div>
+  );
+}
+```
+
+### 📱 Responsive y Accesibilidad
+
+#### 1. Adaptaciones Móviles
+
+```javascript
+// Detección de dispositivo
+const isMobile = useMediaQuery("(max-width: 768px)");
+
+// Modo alternativo para móvil
+if (isMobile) {
+  return <MobileLibraryCozy />; // Lista con swipe gestures
+}
+```
+
+#### 2. Accesibilidad
+
+```javascript
+// Soporte para teclado
+const handleKeyDown = (event, book) => {
+  if (event.key === 'Enter' || event.key === ' ') {
+    showBookDetails(book);
+  }
+
+  // Navegación con flechas para mover libros
+  if (event.key === 'ArrowRight') {
+    moveBookToNext(book);
+  }
+};
+
+// Atributos ARIA
+<div
+  role="button"
+  tabIndex={0}
+  aria-label={`Libro: ${book.title}. Presiona Enter para ver detalles`}
+  aria-describedby={`book-status-${book.id}`}
+  onKeyDown={(e) => handleKeyDown(e, book)}
+>
+```
+
+### 🎯 Plan de Desarrollo Fase por Fase
+
+#### **Fase 6.1: Fundación (Semana 1)**
+
+**Día 1-2: Setup y Estructura Base**
+
+- ✅ Instalar dependencias (@dnd-kit, framer-motion)
+- ✅ Crear estructura de componentes base
+- ✅ Definir tipos TypeScript/PropTypes
+- ✅ Setup del DragDropContext principal
+
+**Día 3-4: Componentes Visuales**
+
+- ✅ BookshelfCozy container con estilo madera
+- ✅ ShelfSectionCozy con drop zones
+- ✅ DraggableBookCozy con estilos 3D
+- ✅ BookSpineCozy para representación visual
+
+**Día 5: Integración Básica**
+
+- ✅ Conectar con datos existentes
+- ✅ Implementar drag & drop básico
+- ✅ Testing de interacciones fundamentales
+
+#### **Fase 6.2: Funcionalidad Core (Semana 2)**
+
+**Día 1-2: Lógica de Drag & Drop**
+
+- ✅ Hook useLibraryDragDrop completo
+- ✅ Validaciones de movimiento
+- ✅ Integración con userBookService.updateBook()
+- ✅ Estados loading y error handling
+
+**Día 3-4: Sistema de Recomendaciones**
+
+- ✅ RecommendationStackCozy component
+- ✅ Drag desde recomendaciones a TO_READ
+- ✅ Animaciones de apilamiento
+- ✅ Integración con recommendationService
+
+**Día 5: BookDetailsModal Mejorado**
+
+- ✅ Modal rediseñado con estilo cozy
+- ✅ Información completa del libro
+- ✅ Acciones contextuales (cambiar estado, rating)
+- ✅ Navegación entre libros
+
+#### **Fase 6.3: Experiencia de Usuario (Semana 3)**
+
+**Día 1-2: Animaciones y Micro-interacciones**
+
+- ✅ Framer Motion para transiciones suaves
+- ✅ Feedback visual durante drag & drop
+- ✅ Animaciones de éxito/error
+- ✅ Partículas y efectos cozy
+
+**Día 3-4: Responsive y Móvil** (NO IMPLEMENTAR POR AHOA)
+
+- ✅ MobileLibraryCozy component alternativo
+- ✅ Swipe gestures para móvil
+- ✅ Adaptación de tamaños y espaciados
+- ✅ Testing en dispositivos reales
+
+**Día 5: Accesibilidad**
+
+- ✅ Navegación por teclado
+- ✅ Screen reader support
+- ✅ Focus management
+- ✅ Testing con herramientas de accesibilidad
+
+#### **Fase 6.4: Pulido y Optimización (Semana 4)**
+
+**Día 1-2: Performance**
+
+- ✅ Virtualización para bibliotecas grandes
+- ✅ Lazy loading de portadas
+- ✅ Optimización de re-renders
+- ✅ Bundle size optimization
+
+**Día 3-4: Estados Edge y Error Handling**
+
+- ✅ Biblioteca vacía con onboarding
+- ✅ Estados de carga granulares
+- ✅ Retry mechanisms
+- ✅ Offline handling
+
+**Día 5: Testing Final** (NO IMPLEMENTAR POR AHOA)
+
+- ✅ Unit tests para todos los componentes
+- ✅ Integration tests para drag & drop
+- ✅ E2E tests para flujos completos
+- ✅ Performance testing
+
+### 🧪 Plan de Testing (NO IMPLEMENTAR POR AHOA)
+
+#### 1. Unit Tests
+
+```javascript
+// DraggableBookCozy.test.js
+describe("DraggableBookCozy", () => {
+  test("renders book with correct spine design", () => {});
+  test("calls onDetails when clicked", () => {});
+  test("has proper drag attributes", () => {});
+  test("shows hover effects", () => {});
+});
+```
+
+#### 2. Integration Tests (NO IMPLEMENTAR POR AHOA)
+
+```javascript
+// LibraryDragDrop.test.js
+describe("Library Drag & Drop", () => {
+  test("moves book between sections", () => {});
+  test("updates backend when book moved", () => {});
+  test("shows loading state during update", () => {});
+  test("reverts on error", () => {});
+});
+```
+
+#### 3. E2E Tests (NO IMPLEMENTAR POR AHOA)
+
+```javascript
+// library-interactions.e2e.js
+describe("Interactive Library", () => {
+  test("user can drag book from TO_READ to READING", () => {});
+  test("user can add recommendation to library", () => {});
+  test("user can view book details by clicking", () => {});
+});
+```
+
+### 📊 Métricas de Éxito (NO IMPLEMENTAR POR AHOA)
+
+#### 1. Técnicas
+
+- ✅ **Performance**: Sin lag durante drag & drop
+- ✅ **Accessibility**: WCAG 2.1 AA compliance
+- ✅ **Cross-browser**: Chrome, Firefox, Safari, Edge
+- ✅ **Mobile**: Funcional en iOS y Android
+
+#### 2. UX
+
+- ✅ **Intuitividad**: Usuarios entienden la interacción sin tutorial
+- ✅ **Satisfacción**: Feedback positivo sobre la experiencia
+- ✅ **Engagement**: Mayor tiempo de interacción con la biblioteca
+- ✅ **Conversión**: Más libros añadidos y estados actualizados
+
+### 🚀 Migración y Deployment (NO IMPLEMENTAR POR AHOA)
+
+#### 1. Feature Flag
+
+```javascript
+// Permitir rollback gradual
+const useInteractiveLibrary = useFeatureFlag("interactive-library-v2");
+
+return useInteractiveLibrary ? (
+  <InteractiveLibraryCozy />
+) : (
+  <UserLibrarySectionCozy />
+);
+```
+
+#### 2. A/B Testing
+
+```javascript
+// Comparar engagement entre versiones
+const variant = useABTest("library-interaction", {
+  control: "static-library",
+  treatment: "interactive-library",
+});
+```
+
+### 🎉 Resultado Final Esperado
+
+Una biblioteca interactiva que transforme completamente la experiencia del usuario, convirtiéndola en algo:
+
+- **Natural e Intuitivo**: Como organizar libros físicos
+- **Visualmente Atractivo**: Estantería cozy con detalles cuidados
+- **Funcionalmente Superior**: Drag & drop fluido y responsive
+- **Emocionalmente Conectado**: Satisfacción al interactuar con la colección personal
+
+Esta nueva funcionalidad representa la evolución final del sistema cozy hacia una experiencia verdaderamente inmersiva e interactiva, manteniendo la coherencia visual y funcional con todo el ecosistema NextRead_NOAI.
+
+**Total estimado adicional: 160 horas de desarrollo**
+**Total del proyecto completo: 360 horas de desarrollo**
