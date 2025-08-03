@@ -473,7 +473,7 @@ Transformar la interfaz actual de NextRead_NOAI hacia un diseño "cozy" inspirad
   - ✅ UserLibrarySectionCozy actualizado para usar la versión cozy
   - ✅ Funcionalidad completa mantenida (debounce, filtrado, selección)
 
-#### 5.2 Efectos Ambientales
+#### 5.2 Efectos Ambientales (POR AHORA NO)
 
 - [ ] **Partículas Flotantes**
 
@@ -490,7 +490,7 @@ Transformar la interfaz actual de NextRead_NOAI hacia un diseño "cozy" inspirad
   // Sistema de silencio para accesibilidad
   ```
 
-#### 5.2 Responsive Cozy
+#### 5.2 Responsive Cozy (POR AHORA NO)
 
 - [ ] **Mobile Experience**
 
@@ -503,7 +503,7 @@ Transformar la interfaz actual de NextRead_NOAI hacia un diseño "cozy" inspirad
   - Elementos decorativos escalados
   - Interacciones multi-toque
 
-#### 5.3 Accessibility & Performance
+#### 5.3 Accessibility & Performance (POR AHORA NO)
 
 - [ ] **Contraste y Legibilidad**
 

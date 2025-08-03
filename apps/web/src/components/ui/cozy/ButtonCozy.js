@@ -35,6 +35,15 @@ const ButtonCozy = forwardRef(({
     
     // Variante nature (verde bosque)
     nature: 'bg-cozy-forest text-white hover:bg-cozy-sage focus:ring-cozy-forest cozy-shadow-sm hover:cozy-shadow-md',
+    
+    // Variante magical - Gradiente mágico con efectos especiales
+    magical: 'bg-gradient-to-r from-cozy-sage to-cozy-terracotta text-white hover:from-cozy-forest hover:to-cozy-warm-brown focus:ring-cozy-sage cozy-shadow-md hover:cozy-shadow-lg cozy-magical-hover transform hover:scale-105',
+    
+    // Variante dreamy - Colores suaves y etéreos
+    dreamy: 'bg-gradient-to-r from-cozy-lavender to-cozy-mint text-white hover:from-cozy-peach hover:to-cozy-soft-yellow focus:ring-cozy-lavender cozy-shadow-sm hover:cozy-shadow-md',
+    
+    // Variante vintage - Colores tierra y nostálgicos
+    vintage: 'bg-cozy-warm-brown text-cozy-cream border border-cozy-terracotta hover:bg-cozy-terracotta hover:border-cozy-warm-brown focus:ring-cozy-warm-brown cozy-shadow-sm hover:cozy-shadow-md',
   };
 
   const sizes = {
