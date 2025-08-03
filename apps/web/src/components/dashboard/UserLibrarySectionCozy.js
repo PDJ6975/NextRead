@@ -2,7 +2,7 @@
 
 import { X, Plus, Sparkles, Book, Eye } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { MiniBookSearch } from '../ui/MiniBookSearch';
+import { MiniBookSearchCozy } from '../ui/MiniBookSearchCozy';
 import userBookService from '../../services/userBookService';
 import { bookService } from '../../services/bookService';
 import { CardCozy } from '../ui/cozy/CardCozy';
@@ -242,7 +242,7 @@ export default function UserLibrarySectionCozy({ recommendations = [], onRecomme
             {/* Buscador de libros */}
             <div className="w-full lg:w-80">
               <div className="relative">
-                <MiniBookSearch
+                <MiniBookSearchCozy
                   onBookSelect={handleAddBookToRead}
                   placeholder="Buscar y añadir libro..."
                   disabledBooks={userBooks.map(ub => booksDetails[ub.bookId]).filter(Boolean)}
