@@ -95,7 +95,7 @@ export function MiniBookSearchCozy({ onBookSelect, placeholder = 'Buscar libro..
 
       {/* Dropdown de resultados cozy */}
       {showDropdown && (
-        <div className="absolute left-0 mt-2 w-full z-20 bg-cozy-white border-2 border-cozy-sage/20 rounded-xl shadow-lg backdrop-blur-sm min-w-[220px] max-w-[340px] overflow-hidden">
+        <div className="absolute left-0 mt-2 w-full z-50 bg-cozy-white border-2 border-cozy-sage/20 rounded-xl shadow-lg backdrop-blur-sm min-w-[220px] max-w-[340px] overflow-hidden">
           {/* Resultados */}
           <div className="flex flex-col">
             {pagedResults.map((book, idx) => {
@@ -177,7 +177,7 @@ export function MiniBookSearchCozy({ onBookSelect, placeholder = 'Buscar libro..
 
       {/* Mensaje de error cozy */}
       {error && query.length > 1 && !isLoading && (
-        <div className="absolute left-0 mt-2 w-full z-20 bg-cozy-white border-2 border-cozy-terracotta/20 rounded-lg shadow-md">
+        <div className="absolute left-0 mt-2 w-full z-50 bg-cozy-white border-2 border-cozy-terracotta/20 rounded-lg shadow-md">
           <div className="px-4 py-3 flex items-center space-x-2">
             <IconCozy name="heart" size="sm" className="text-cozy-terracotta" />
             <span className="text-sm text-cozy-medium-gray font-nunito">{error}</span>

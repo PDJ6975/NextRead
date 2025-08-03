@@ -218,8 +218,8 @@ export default function UserLibrarySectionCozy({ recommendations = [], onRecomme
   return (
     <section className="my-8 space-y-6">
       {/* Header de la biblioteca */}
-      <CardCozy variant="vintage" className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-cozy-sage/20 via-cozy-terracotta/20 to-cozy-soft-yellow/20"></div>
+      <CardCozy variant="vintage" className="relative overflow-visible">
+        <div className="absolute inset-0 bg-gradient-to-r from-cozy-sage/20 via-cozy-terracotta/20 to-cozy-soft-yellow/20 rounded-lg"></div>
         <div className="relative p-6">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <div className="space-y-2">
