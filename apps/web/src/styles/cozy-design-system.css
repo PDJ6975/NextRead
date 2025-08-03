@@ -335,6 +335,55 @@
 }
 
 /* ================================
+   Animaciones Cozy
+   ================================ */
+
+/* Animación de flotación suave */
+@keyframes cozy-float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.cozy-animate-float {
+  animation: cozy-float 3s ease-in-out infinite;
+}
+
+/* Animación de destello mágico */
+@keyframes cozy-sparkle {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+  25% {
+    opacity: 0.8;
+    transform: scale(1.1) rotate(90deg);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.2) rotate(180deg);
+  }
+  75% {
+    opacity: 0.8;
+    transform: scale(1.1) rotate(270deg);
+  }
+}
+
+.cozy-animate-sparkle {
+  animation: cozy-sparkle 2s ease-in-out infinite;
+}
+
+/* Textura de papel */
+.cozy-texture-paper {
+  background-image: 
+    radial-gradient(circle at 1px 1px, rgba(139, 85, 36, 0.15) 1px, transparent 0);
+  background-size: 20px 20px;
+}
+
+/* ================================
    Modo oscuro cozy (futuro)
    ================================ */
 
