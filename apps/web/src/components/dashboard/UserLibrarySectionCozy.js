@@ -14,21 +14,40 @@ function RecommendationsCarousel({ recommendations, onRecommendationSelect, onRe
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
 
+  // Resetear índice cuando cambien las recomendaciones
+  useEffect(() => {
+    if (recommendations && recommendations.length > 0 && currentIndex >= recommendations.length) {
+      setCurrentIndex(0);
+    }
+  }, [recommendations, currentIndex]);
+
+  // Validar que hay recomendaciones
+  if (!recommendations || recommendations.length === 0) {
+    return null;
+  }
+
+  // Asegurar que el índice está dentro del rango válido
+  const safeIndex = currentIndex >= recommendations.length ? 0 : currentIndex;
+  const currentRecommendation = recommendations[safeIndex];
+
+  // Validación adicional de seguridad
+  if (!currentRecommendation) {
+    return null;
+  }
+
   const nextRecommendation = () => {
-    if (isAnimating) return;
+    if (isAnimating || recommendations.length <= 1) return;
     setIsAnimating(true);
     setCurrentIndex((prev) => (prev + 1) % recommendations.length);
     setTimeout(() => setIsAnimating(false), 300);
   };
 
   const prevRecommendation = () => {
-    if (isAnimating) return;
+    if (isAnimating || recommendations.length <= 1) return;
     setIsAnimating(true);
     setCurrentIndex((prev) => (prev - 1 + recommendations.length) % recommendations.length);
     setTimeout(() => setIsAnimating(false), 300);
   };
-
-  const currentRecommendation = recommendations[currentIndex];
 
   return (
     <CardCozy variant="dreamy" className="relative overflow-hidden">
@@ -262,7 +281,7 @@ export default function UserLibrarySectionCozy({ recommendations = [], onRecomme
           ? recommendation.authors.map(a => typeof a === 'string' ? { name: a } : a)
           : [{ name: 'Autor por determinar' }],
         coverUrl: recommendation.coverUrl,
-        synopsis: recommendation.reason,
+        synopsis: recommendation.synopsis || 'Sinopsis no disponible',
         publisher: recommendation.publisher,
         isbn10: recommendation.isbn10,
         isbn13: recommendation.isbn13,
