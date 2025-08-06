@@ -1,6 +1,6 @@
 'use client';
 
-import { X, Plus, Sparkles, Book, Eye } from 'lucide-react';
+import { X, Plus, Sparkles, Book, Eye, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { MiniBookSearchCozy } from '../ui/MiniBookSearchCozy';
 import userBookService from '../../services/userBookService';
@@ -8,6 +8,163 @@ import { bookService } from '../../services/bookService';
 import { CardCozy } from '../ui/cozy/CardCozy';
 import { ButtonCozy, BookCardCozy } from '../ui/cozy';
 import { BookCozyIcon, HeartCozyIcon, StarCozyIcon, LoadingCozyIcon, PendingCozyIcon, CheckMarkCozyIcon, PauseCozyIcon } from '../ui/cozy/IconCozy';
+
+// Componente del carrusel de recomendaciones
+function RecommendationsCarousel({ recommendations, onRecommendationSelect, onRecommendationAdd }) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isAnimating, setIsAnimating] = useState(false);
+
+  const nextRecommendation = () => {
+    if (isAnimating) return;
+    setIsAnimating(true);
+    setCurrentIndex((prev) => (prev + 1) % recommendations.length);
+    setTimeout(() => setIsAnimating(false), 300);
+  };
+
+  const prevRecommendation = () => {
+    if (isAnimating) return;
+    setIsAnimating(true);
+    setCurrentIndex((prev) => (prev - 1 + recommendations.length) % recommendations.length);
+    setTimeout(() => setIsAnimating(false), 300);
+  };
+
+  const currentRecommendation = recommendations[currentIndex];
+
+  return (
+    <CardCozy variant="dreamy" className="relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-r from-cozy-soft-yellow/20 to-cozy-sage/20"></div>
+      <div className="relative p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <Sparkles className="w-6 h-6 text-cozy-soft-yellow" />
+            <h3 className="text-xl font-bold text-cozy-warm-brown font-cozy-display">
+              Recomendaciones mágicas
+            </h3>
+          </div>
+          
+          {recommendations.length > 1 && (
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-cozy-medium-gray font-cozy">
+                {currentIndex + 1} de {recommendations.length}
+              </span>
+            </div>
+          )}
+        </div>
+        
+        <div className="relative">
+          <div className={`transition-all duration-300 ease-in-out ${isAnimating ? 'opacity-80 scale-95' : 'opacity-100 scale-100'}`}>
+            <CardCozy 
+              variant="vintage"
+              interactive={true}
+              className="cursor-pointer group"
+              onClick={() => onRecommendationSelect(currentRecommendation)}
+            >
+              <div className="p-4">
+                <div className="flex gap-4">
+                  <div className="flex-shrink-0">
+                    <div className="w-20 h-32 overflow-hidden rounded-lg bg-cozy-cream shadow-md">
+                      <img
+                        src={currentRecommendation.coverUrl || 'https://placehold.co/80x128?text=Sin+portada'}
+                        alt={currentRecommendation.title || 'Título no disponible'}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="flex-1 min-w-0 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-1 text-xs bg-cozy-soft-yellow text-cozy-warm-brown rounded-full font-cozy font-medium">
+                        ✨ Recomendado
+                      </span>
+                    </div>
+                    
+                    <h4 className="font-bold text-base text-cozy-warm-brown font-cozy-display line-clamp-2">
+                      {currentRecommendation.title || 'Título no disponible'}
+                    </h4>
+                    
+                    <p className="text-sm text-cozy-dark-gray font-cozy line-clamp-3">
+                      {currentRecommendation.reason || 'Una recomendación personalizada especial para ti'}
+                    </p>
+                    
+                    <div className="flex gap-2 pt-2">
+                      <ButtonCozy
+                        variant="primary"
+                        size="sm"
+                        onClick={e => { 
+                          e.stopPropagation(); 
+                          onRecommendationAdd(currentRecommendation); 
+                        }}
+                        className="flex-1"
+                      >
+                        <Plus className="w-3 h-3 mr-1" />
+                        Añadir
+                      </ButtonCozy>
+                      
+                      <ButtonCozy
+                        variant="ghost"
+                        size="sm"
+                        onClick={e => { 
+                          e.stopPropagation(); 
+                          onRecommendationSelect(currentRecommendation); 
+                        }}
+                      >
+                        <Eye className="w-3 h-3" />
+                      </ButtonCozy>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardCozy>
+          </div>
+
+          {/* Controles de navegación */}
+          {recommendations.length > 1 && (
+            <>
+              <button
+                onClick={prevRecommendation}
+                disabled={isAnimating}
+                className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-3 w-8 h-8 bg-white shadow-lg rounded-full flex items-center justify-center text-cozy-warm-brown hover:bg-cozy-cream transition-all duration-200 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              
+              <button
+                onClick={nextRecommendation}
+                disabled={isAnimating}
+                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-3 w-8 h-8 bg-white shadow-lg rounded-full flex items-center justify-center text-cozy-warm-brown hover:bg-cozy-cream transition-all duration-200 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </>
+          )}
+        </div>
+
+        {/* Indicadores de puntos */}
+        {recommendations.length > 1 && (
+          <div className="flex justify-center gap-2 mt-4">
+            {recommendations.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => {
+                  if (!isAnimating) {
+                    setIsAnimating(true);
+                    setCurrentIndex(index);
+                    setTimeout(() => setIsAnimating(false), 300);
+                  }
+                }}
+                className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                  index === currentIndex 
+                    ? 'bg-cozy-soft-yellow scale-125' 
+                    : 'bg-cozy-medium-gray/40 hover:bg-cozy-medium-gray/60'
+                }`}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    </CardCozy>
+  );
+}
 
 export default function UserLibrarySectionCozy({ recommendations = [], onRecommendationAdded }) {
   const [selectedRecommendation, setSelectedRecommendation] = useState(null);
@@ -313,85 +470,11 @@ export default function UserLibrarySectionCozy({ recommendations = [], onRecomme
 
       {/* Sección de Recomendaciones */}
       {recommendations.length > 0 && (
-        <CardCozy variant="dreamy" className="relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-cozy-soft-yellow/20 to-cozy-sage/20"></div>
-          <div className="relative p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <Sparkles className="w-6 h-6 text-cozy-soft-yellow" />
-              <h3 className="text-xl font-bold text-cozy-warm-brown font-cozy-display">
-                Recomendaciones mágicas
-              </h3>
-            </div>
-            
-            <div className="flex overflow-x-auto gap-4 pb-4 scrollbar-thin scrollbar-thumb-cozy-sage/30">
-              {recommendations.map((recommendation, index) => (
-                <CardCozy 
-                  key={`recommendation-${index}`}
-                  variant="vintage"
-                  interactive={true}
-                  className="min-w-[350px] flex-shrink-0 cursor-pointer group"
-                  onClick={() => setSelectedRecommendation(recommendation)}
-                >
-                  <div className="p-4">
-                    <div className="flex gap-4">
-                      <div className="flex-shrink-0">
-                        <div className="w-20 h-32 overflow-hidden rounded-lg bg-cozy-cream shadow-md">
-                          <img
-                            src={recommendation.coverUrl || 'https://placehold.co/80x128?text=Sin+portada'}
-                            alt={recommendation.title || 'Título no disponible'}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                          />
-                        </div>
-                      </div>
-                      
-                      <div className="flex-1 min-w-0 space-y-2">
-                        <div className="flex items-center gap-2">
-                          <span className="px-2 py-1 text-xs bg-cozy-soft-yellow text-cozy-warm-brown rounded-full font-cozy font-medium">
-                            ✨ Recomendado
-                          </span>
-                        </div>
-                        
-                        <h4 className="font-bold text-base text-cozy-warm-brown font-cozy-display line-clamp-2">
-                          {recommendation.title || 'Título no disponible'}
-                        </h4>
-                        
-                        <p className="text-sm text-cozy-dark-gray font-cozy line-clamp-2">
-                          {recommendation.reason || 'Una recomendación personalizada especial para ti'}
-                        </p>
-                        
-                        <div className="flex gap-2 pt-2">
-                          <ButtonCozy
-                            variant="primary"
-                            size="sm"
-                            onClick={e => { 
-                              e.stopPropagation(); 
-                              handleAddRecommendationToLibrary(recommendation); 
-                            }}
-                            className="flex-1"
-                          >
-                            <Plus className="w-3 h-3 mr-1" />
-                            Añadir
-                          </ButtonCozy>
-                          
-                          <ButtonCozy
-                            variant="ghost"
-                            size="sm"
-                            onClick={e => { 
-                              e.stopPropagation(); 
-                              setSelectedRecommendation(recommendation); 
-                            }}
-                          >
-                            <Eye className="w-3 h-3" />
-                          </ButtonCozy>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </CardCozy>
-              ))}
-            </div>
-          </div>
-        </CardCozy>
+        <RecommendationsCarousel 
+          recommendations={recommendations}
+          onRecommendationSelect={setSelectedRecommendation}
+          onRecommendationAdd={handleAddRecommendationToLibrary}
+        />
       )}
 
       {/* Contenido de la biblioteca */}
