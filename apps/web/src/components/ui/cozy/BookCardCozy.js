@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Star, Edit3, Trash2, Eye, BookOpen, Calendar } from 'lucide-react';
 import { ButtonCozy } from './ButtonCozy';
 import { CardCozy } from './CardCozy';
-import { StarCozyIcon, BookCozyIcon, HeartCozyIcon } from './IconCozy';
+import { StarCozyIcon, BookCozyIcon, HeartCozyIcon, PendingCozyIcon, CheckMarkCozyIcon, PauseCozyIcon } from './IconCozy';
 
 export default function BookCardCozy({
     book,
@@ -50,15 +50,15 @@ export default function BookCardCozy({
             cardVariant: 'vintage',
             showDescription: false,
             showFullActions: false,
-            imageHeight: 'h-24',
+            imageHeight: 'h-20',
             titleSize: 'text-sm',
             layout: 'horizontal'
         },
         default: {
             cardVariant: 'default',
-            showDescription: true,
+            showDescription: false,
             showFullActions: true,
-            imageHeight: 'h-48',
+            imageHeight: 'h-36',
             titleSize: 'text-base',
             layout: 'vertical'
         },
@@ -66,7 +66,7 @@ export default function BookCardCozy({
             cardVariant: 'dreamy',
             showDescription: true,
             showFullActions: true,
-            imageHeight: 'h-56',
+            imageHeight: 'h-40',
             titleSize: 'text-lg',
             layout: 'vertical'
         }
@@ -79,20 +79,23 @@ export default function BookCardCozy({
         'TO_READ': {
             borderColor: 'border-cozy-sage/30',
             bgAccent: 'bg-cozy-sage/10',
-            badge: '📚 Por leer',
-            badgeColor: 'bg-cozy-sage text-white'
+            badge: 'Por leer',
+            badgeColor: 'bg-cozy-sage text-white',
+            icon: PendingCozyIcon
         },
         'READ': {
             borderColor: 'border-cozy-forest/30',
             bgAccent: 'bg-cozy-forest/10',
-            badge: '✅ Leído',
-            badgeColor: 'bg-cozy-forest text-white'
+            badge: 'Leído',
+            badgeColor: 'bg-cozy-forest text-white',
+            icon: CheckMarkCozyIcon
         },
         'ABANDONED': {
-            borderColor: 'border-cozy-medium-gray/30',
-            bgAccent: 'bg-cozy-medium-gray/10',
-            badge: '💤 Pausado',
-            badgeColor: 'bg-cozy-medium-gray text-white'
+            borderColor: 'border-cozy-forest/30',
+            bgAccent: 'bg-cozy-forest/10',
+            badge: 'Pausado',
+            badgeColor: 'bg-cozy-forest text-white',
+            icon: PauseCozyIcon
         }
     };
 
@@ -143,9 +146,10 @@ export default function BookCardCozy({
                         variant="primary"
                         size="sm"
                         onClick={() => onStatusChange?.(book, 'READ')}
-                        className="flex-1"
+                        className="flex-1 flex items-center justify-center gap-2"
                     >
-                        ✅ Marcar como leído
+                        <CheckMarkCozyIcon className="w-3 h-3" />
+                        Marcar leído
                     </ButtonCozy>
                 );
                 buttons.push(
@@ -154,9 +158,10 @@ export default function BookCardCozy({
                         variant="ghost"
                         size="sm"
                         onClick={() => onStatusChange?.(book, 'ABANDONED')}
-                        className="px-3 text-cozy-medium-gray"
+                        className="flex-1 flex items-center justify-center gap-2"
                     >
-                        💤
+                        <PauseCozyIcon className="w-3 h-3" />
+                        Pausar
                     </ButtonCozy>
                 );
                 break;
@@ -174,9 +179,10 @@ export default function BookCardCozy({
                         variant="primary"
                         size="sm"
                         onClick={() => onStatusChange?.(book, 'TO_READ')}
-                        className="flex-1"
+                        className="flex-1 flex items-center justify-center gap-2"
                     >
-                        📚 Retomar
+                        <PendingCozyIcon className="w-3 h-3" />
+                        Retomar
                     </ButtonCozy>
                 );
                 buttons.push(
@@ -185,9 +191,10 @@ export default function BookCardCozy({
                         variant="ghost"
                         size="sm"
                         onClick={() => onStatusChange?.(book, 'READ')}
-                        className="px-3"
+                        className="flex-1 flex items-center justify-center gap-2"
                     >
-                        ✅
+                        <CheckMarkCozyIcon className="w-3 h-3" />
+                        Marcar leído
                     </ButtonCozy>
                 );
                 break;
@@ -216,7 +223,7 @@ export default function BookCardCozy({
                     <div className="flex items-center space-x-4">
                         {/* Imagen pequeña */}
                         <div className="flex-shrink-0">
-                            <div className={`w-16 ${config.imageHeight} overflow-hidden rounded-lg bg-cozy-cream shadow-md`}>
+                            <div className={`w-12 ${config.imageHeight} overflow-hidden rounded-lg bg-cozy-cream shadow-md`}>
                                 {!imageError && book?.coverUrl ? (
                                     <img
                                         src={book.coverUrl}
@@ -245,11 +252,7 @@ export default function BookCardCozy({
                                         {getAuthorsText(book)}
                                     </p>
                                 </div>
-                                
-                                {/* Badge de estado */}
-                                <span className={`px-2 py-1 text-xs font-cozy font-medium rounded-lg ${statusStyle.badgeColor} ml-2`}>
-                                    {statusStyle.badge}
-                                </span>
+
                             </div>
 
                             {/* Rating compacto */}
@@ -285,17 +288,11 @@ export default function BookCardCozy({
             interactive={true}
             className={`${statusStyle.borderColor} ${statusStyle.bgAccent} ${className} group relative overflow-hidden`}
         >
-            {/* Badge de estado flotante */}
-            <div className="absolute top-3 right-3 z-10">
-                <span className={`px-3 py-1 text-xs font-cozy font-medium rounded-full ${statusStyle.badgeColor} shadow-md`}>
-                    {statusStyle.badge}
-                </span>
-            </div>
 
             <div className="p-0">
                 {/* Portada */}
-                <div className="relative">
-                    <div className={`${config.imageHeight} overflow-hidden rounded-t-xl bg-cozy-cream`}>
+                <div className="relative mx-4 mt-4">
+                    <div className={`w-24 h-32 mx-auto overflow-hidden rounded-lg bg-cozy-cream shadow-md`}>
                         {!imageError && book?.coverUrl ? (
                             <img
                                 src={book.coverUrl}

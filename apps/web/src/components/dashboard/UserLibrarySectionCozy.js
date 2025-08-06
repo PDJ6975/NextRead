@@ -254,11 +254,13 @@ export default function UserLibrarySectionCozy({ recommendations = [], onRecomme
               <p className="text-cozy-dark-gray font-cozy">
                 Un rincón acogedor para tus aventuras literarias
               </p>
-              <div className="flex items-center gap-6 text-sm font-cozy">
+              <div className="flex items-center gap-3 text-sm font-cozy">
                 <button 
                   onClick={() => setActiveShelf('TO_READ')}
-                  className={`flex items-center gap-1 transition-colors hover:text-cozy-sage ${
-                    activeShelf === 'TO_READ' ? 'text-cozy-sage font-medium' : 'text-cozy-medium-gray'
+                  className={`flex items-center gap-1 px-3 py-2 rounded-lg transition-all duration-200 ${
+                    activeShelf === 'TO_READ' 
+                      ? 'text-cozy-sage font-medium bg-cozy-sage/10 shadow-sm border border-cozy-sage/20' 
+                      : 'text-cozy-medium-gray hover:text-cozy-sage hover:bg-cozy-sage/5'
                   }`}
                 >
                   <PendingCozyIcon className="w-4 h-4" />
@@ -266,8 +268,10 @@ export default function UserLibrarySectionCozy({ recommendations = [], onRecomme
                 </button>
                 <button 
                   onClick={() => setActiveShelf('READ')}
-                  className={`flex items-center gap-1 transition-colors hover:text-cozy-forest ${
-                    activeShelf === 'READ' ? 'text-cozy-forest font-medium' : 'text-cozy-medium-gray'
+                  className={`flex items-center gap-1 px-3 py-2 rounded-lg transition-all duration-200 ${
+                    activeShelf === 'READ' 
+                      ? 'text-cozy-forest font-medium bg-cozy-forest/10 shadow-sm border border-cozy-forest/20' 
+                      : 'text-cozy-medium-gray hover:text-cozy-forest hover:bg-cozy-forest/5'
                   }`}
                 >
                   <CheckMarkCozyIcon className="w-4 h-4" />
@@ -275,8 +279,10 @@ export default function UserLibrarySectionCozy({ recommendations = [], onRecomme
                 </button>
                 <button 
                   onClick={() => setActiveShelf('ABANDONED')}
-                  className={`flex items-center gap-1 transition-colors hover:text-cozy-forest ${
-                    activeShelf === 'ABANDONED' ? 'text-cozy-forest font-medium' : 'text-cozy-medium-gray'
+                  className={`flex items-center gap-1 px-3 py-2 rounded-lg transition-all duration-200 ${
+                    activeShelf === 'ABANDONED' 
+                      ? 'text-cozy-forest font-medium bg-cozy-forest/10 shadow-sm border border-cozy-forest/20' 
+                      : 'text-cozy-medium-gray hover:text-cozy-forest hover:bg-cozy-forest/5'
                   }`}
                 >
                   <PauseCozyIcon className="w-4 h-4" />
