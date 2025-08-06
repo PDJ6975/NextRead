@@ -7,7 +7,7 @@ import userBookService from '../../services/userBookService';
 import { bookService } from '../../services/bookService';
 import { CardCozy } from '../ui/cozy/CardCozy';
 import { ButtonCozy, BookCardCozy } from '../ui/cozy';
-import { BookCozyIcon, HeartCozyIcon, StarCozyIcon, LoadingCozyIcon } from '../ui/cozy/IconCozy';
+import { BookCozyIcon, HeartCozyIcon, StarCozyIcon, LoadingCozyIcon, PendingCozyIcon, CheckMarkCozyIcon, PauseCozyIcon } from '../ui/cozy/IconCozy';
 
 export default function UserLibrarySectionCozy({ recommendations = [], onRecommendationAdded }) {
   const [selectedRecommendation, setSelectedRecommendation] = useState(null);
@@ -183,7 +183,7 @@ export default function UserLibrarySectionCozy({ recommendations = [], onRecomme
     {
       key: 'TO_READ',
       title: 'Por leer',
-      emoji: '📚',
+      icon: PendingCozyIcon,
       books: porLeerBooks,
       color: 'cozy-sage',
       bgClass: 'bg-cozy-sage/10',
@@ -193,7 +193,7 @@ export default function UserLibrarySectionCozy({ recommendations = [], onRecomme
     {
       key: 'READ',
       title: 'Leídos',
-      emoji: '✅',
+      icon: CheckMarkCozyIcon,
       books: leidoBooks,
       color: 'cozy-forest',
       bgClass: 'bg-cozy-forest/10',
@@ -203,7 +203,7 @@ export default function UserLibrarySectionCozy({ recommendations = [], onRecomme
     {
       key: 'ABANDONED',
       title: 'Pausados',
-      emoji: '💤',
+      icon: PauseCozyIcon,
       books: pausadoBooks,
       color: 'cozy-medium-gray',
       bgClass: 'bg-cozy-medium-gray/10',
@@ -255,9 +255,18 @@ export default function UserLibrarySectionCozy({ recommendations = [], onRecomme
                 Un rincón acogedor para tus aventuras literarias
               </p>
               <div className="flex items-center gap-6 text-sm text-cozy-medium-gray font-cozy">
-                <span>📚 {porLeerBooks.length} por leer</span>
-                <span>✅ {leidoBooks.length} leídos</span>
-                <span>💤 {pausadoBooks.length} pausados</span>
+                <span className="flex items-center gap-1">
+                  <PendingCozyIcon className="w-4 h-4 text-cozy-sage" />
+                  {porLeerBooks.length} por leer
+                </span>
+                <span className="flex items-center gap-1">
+                  <CheckMarkCozyIcon className="w-4 h-4 text-cozy-forest" />
+                  {leidoBooks.length} leídos
+                </span>
+                <span className="flex items-center gap-1">
+                  <PauseCozyIcon className="w-4 h-4 text-cozy-medium-gray" />
+                  {pausadoBooks.length} pausados
+                </span>
               </div>
             </div>
             
@@ -368,29 +377,32 @@ export default function UserLibrarySectionCozy({ recommendations = [], onRecomme
       <CardCozy variant="vintage">
         <div className="p-6">
           <div className="flex flex-wrap gap-3 mb-6">
-            {shelves.map((shelf) => (
-              <ButtonCozy
-                key={shelf.key}
-                variant={activeShelf === shelf.key ? "primary" : "ghost"}
-                onClick={() => setActiveShelf(shelf.key)}
-                className={`flex items-center gap-2 ${
-                  activeShelf === shelf.key 
-                    ? `bg-${shelf.color} text-white` 
-                    : `${shelf.textClass} hover:${shelf.bgClass}`
-                }`}
-              >
-                <span className="text-lg">{shelf.emoji}</span>
-                <span className="font-cozy font-medium">
-                  {shelf.title} ({shelf.books.length})
-                </span>
-              </ButtonCozy>
-            ))}
+            {shelves.map((shelf) => {
+              const IconComponent = shelf.icon;
+              return (
+                <ButtonCozy
+                  key={shelf.key}
+                  variant={activeShelf === shelf.key ? "primary" : "ghost"}
+                  onClick={() => setActiveShelf(shelf.key)}
+                  className={`flex items-center gap-2 ${
+                    activeShelf === shelf.key 
+                      ? `bg-${shelf.color} text-white` 
+                      : `${shelf.textClass} hover:${shelf.bgClass}`
+                  }`}
+                >
+                  <IconComponent className="w-4 h-4" />
+                  <span className="font-cozy font-medium">
+                    {shelf.title} ({shelf.books.length})
+                  </span>
+                </ButtonCozy>
+              );
+            })}
           </div>
 
           {/* Contenido de la estantería activa */}
           <div className={`min-h-[300px] rounded-xl border-2 ${activeShelfData.borderClass} ${activeShelfData.bgClass} p-6`}>
             <div className="flex items-center gap-3 mb-4">
-              <span className="text-2xl">{activeShelfData.emoji}</span>
+              <activeShelfData.icon className={`w-6 h-6 ${activeShelfData.textClass}`} />
               <h3 className={`text-xl font-bold ${activeShelfData.textClass} font-cozy-display`}>
                 {activeShelfData.title}
               </h3>

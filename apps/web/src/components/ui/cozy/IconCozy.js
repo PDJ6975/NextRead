@@ -514,6 +514,27 @@ const EducationCozyIcon = ({ className = '', ...props }) => (
   </IconCozy>
 );
 
+// Icono de pendiente/próximo a leer cozy
+const PendingCozyIcon = ({ className = '', ...props }) => (
+  <IconCozy className={className} {...props}>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-full h-full">
+      <circle cx="12" cy="12" r="10"/>
+      <polyline points="12,6 12,12 16,14"/>
+    </svg>
+  </IconCozy>
+);
+
+// Icono de pausa cozy
+const PauseCozyIcon = ({ className = '', ...props }) => (
+  <IconCozy className={className} {...props}>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-full h-full">
+      <circle cx="12" cy="12" r="10"/>
+      <line x1="10" y1="15" x2="10" y2="9"/>
+      <line x1="14" y1="15" x2="14" y2="9"/>
+    </svg>
+  </IconCozy>
+);
+
 export {
   IconCozy,
   BookCozyIcon,
@@ -529,6 +550,8 @@ export {
   ClockCozyIcon,
   CheckMarkCozyIcon,
   SadCozyIcon,
+  PendingCozyIcon,
+  PauseCozyIcon,
   // Iconos por género
   RomanceCozyIcon,
   FantasyCozyIcon,
