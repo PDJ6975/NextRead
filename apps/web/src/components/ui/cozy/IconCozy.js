@@ -43,12 +43,62 @@ const IconCozy = ({
   );
 };
 
-// Icono de libro cozy
+// Icono de libro cozy elaborado
 const BookCozyIcon = ({ className = '', ...props }) => (
   <IconCozy className={className} {...props}>
     <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full">
-      <path d="M6 2c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6H6zm7 7V3.5L18.5 9H13z"/>
-      <path d="M8 12h8v1H8v-1zm0 2h8v1H8v-1zm0 2h5v1H8v-1z" opacity="0.7"/>
+      {/* Libro cerrado con detalles elegantes */}
+      <defs>
+        <linearGradient id="bookGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="currentColor" stopOpacity="1"/>
+          <stop offset="100%" stopColor="currentColor" stopOpacity="0.7"/>
+        </linearGradient>
+        <filter id="bookShadow">
+          <feDropShadow dx="1" dy="1" stdDeviation="0.5" floodOpacity="0.3"/>
+        </filter>
+      </defs>
+      
+      {/* Cubierta principal del libro */}
+      <path 
+        d="M6 2c-1.2 0-2.2 1-2.2 2.2v15.6c0 1.2 1 2.2 2.2 2.2h12c1.2 0 2.2-1 2.2-2.2V4.2c0-1.2-1-2.2-2.2-2.2H6z" 
+        fill="url(#bookGradient)"
+        filter="url(#bookShadow)"
+      />
+      
+      {/* Lomo del libro con textura */}
+      <rect x="3.5" y="2" width="1.5" height="20" rx="0.3" fill="currentColor" opacity="0.9"/>
+      <rect x="3.7" y="4" width="1.1" height="1" rx="0.2" fill="white" opacity="0.3"/>
+      <rect x="3.7" y="6" width="1.1" height="0.5" rx="0.1" fill="white" opacity="0.2"/>
+      <rect x="3.7" y="8" width="1.1" height="0.5" rx="0.1" fill="white" opacity="0.2"/>
+      
+      {/* Páginas del libro */}
+      <path d="M6.5 3h11v18h-11z" fill="white" opacity="0.95"/>
+      <path d="M6.8 3.3h10.4v17.4h-10.4z" fill="white" opacity="0.8"/>
+      
+      {/* Líneas de texto decorativas */}
+      <rect x="8" y="6" width="8" height="0.3" rx="0.15" fill="currentColor" opacity="0.6"/>
+      <rect x="8" y="7.5" width="7" height="0.3" rx="0.15" fill="currentColor" opacity="0.5"/>
+      <rect x="8" y="9" width="6" height="0.3" rx="0.15" fill="currentColor" opacity="0.4"/>
+      
+      <rect x="8" y="11" width="8" height="0.3" rx="0.15" fill="currentColor" opacity="0.6"/>
+      <rect x="8" y="12.5" width="5" height="0.3" rx="0.15" fill="currentColor" opacity="0.5"/>
+      
+      <rect x="8" y="15" width="7" height="0.3" rx="0.15" fill="currentColor" opacity="0.6"/>
+      <rect x="8" y="16.5" width="6" height="0.3" rx="0.15" fill="currentColor" opacity="0.5"/>
+      <rect x="8" y="18" width="4" height="0.3" rx="0.15" fill="currentColor" opacity="0.4"/>
+      
+      {/* Marcador de libro elegante */}
+      <rect x="14.5" y="2" width="0.8" height="12" fill="currentColor" opacity="0.8"/>
+      <polygon points="14.5,12 15.3,12 14.9,13.5" fill="currentColor" opacity="0.8"/>
+      
+      {/* Detalles dorados en las esquinas */}
+      <circle cx="7.5" cy="4.5" r="0.3" fill="currentColor" opacity="0.3"/>
+      <circle cx="16.5" cy="4.5" r="0.3" fill="currentColor" opacity="0.3"/>
+      <circle cx="7.5" cy="19.5" r="0.3" fill="currentColor" opacity="0.3"/>
+      <circle cx="16.5" cy="19.5" r="0.3" fill="currentColor" opacity="0.3"/>
+      
+      {/* Brillo sutil en la cubierta */}
+      <path d="M6 2h2c0 0 0 10 2 20h-2c-1.2 0-2.2-1-2.2-2.2V4.2c0-1.2 1-2.2 2.2-2.2z" fill="white" opacity="0.1"/>
     </svg>
   </IconCozy>
 );

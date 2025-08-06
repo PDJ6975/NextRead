@@ -185,7 +185,7 @@ function RecommendationsCarousel({ recommendations, onRecommendationSelect, onRe
   );
 }
 
-export default function UserLibrarySectionCozy({ recommendations = [], onRecommendationAdded }) {
+export default function UserLibrarySectionCozy({ recommendations = [], onRecommendationAdded, onBookAdded }) {
   const [selectedRecommendation, setSelectedRecommendation] = useState(null);
   const [selectedBook, setSelectedBook] = useState(null); // Para el modal de detalles del libro
   const [userBooks, setUserBooks] = useState([]);
@@ -209,6 +209,11 @@ export default function UserLibrarySectionCozy({ recommendations = [], onRecomme
       const added = await userBookService.addBook(book, { status: 'TO_READ' });
       setUserBooks(prev => [...prev, added]);
       setBooksDetails(prev => ({ ...prev, [added.bookId]: book }));
+      
+      // Notificar al componente padre que se añadió un libro
+      if (typeof onBookAdded === 'function') {
+        onBookAdded();
+      }
     } catch (e) {
       setError('No se pudo añadir el libro');
     } finally {
@@ -250,6 +255,11 @@ export default function UserLibrarySectionCozy({ recommendations = [], onRecomme
     setUserBooks(prev => prev.map(ub => ub.id === userBook.id ? { ...ub, status: newStatus } : ub));
     try {
       await userBookService.updateBook(userBook.id, { status: newStatus });
+      
+      // Notificar al componente padre que se actualizó un libro
+      if (typeof onBookAdded === 'function') {
+        onBookAdded();
+      }
     } catch (e) {
       setError('No se pudo actualizar el estado del libro');
       setUserBooks(prev => prev.map(ub => ub.id === userBook.id ? { ...ub, status: userBook.status } : ub));
@@ -264,6 +274,11 @@ export default function UserLibrarySectionCozy({ recommendations = [], onRecomme
     setUserBooks(prev => prev.map(ub => ub.id === userBook.id ? { ...ub, rating } : ub));
     try {
       await userBookService.updateBook(userBook.id, { rating });
+      
+      // Notificar al componente padre que se actualizó un libro
+      if (typeof onBookAdded === 'function') {
+        onBookAdded();
+      }
     } catch (e) {
       setError('No se pudo guardar la valoración');
       setUserBooks(prev => prev.map(ub => ub.id === userBook.id ? { ...ub, rating: userBook.rating } : ub));
@@ -296,6 +311,11 @@ export default function UserLibrarySectionCozy({ recommendations = [], onRecomme
 
       if (typeof onRecommendationAdded === 'function') {
         onRecommendationAdded(recommendation);
+      }
+      
+      // Notificar al componente padre que se añadió un libro
+      if (typeof onBookAdded === 'function') {
+        onBookAdded();
       }
     } catch (e) {
       setError('No se pudo añadir la recomendación');

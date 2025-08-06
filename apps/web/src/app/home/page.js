@@ -8,11 +8,12 @@ import GenerateRecommendationsButtonCozy from '../../components/dashboard/Genera
 import { CardCozy } from '../../components/ui/cozy/CardCozy';
 import UserLibrarySectionCozy from '../../components/dashboard/UserLibrarySectionCozy';
 import { useAuth } from '../../contexts/AuthContext';
-import { useState } from 'react';
+import { useState, useRef, useCallback } from 'react';
 
 export default function HomePage() {
     const { user, logout } = useAuth();
     const [recommendations, setRecommendations] = useState([]);
+    const statsRef = useRef(null);
 
     const handleRecommendationsGenerated = (newRecommendations) => {
         setRecommendations(newRecommendations);
@@ -21,7 +22,21 @@ export default function HomePage() {
     // Callback para eliminar recomendación tras añadir a biblioteca
     const handleRecommendationAdded = (recommendation) => {
         setRecommendations(prev => prev.filter(rec => rec !== recommendation));
+        // Actualizar estadísticas cuando se añade un libro
+        refreshStats();
     };
+
+    // Función para refrescar las estadísticas
+    const refreshStats = useCallback(() => {
+        if (statsRef.current && user) {
+            statsRef.current.refresh();
+        }
+    }, [user]);
+
+    // Callback para cuando se añade un libro desde la biblioteca
+    const handleBookAdded = useCallback(() => {
+        refreshStats();
+    }, [refreshStats]);
 
     return (
         <ProtectedRoute requiresFirstTime={false} allowAnonymous={true}>
@@ -31,7 +46,7 @@ export default function HomePage() {
                     {/* Estadísticas del Usuario - Solo mostrar si está autenticado */}
                     {user ? (
                         <section className="pt-8">
-                            <DashboardStatsCozy />
+                            <DashboardStatsCozy ref={statsRef} />
                         </section>
                     ) : (
                         /* Mensaje de bienvenida cozy para usuarios anónimos */
@@ -70,6 +85,7 @@ export default function HomePage() {
                             <UserLibrarySectionCozy 
                                 recommendations={recommendations} 
                                 onRecommendationAdded={handleRecommendationAdded}
+                                onBookAdded={handleBookAdded}
                             />
                         </section>
                     )}

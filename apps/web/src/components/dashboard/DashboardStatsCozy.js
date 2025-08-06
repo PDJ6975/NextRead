@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { BookOpen, Clock, Target, TrendingUp } from 'lucide-react';
 import { CardCozy } from '../ui/cozy/CardCozy';
 import { BookCozyIcon, StarCozyIcon, HeartCozyIcon, PlantCozyIcon } from '../ui/cozy/IconCozy';
@@ -134,7 +134,7 @@ function StatCardCozy({ title, value, icon: Icon, variant, description, loading,
     );
 }
 
-export default function DashboardStatsCozy() {
+const DashboardStatsCozy = forwardRef(function DashboardStatsCozy({ refreshTrigger = 0 }, ref) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [userStats, setUserStats] = useState({
@@ -145,31 +145,37 @@ export default function DashboardStatsCozy() {
         totalBooks: 0
     });
 
+    // Función de recarga que se puede llamar externamente
+    const loadStats = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+
+            // Simular delay para mostrar skeleton loading
+            await userStatsService.simulateDelay(800);
+
+            const stats = await userStatsService.getUserStats();
+            setUserStats(stats);
+        } catch (err) {
+            setError('Error al cargar estadísticas');
+            console.error('Error loading user stats:', err);
+
+            // En caso de error, usar estadísticas por defecto
+            setUserStats(userStatsService.getDefaultStats());
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Exponer la función de recarga al componente padre
+    useImperativeHandle(ref, () => ({
+        refresh: loadStats
+    }));
+
     // Cargar estadísticas del usuario
     useEffect(() => {
-        const loadStats = async () => {
-            try {
-                setLoading(true);
-                setError(null);
-
-                // Simular delay para mostrar skeleton loading
-                await userStatsService.simulateDelay(1200);
-
-                const stats = await userStatsService.getUserStats();
-                setUserStats(stats);
-            } catch (err) {
-                setError('Error al cargar estadísticas');
-                console.error('Error loading user stats:', err);
-
-                // En caso de error, usar estadísticas por defecto
-                setUserStats(userStatsService.getDefaultStats());
-            } finally {
-                setLoading(false);
-            }
-        };
-
         loadStats();
-    }, []);
+    }, [refreshTrigger]); // Dependencia del refreshTrigger para recargar cuando cambie
 
     // Configuración de las cards de estadísticas cozy
     const statsConfigCozy = [
@@ -266,4 +272,6 @@ export default function DashboardStatsCozy() {
             )}
         </div>
     );
-}
+});
+
+export default DashboardStatsCozy;
