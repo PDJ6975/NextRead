@@ -88,7 +88,7 @@ export function MiniBookSearchCozy({ onBookSelect, placeholder = 'Buscar libro..
         />
         {isLoading && (
           <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-            <IconCozy name="loading" size="sm" className="text-cozy-sage animate-spin" />
+            <div className="w-4 h-4 border-2 border-cozy-sage border-t-transparent rounded-full animate-spin"></div>
           </div>
         )}
       </div>

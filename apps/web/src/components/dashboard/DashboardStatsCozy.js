@@ -12,7 +12,7 @@ function StatCardSkeletonCozy() {
         <CardCozy variant="default" className="animate-pulse">
             <div className="p-6">
                 <div className="flex items-center">
-                    <div className="p-3 rounded-xl bg-cozy-sage/20 w-12 h-12 cozy-animate-float"></div>
+                    <div className="p-3 rounded-xl bg-cozy-sage/20 w-12 h-12"></div>
                     <div className="ml-4 flex-1">
                         <div className="h-4 bg-cozy-light-gray rounded-lg w-24 mb-3"></div>
                         <div className="h-8 bg-cozy-medium-gray/50 rounded-lg w-16"></div>
@@ -24,7 +24,7 @@ function StatCardSkeletonCozy() {
 }
 
 // Componente individual de estadística cozy
-function StatCardCozy({ title, value, icon: Icon, variant, description, loading, animated = true }) {
+function StatCardCozy({ title, value, icon: Icon, variant, description, loading, animated = false }) {
     const [isVisible, setIsVisible] = useState(false);
     const [currentValue, setCurrentValue] = useState(0);
 
@@ -103,7 +103,7 @@ function StatCardCozy({ title, value, icon: Icon, variant, description, loading,
 
                 <div className="flex items-center">
                     {/* Icono con estilo "ficha de madera" */}
-                    <div className={`p-3 rounded-xl ${config.iconBg} shadow-lg group-hover:scale-110 transition-transform duration-300 ${animated ? 'cozy-animate-float' : ''}`}>
+                    <div className={`p-3 rounded-xl ${config.iconBg} shadow-lg group-hover:scale-110 transition-transform duration-300`}>
                         <Icon className={`w-6 h-6 ${config.iconColor}`} />
                     </div>
                     
@@ -244,7 +244,7 @@ export default function DashboardStatsCozy() {
                             variant={stat.variant}
                             description={stat.description}
                             loading={loading}
-                            animated={!loading}
+                            animated={false}
                         />
                     </div>
                 ))}
