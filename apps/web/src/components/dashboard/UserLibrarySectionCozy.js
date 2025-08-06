@@ -401,14 +401,24 @@ export default function UserLibrarySectionCozy({ recommendations = [], onRecomme
           <div className={`min-h-[300px] rounded-xl border-2 ${activeShelfData.borderClass} ${activeShelfData.bgClass} p-6`}>
 
             {activeShelfData.books.length === 0 ? (
-              <div className="text-center py-8">
-                <img 
-                  src={getEmptyShelfSvg(`var(--${activeShelfData.color})`)}
-                  alt="Estantería vacía"
-                  className="w-64 h-40 mx-auto mb-4 opacity-60"
-                />
-                <p className={`text-sm ${activeShelfData.textClass} font-cozy`}>
-                  Esta estantería está esperando tus próximas lecturas
+              <div className="text-center py-12">
+                {/* Icono según el tipo de estantería */}
+                <div className="mb-6">
+                  <div className={`inline-flex items-center justify-center w-20 h-20 rounded-full ${activeShelfData.bgClass} border-2 ${activeShelfData.borderClass}`}>
+                    <activeShelfData.icon className={`w-10 h-10 ${activeShelfData.textClass}`} />
+                  </div>
+                </div>
+                
+                <h3 className={`text-lg font-bold ${activeShelfData.textClass} font-cozy-display mb-2`}>
+                  {activeShelfData.title === 'Por leer' && '¡Aquí irán tus próximas aventuras!'}
+                  {activeShelfData.title === 'Leídos' && '¡Aquí celebrarás tus lecturas completadas!'}
+                  {activeShelfData.title === 'Pausados' && 'Un lugar para descansar temporalmente'}
+                </h3>
+                
+                <p className="text-cozy-medium-gray font-cozy text-sm max-w-md mx-auto mb-4">
+                  {activeShelfData.title === 'Por leer' && 'Agrega libros que quieras leer próximamente usando el buscador de arriba.'}
+                  {activeShelfData.title === 'Leídos' && 'Los libros que marques como leídos aparecerán aquí con sus valoraciones.'}
+                  {activeShelfData.title === 'Pausados' && 'Los libros que pauses temporalmente se mostrarán en esta sección.'}
                 </p>
               </div>
             ) : (
