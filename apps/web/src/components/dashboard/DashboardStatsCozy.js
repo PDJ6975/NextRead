@@ -24,32 +24,73 @@ function StatCardSkeletonCozy() {
 }
 
 // Componente individual de estadística cozy
-function StatCardCozy({ title, value, icon: Icon, variant, description, loading, animated = false }) {
+function StatCardCozy({ title, value, icon: Icon, variant, description, loading, animated = true }) {
     const [isVisible, setIsVisible] = useState(false);
     const [currentValue, setCurrentValue] = useState(0);
+    const [isUpdating, setIsUpdating] = useState(false);
 
     useEffect(() => {
-        if (!loading && value && typeof value === 'number') {
+        if (!loading && value !== undefined) {
             setIsVisible(true);
-            // Animación de conteo
-            const targetValue = value;
-            const duration = 2000; // 2 segundos
-            const increment = targetValue / (duration / 50);
-            let current = 0;
             
-            const timer = setInterval(() => {
-                current += increment;
-                if (current >= targetValue) {
-                    setCurrentValue(targetValue);
-                    clearInterval(timer);
-                } else {
-                    setCurrentValue(Math.floor(current));
-                }
-            }, 50);
+            if (typeof value === 'number') {
+                const targetValue = value;
+                const previousValue = currentValue;
+                
+                // Si es la primera carga o el valor cambió significativamente, animar
+                if (previousValue === 0 || Math.abs(targetValue - previousValue) > 0) {
+                    setIsUpdating(true);
+                    
+                    if (animated && previousValue > 0) {
+                        // Animación suave para actualizaciones
+                        const duration = 1000; // 1 segundo
+                        const stepTime = 50;
+                        const steps = duration / stepTime;
+                        const increment = (targetValue - previousValue) / steps;
+                        let current = previousValue;
+                        
+                        const timer = setInterval(() => {
+                            current += increment;
+                            if ((increment > 0 && current >= targetValue) || 
+                                (increment < 0 && current <= targetValue)) {
+                                setCurrentValue(targetValue);
+                                setIsUpdating(false);
+                                clearInterval(timer);
+                            } else {
+                                setCurrentValue(Math.round(current * 10) / 10); // Redondear para decimales
+                            }
+                        }, stepTime);
 
-            return () => clearInterval(timer);
+                        return () => clearInterval(timer);
+                    } else {
+                        // Carga inicial con animación más dramática
+                        const duration = 2000; // 2 segundos
+                        const increment = targetValue / (duration / 50);
+                        let current = 0;
+                        
+                        const timer = setInterval(() => {
+                            current += increment;
+                            if (current >= targetValue) {
+                                setCurrentValue(targetValue);
+                                setIsUpdating(false);
+                                clearInterval(timer);
+                            } else {
+                                setCurrentValue(Math.floor(current));
+                            }
+                        }, 50);
+
+                        return () => clearInterval(timer);
+                    }
+                } else {
+                    setCurrentValue(targetValue);
+                    setIsUpdating(false);
+                }
+            } else {
+                setCurrentValue(value);
+                setIsUpdating(false);
+            }
         }
-    }, [loading, value]);
+    }, [loading, value, animated]);
 
     if (loading) {
         return <StatCardSkeletonCozy />;
@@ -114,7 +155,9 @@ function StatCardCozy({ title, value, icon: Icon, variant, description, loading,
                         </p>
                         
                         {/* Valor con tipografía destacada */}
-                        <p className="text-3xl font-bold text-cozy-warm-brown font-cozy-display tracking-tight">
+                        <p className={`text-3xl font-bold text-cozy-warm-brown font-cozy-display tracking-tight transition-all duration-300 ${
+                            isUpdating ? 'scale-105 text-cozy-sage' : ''
+                        }`}>
                             {typeof displayValue === 'number' ? displayValue.toLocaleString() : displayValue}
                         </p>
                         
@@ -146,13 +189,17 @@ const DashboardStatsCozy = forwardRef(function DashboardStatsCozy({ refreshTrigg
     });
 
     // Función de recarga que se puede llamar externamente
-    const loadStats = async () => {
+    const loadStats = async (showLoading = true) => {
         try {
-            setLoading(true);
+            if (showLoading) {
+                setLoading(true);
+            }
             setError(null);
 
-            // Simular delay para mostrar skeleton loading
-            await userStatsService.simulateDelay(800);
+            // Simular delay solo si se muestra loading
+            if (showLoading) {
+                await userStatsService.simulateDelay(800);
+            }
 
             const stats = await userStatsService.getUserStats();
             setUserStats(stats);
@@ -163,13 +210,26 @@ const DashboardStatsCozy = forwardRef(function DashboardStatsCozy({ refreshTrigg
             // En caso de error, usar estadísticas por defecto
             setUserStats(userStatsService.getDefaultStats());
         } finally {
-            setLoading(false);
+            if (showLoading) {
+                setLoading(false);
+            }
         }
     };
 
-    // Exponer la función de recarga al componente padre
+    // Función optimizada para actualizar solo los valores
+    const updateStatsQuietly = async () => {
+        try {
+            const stats = await userStatsService.getUserStats();
+            setUserStats(stats);
+        } catch (err) {
+            console.error('Error updating stats quietly:', err);
+        }
+    };
+
+    // Exponer las funciones al componente padre
     useImperativeHandle(ref, () => ({
-        refresh: loadStats
+        refresh: loadStats,
+        updateQuietly: updateStatsQuietly
     }));
 
     // Cargar estadísticas del usuario

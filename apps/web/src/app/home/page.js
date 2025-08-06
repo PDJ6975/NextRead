@@ -22,20 +22,26 @@ export default function HomePage() {
     // Callback para eliminar recomendación tras añadir a biblioteca
     const handleRecommendationAdded = (recommendation) => {
         setRecommendations(prev => prev.filter(rec => rec !== recommendation));
-        // Actualizar estadísticas cuando se añade un libro
-        refreshStats();
+        // Actualizar estadísticas con un pequeño delay para mejor UX
+        setTimeout(() => {
+            refreshStats();
+        }, 500);
     };
 
-    // Función para refrescar las estadísticas
+    // Función para refrescar las estadísticas de forma optimizada
     const refreshStats = useCallback(() => {
         if (statsRef.current && user) {
-            statsRef.current.refresh();
+            // Usar actualización silenciosa para mejor UX
+            statsRef.current.updateQuietly();
         }
     }, [user]);
 
     // Callback para cuando se añade un libro desde la biblioteca
     const handleBookAdded = useCallback(() => {
-        refreshStats();
+        // Actualizar estadísticas con un pequeño delay para mejor UX
+        setTimeout(() => {
+            refreshStats();
+        }, 300);
     }, [refreshStats]);
 
     return (
