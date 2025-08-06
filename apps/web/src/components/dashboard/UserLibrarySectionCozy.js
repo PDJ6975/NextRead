@@ -254,19 +254,34 @@ export default function UserLibrarySectionCozy({ recommendations = [], onRecomme
               <p className="text-cozy-dark-gray font-cozy">
                 Un rincón acogedor para tus aventuras literarias
               </p>
-              <div className="flex items-center gap-6 text-sm text-cozy-medium-gray font-cozy">
-                <span className="flex items-center gap-1">
-                  <PendingCozyIcon className="w-4 h-4 text-cozy-sage" />
+              <div className="flex items-center gap-6 text-sm font-cozy">
+                <button 
+                  onClick={() => setActiveShelf('TO_READ')}
+                  className={`flex items-center gap-1 transition-colors hover:text-cozy-sage ${
+                    activeShelf === 'TO_READ' ? 'text-cozy-sage font-medium' : 'text-cozy-medium-gray'
+                  }`}
+                >
+                  <PendingCozyIcon className="w-4 h-4" />
                   {porLeerBooks.length} por leer
-                </span>
-                <span className="flex items-center gap-1">
-                  <CheckMarkCozyIcon className="w-4 h-4 text-cozy-forest" />
+                </button>
+                <button 
+                  onClick={() => setActiveShelf('READ')}
+                  className={`flex items-center gap-1 transition-colors hover:text-cozy-forest ${
+                    activeShelf === 'READ' ? 'text-cozy-forest font-medium' : 'text-cozy-medium-gray'
+                  }`}
+                >
+                  <CheckMarkCozyIcon className="w-4 h-4" />
                   {leidoBooks.length} leídos
-                </span>
-                <span className="flex items-center gap-1">
-                  <PauseCozyIcon className="w-4 h-4 text-cozy-forest" />
+                </button>
+                <button 
+                  onClick={() => setActiveShelf('ABANDONED')}
+                  className={`flex items-center gap-1 transition-colors hover:text-cozy-forest ${
+                    activeShelf === 'ABANDONED' ? 'text-cozy-forest font-medium' : 'text-cozy-medium-gray'
+                  }`}
+                >
+                  <PauseCozyIcon className="w-4 h-4" />
                   {pausadoBooks.length} pausados
-                </span>
+                </button>
               </div>
             </div>
             
@@ -373,40 +388,11 @@ export default function UserLibrarySectionCozy({ recommendations = [], onRecomme
         </CardCozy>
       )}
 
-      {/* Navegador de estanterías */}
+      {/* Contenido de la biblioteca */}
       <CardCozy variant="vintage">
         <div className="p-6">
-          <div className="flex flex-wrap gap-3 mb-6">
-            {shelves.map((shelf) => {
-              const IconComponent = shelf.icon;
-              return (
-                <ButtonCozy
-                  key={shelf.key}
-                  variant={activeShelf === shelf.key ? "primary" : "ghost"}
-                  onClick={() => setActiveShelf(shelf.key)}
-                  className={`flex items-center gap-2 ${
-                    activeShelf === shelf.key 
-                      ? `bg-${shelf.color} text-white` 
-                      : `${shelf.textClass} hover:${shelf.bgClass}`
-                  }`}
-                >
-                  <IconComponent className="w-4 h-4" />
-                  <span className="font-cozy font-medium">
-                    {shelf.title} ({shelf.books.length})
-                  </span>
-                </ButtonCozy>
-              );
-            })}
-          </div>
-
           {/* Contenido de la estantería activa */}
           <div className={`min-h-[300px] rounded-xl border-2 ${activeShelfData.borderClass} ${activeShelfData.bgClass} p-6`}>
-            <div className="flex items-center gap-3 mb-4">
-              <activeShelfData.icon className={`w-6 h-6 ${activeShelfData.textClass}`} />
-              <h3 className={`text-xl font-bold ${activeShelfData.textClass} font-cozy-display`}>
-                {activeShelfData.title}
-              </h3>
-            </div>
 
             {activeShelfData.books.length === 0 ? (
               <div className="text-center py-8">
