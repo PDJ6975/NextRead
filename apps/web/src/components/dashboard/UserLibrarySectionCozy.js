@@ -205,10 +205,10 @@ export default function UserLibrarySectionCozy({ recommendations = [], onRecomme
       title: 'Pausados',
       icon: PauseCozyIcon,
       books: pausadoBooks,
-      color: 'cozy-medium-gray',
-      bgClass: 'bg-cozy-medium-gray/10',
-      borderClass: 'border-cozy-medium-gray/30',
-      textClass: 'text-cozy-medium-gray'
+      color: 'cozy-forest',
+      bgClass: 'bg-cozy-forest/10',
+      borderClass: 'border-cozy-forest/30',
+      textClass: 'text-cozy-forest'
     }
   ];
 
@@ -264,7 +264,7 @@ export default function UserLibrarySectionCozy({ recommendations = [], onRecomme
                   {leidoBooks.length} leídos
                 </span>
                 <span className="flex items-center gap-1">
-                  <PauseCozyIcon className="w-4 h-4 text-cozy-medium-gray" />
+                  <PauseCozyIcon className="w-4 h-4 text-cozy-forest" />
                   {pausadoBooks.length} pausados
                 </span>
               </div>
