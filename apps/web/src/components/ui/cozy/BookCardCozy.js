@@ -44,6 +44,84 @@ export default function BookCardCozy({
         return 'Autor desconocido';
     };
 
+    // Función para manejar clics en las estrellas (sistema mejorado)
+    const handleStarClick = (starIndex) => {
+        let newRating;
+        
+        if (currentRating === starIndex) {
+            // Si ya tiene esa estrella completa, poner media estrella
+            newRating = starIndex - 0.5;
+        } else if (currentRating === starIndex - 0.5) {
+            // Si ya tiene media estrella, poner estrella completa
+            newRating = starIndex;
+        } else {
+            // En cualquier otro caso, poner estrella completa
+            newRating = starIndex;
+        }
+        
+        setCurrentRating(newRating);
+        onRatingChange?.(book, newRating);
+    };
+
+    // Función para manejar hover simple
+    const handleStarHover = (starIndex) => {
+        setHoverRating(starIndex);
+    };
+
+    // Función para determinar qué tipo de estrella mostrar
+    const getStarType = (starIndex, rating) => {
+        if (rating >= starIndex) return 'full';
+        if (rating >= starIndex - 0.5) return 'half';
+        return 'empty';
+    };
+
+    // Componente de estrella con soporte para medias estrellas (diseño profesional)
+    const StarWithHalf = ({ starIndex, rating, hoverRating, onHover, onClick, className }) => {
+        const displayRating = hoverRating || rating;
+        const starType = getStarType(starIndex, displayRating);
+        
+        return (
+            <div 
+                className={`relative cursor-pointer ${className}`}
+                onMouseEnter={() => onHover(starIndex)}
+                onClick={() => onClick(starIndex)}
+            >
+                {starType === 'full' ? (
+                    /* Estrella completa */
+                    <StarCozyIcon 
+                        className="w-full h-full text-cozy-soft-yellow transition-colors duration-200"
+                        filled={true}
+                    />
+                ) : starType === 'empty' ? (
+                    /* Estrella vacía */
+                    <StarCozyIcon 
+                        className="w-full h-full text-cozy-light-gray transition-colors duration-200"
+                        filled={false}
+                    />
+                ) : (
+                    /* Media estrella con clip-path profesional */
+                    <div className="relative w-full h-full">
+                        {/* Estrella base vacía */}
+                        <StarCozyIcon 
+                            className="w-full h-full text-cozy-light-gray"
+                            filled={false}
+                        />
+                        {/* Media estrella rellena con clip-path */}
+                        <div 
+                            className="absolute inset-0 overflow-hidden"
+                            style={{ clipPath: 'inset(0 50% 0 0)' }}
+                        >
+                            <StarCozyIcon 
+                                className="w-full h-full text-cozy-soft-yellow"
+                                filled={true}
+                            />
+                        </div>
+                    </div>
+                )}
+            </div>
+        );
+    };
+
     // Configuración de variantes visuales
     const variantConfig = {
         compact: {
@@ -143,19 +221,19 @@ export default function BookCardCozy({
                 buttons.push(
                     <ButtonCozy
                         key="mark-read"
-                        variant="primary"
+                        variant="outline"
                         size="sm"
                         onClick={() => onStatusChange?.(book, 'READ')}
                         className="flex-1 flex items-center justify-center gap-2"
                     >
                         <CheckMarkCozyIcon className="w-3 h-3" />
-                        Marcar leído
+                        Leído
                     </ButtonCozy>
                 );
                 buttons.push(
                     <ButtonCozy
                         key="abandon"
-                        variant="ghost"
+                        variant="outline"
                         size="sm"
                         onClick={() => onStatusChange?.(book, 'ABANDONED')}
                         className="flex-1 flex items-center justify-center gap-2"
@@ -176,7 +254,7 @@ export default function BookCardCozy({
                 buttons.push(
                     <ButtonCozy
                         key="back-to-read"
-                        variant="primary"
+                        variant="outline"
                         size="sm"
                         onClick={() => onStatusChange?.(book, 'TO_READ')}
                         className="flex-1 flex items-center justify-center gap-2"
@@ -188,13 +266,13 @@ export default function BookCardCozy({
                 buttons.push(
                     <ButtonCozy
                         key="mark-read"
-                        variant="ghost"
+                        variant="outline"
                         size="sm"
                         onClick={() => onStatusChange?.(book, 'READ')}
                         className="flex-1 flex items-center justify-center gap-2"
                     >
                         <CheckMarkCozyIcon className="w-3 h-3" />
-                        Marcar leído
+                        Leído
                     </ButtonCozy>
                 );
                 break;
@@ -206,11 +284,6 @@ export default function BookCardCozy({
         return buttons;
     };
 
-    const handleRatingClick = (rating) => {
-        setCurrentRating(rating);
-        onRatingChange?.(book, rating);
-    };
-
     // Layout compacto (estilo marcapáginas)
     if (config.layout === 'horizontal') {
         return (
@@ -220,15 +293,15 @@ export default function BookCardCozy({
                 className={`${statusStyle.borderColor} ${statusStyle.bgAccent} ${className} group`}
             >
                 <div className="p-4">
-                    <div className="flex items-center space-x-4">
-                        {/* Imagen pequeña */}
+                    <div className="flex gap-4">
+                        {/* Portada completa a la izquierda */}
                         <div className="flex-shrink-0">
-                            <div className={`w-12 ${config.imageHeight} overflow-hidden rounded-lg bg-cozy-cream shadow-md`}>
+                            <div className="w-16 h-24 overflow-hidden rounded-lg bg-cozy-cream shadow-md">
                                 {!imageError && book?.coverUrl ? (
                                     <img
                                         src={book.coverUrl}
                                         alt={`Portada de ${book?.title}`}
-                                        className="w-full h-full object-cover"
+                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                                         onError={() => setImageError(true)}
                                     />
                                 ) : (
@@ -241,14 +314,14 @@ export default function BookCardCozy({
                             </div>
                         </div>
 
-                        {/* Contenido */}
+                        {/* Información del libro a la derecha */}
                         <div className="flex-1 min-w-0">
                             <div className="flex items-start justify-between">
                                 <div className="flex-1 min-w-0">
-                                    <h3 className={`font-bold ${config.titleSize} text-cozy-warm-brown font-cozy-display line-clamp-1`}>
+                                    <h3 className="font-bold text-base text-cozy-warm-brown font-cozy-display line-clamp-1 group-hover:text-cozy-terracotta transition-colors">
                                         {book?.title || 'Título no disponible'}
                                     </h3>
-                                    <p className="text-sm text-cozy-dark-gray font-cozy line-clamp-1">
+                                <p className="text-sm text-cozy-dark-gray font-cozy line-clamp-1 mt-1">
                                         {getAuthorsText(book)}
                                     </p>
                                 </div>
@@ -259,19 +332,23 @@ export default function BookCardCozy({
                             {book?.status === 'READ' && (
                                 <div className="flex items-center space-x-1 mt-2">
                                     {[1, 2, 3, 4, 5].map((star) => (
-                                        <StarCozyIcon
+                                        <StarWithHalf
                                             key={star}
-                                            className={`w-3 h-3 cursor-pointer transition-colors ${
-                                                star <= (hoverRating || currentRating)
-                                                    ? 'text-cozy-soft-yellow'
-                                                    : 'text-cozy-light-gray'
-                                            }`}
-                                            filled={star <= (hoverRating || currentRating)}
-                                            onMouseEnter={() => setHoverRating(star)}
-                                            onMouseLeave={() => setHoverRating(0)}
-                                            onClick={() => handleRatingClick(star)}
+                                            starIndex={star}
+                                            rating={currentRating}
+                                            hoverRating={hoverRating}
+                                            onHover={handleStarHover}
+                                            onClick={handleStarClick}
+                                            className="w-4 h-4 transition-all duration-200 hover:scale-110"
                                         />
                                     ))}
+                                </div>
+                            )}
+                            
+                            {/* Botones de acción debajo */}
+                            {getActionButtons()?.length > 0 && (
+                                <div className="flex gap-2 mt-3">
+                                    {getActionButtons()}
                                 </div>
                             )}
                         </div>
@@ -313,7 +390,7 @@ export default function BookCardCozy({
                 {/* Información */}
                 <div className="p-4 space-y-3">
                     <div>
-                        <h3 className={`font-bold ${config.titleSize} text-cozy-warm-brown font-cozy-display line-clamp-2 group-hover:text-cozy-terracotta transition-colors`}>
+                        <h3 className={`font-bold ${config.titleSize} text-cozy-warm-brown font-cozy-display line-clamp-1 group-hover:text-cozy-terracotta transition-colors`}>
                             {book?.title || 'Título no disponible'}
                         </h3>
                         <p className="text-sm text-cozy-dark-gray font-cozy line-clamp-1">
@@ -330,19 +407,19 @@ export default function BookCardCozy({
 
                     {/* Rating para libros leídos */}
                     {book?.status === 'READ' && (
-                        <div className="flex items-center space-x-1">
+                        <div 
+                            className="flex items-center space-x-1"
+                            onMouseLeave={() => setHoverRating(0)}
+                        >
                             {[1, 2, 3, 4, 5].map((star) => (
-                                <StarCozyIcon
+                                <StarWithHalf
                                     key={star}
-                                    className={`w-4 h-4 cursor-pointer transition-all duration-200 hover:scale-110 ${
-                                        star <= (hoverRating || currentRating)
-                                            ? 'text-cozy-soft-yellow'
-                                            : 'text-cozy-light-gray'
-                                    }`}
-                                    filled={star <= (hoverRating || currentRating)}
-                                    onMouseEnter={() => setHoverRating(star)}
-                                    onMouseLeave={() => setHoverRating(0)}
-                                    onClick={() => handleRatingClick(star)}
+                                    starIndex={star}
+                                    rating={currentRating}
+                                    hoverRating={hoverRating}
+                                    onHover={handleStarHover}
+                                    onClick={handleStarClick}
+                                    className="w-4 h-4 transition-all duration-200 hover:scale-110"
                                 />
                             ))}
                         </div>
