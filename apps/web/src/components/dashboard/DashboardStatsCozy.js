@@ -144,7 +144,7 @@ function StatCardCozy({ title, value, icon: Icon, variant, description, loading,
 
                 <div className="flex items-center">
                     {/* Icono con estilo "ficha de madera" */}
-                    <div className={`p-3 rounded-xl ${config.iconBg} shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                    <div className={`p-3 rounded-xl ${config.iconBg} shadow-lg group-hover:scale-110 transition-transform duration-300 flex items-center justify-center flex-shrink-0`}>
                         <Icon className={`w-6 h-6 ${config.iconColor}`} />
                     </div>
                     
@@ -155,11 +155,13 @@ function StatCardCozy({ title, value, icon: Icon, variant, description, loading,
                         </p>
                         
                         {/* Valor con tipografía destacada */}
-                        <p className={`text-3xl font-bold text-cozy-warm-brown font-cozy-display tracking-tight transition-all duration-300 ${
-                            isUpdating ? 'scale-105 text-cozy-sage' : ''
-                        }`}>
-                            {typeof displayValue === 'number' ? displayValue.toLocaleString() : displayValue}
-                        </p>
+                        <div className="relative min-w-0 flex-1">
+                            <p className={`text-3xl font-bold text-cozy-warm-brown font-cozy-display tracking-tight transition-colors duration-300 ${
+                                isUpdating ? 'text-cozy-sage' : ''
+                            }`}>
+                                {typeof displayValue === 'number' ? displayValue.toLocaleString() : displayValue}
+                            </p>
+                        </div>
                         
                         {/* Descripción */}
                         {description && (
