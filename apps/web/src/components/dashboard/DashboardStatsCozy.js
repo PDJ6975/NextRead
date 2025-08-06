@@ -181,7 +181,7 @@ export default function DashboardStatsCozy() {
             description: loading ? 'Cargando...' : `${userStats.totalBooks} libros en tu biblioteca`
         },
         {
-            title: 'Páginas Disfrutadas',
+            title: 'Páginas Leídas',
             value: loading ? 0 : userStats.pagesRead,
             icon: BookOpen,
             variant: 'pages',
@@ -223,10 +223,10 @@ export default function DashboardStatsCozy() {
             {/* Título de sección con estilo cozy */}
             <div className="text-center">
                 <h2 className="text-2xl font-bold font-cozy-display text-cozy-warm-brown mb-2">
-                    Tu Progreso Literario 📚
+                    Tu Progreso Literario
                 </h2>
                 <p className="text-cozy-medium-gray font-cozy">
-                    Un vistazo a tu aventura de lectura
+                    Echa un vistazo a tu viaje en el mundo de los libros
                 </p>
             </div>
 
@@ -257,7 +257,7 @@ export default function DashboardStatsCozy() {
                         <div className="flex items-center justify-center space-x-2 text-cozy-warm-brown">
                             <HeartCozyIcon className="w-5 h-5 text-cozy-terracotta" />
                             <span className="font-cozy text-sm">
-                                ¡Sigue así! Cada página es un paso en tu viaje literario ✨
+                                ¡Sigue así! Cada página es un paso en tu viaje literario
                             </span>
                             <HeartCozyIcon className="w-5 h-5 text-cozy-terracotta" />
                         </div>

@@ -66,7 +66,7 @@ export default function GenerateRecommendationsButtonCozy({
             
             <div className="space-y-2">
               <h3 className="text-lg font-bold text-cozy-warm-brown font-cozy-display">
-                ✨ Creando magia literaria...
+                Creando magia literaria...
               </h3>
               <p className="text-sm text-cozy-dark-gray font-cozy">
                 Nuestros sabios bibliotecarios están seleccionando los libros perfectos para ti
@@ -110,7 +110,7 @@ export default function GenerateRecommendationsButtonCozy({
         {/* Contenido */}
         <div className="space-y-2">
           <h3 className="text-xl font-bold text-cozy-warm-brown font-cozy-display group-hover:text-cozy-terracotta transition-colors duration-300">
-            ✨ {user ? 'Generar Recomendaciones Mágicas' : 'Descubre tu Próximo Libro Favorito'}
+            {user ? 'Generar Recomendaciones Mágicas' : 'Descubre tu Próximo Libro Favorito'}
           </h3>
           <p className="text-sm text-cozy-dark-gray font-cozy leading-relaxed">
             {user 
@@ -132,7 +132,7 @@ export default function GenerateRecommendationsButtonCozy({
               handleClick();
             }}
           >
-            <Wand2 className="w-5 h-5 mr-2 group-hover/btn:rotate-12 transition-transform duration-300" />
+            <Sparkles className="w-4 h-4 mr-2 group-hover/btn:animate-pulse transition-transform duration-300" />
             <span className="font-cozy font-medium">
               {user ? 'Crear Recomendaciones' : 'Comenzar mi Aventura'}
             </span>
@@ -143,8 +143,8 @@ export default function GenerateRecommendationsButtonCozy({
         {/* Texto motivacional pequeño */}
         <p className="text-xs text-cozy-medium-gray font-cozy opacity-75">
           {user 
-            ? '🔮 Basado en tus gustos únicos y preferencias mágicas'
-            : '📚 Miles de libros esperan por ti en nuestra biblioteca mágica'
+            ? 'Basado en tus gustos únicos y preferencias mágicas'
+            : 'Miles de libros esperan por ti en nuestra biblioteca mágica'
           }
         </p>
       </div>

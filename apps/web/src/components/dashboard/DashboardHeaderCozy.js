@@ -128,10 +128,6 @@ export default function DashboardHeaderCozy({ user, onLogout }) {
                                     <div className="w-10 h-10 bg-gradient-to-br from-cozy-terracotta to-cozy-sage rounded-lg p-2 shadow-md group-hover:shadow-lg transition-all duration-300 cozy-animate-float">
                                         <BookCozyIcon className="w-full h-full text-white" />
                                     </div>
-                                    {/* Sparkle decorativo */}
-                                    <div className="absolute -top-1 -right-1 w-3 h-3 text-cozy-soft-yellow opacity-80 group-hover:opacity-100 transition-opacity">
-                                        <MagicCozyIcon className="w-full h-full" animated />
-                                    </div>
                                 </div>
                                 
                                 {/* Título con tipografía cozy */}
@@ -139,7 +135,7 @@ export default function DashboardHeaderCozy({ user, onLogout }) {
                                     <h1 className="text-2xl font-bold font-cozy-display text-cozy-warm-brown group-hover:text-cozy-terracotta transition-colors duration-300">
                                         NextRead
                                     </h1>
-                                    <p className="text-xs text-cozy-medium-gray font-cozy">Tu biblioteca personal cozy</p>
+                                    <p className="text-xs text-cozy-medium-gray font-cozy">Tu pequeña biblioteca personal</p>
                                 </div>
                             </div>
                         </div>

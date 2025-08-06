@@ -38,7 +38,6 @@ export default function HomePage() {
                         <section className="text-center py-12">
                             <CardCozy variant="magical" className="max-w-4xl mx-auto p-12">
                                 <div className="space-y-6">
-                                    <div className="text-6xl mb-4">📚✨</div>
                                     <h2 className="text-4xl font-bold font-cozy-display text-cozy-warm-brown mb-4">
                                         ¡Bienvenido a tu refugio literario!
                                     </h2>
