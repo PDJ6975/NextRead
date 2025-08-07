@@ -88,7 +88,7 @@ export default function ProfileEditModalCozy({
             Personaliza tu Perfil
           </h2>
           <p className="text-cozy-medium-gray font-nunito mt-2">
-            Elige tu avatar y nombre favoritos ✨
+            Elige tu avatar y nombre favoritos
           </p>
         </div>
 

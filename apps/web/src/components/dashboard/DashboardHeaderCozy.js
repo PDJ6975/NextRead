@@ -175,7 +175,12 @@ export default function DashboardHeaderCozy({ user, onLogout }) {
 
                                 {/* Dropdown menu cozy */}
                                 {dropdownOpen && user && (
-                                    <div className="absolute right-0 mt-2 w-48 bg-white/95 backdrop-blur-md rounded-xl shadow-xl border border-cozy-sage/20 py-2 z-[100] cozy-texture-paper">
+                                    <div className="absolute right-0 mt-2 w-48 bg-white/80 backdrop-blur-md rounded-xl shadow-xl border border-cozy-sage/20 py-2 z-[100]">
+                                        {/* Textura sutil que coincide con el header */}
+                                        <div className="absolute inset-0 cozy-texture-paper opacity-30 rounded-xl" />
+                                        
+                                        {/* Contenido del dropdown - posicionado relativamente para estar sobre la textura */}
+                                        <div className="relative">
                                         {/* Opciones del menú */}
                                         <div className="py-2">
                                             <button
@@ -204,6 +209,7 @@ export default function DashboardHeaderCozy({ user, onLogout }) {
                                             <LogOut className="w-4 h-4" />
                                             <span>Cerrar Sesión</span>
                                         </button>
+                                        </div>
                                     </div>
                                 )}
                             </div>
