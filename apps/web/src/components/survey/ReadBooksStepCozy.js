@@ -165,19 +165,18 @@ const SelectedBookCard = ({ book, index, onRemove, onRatingChange }) => {
                                     onDoubleClick={() => handleRatingChange(star - 0.5)}
                                     className="relative transition-all duration-200 hover:scale-110"
                                 >
+                                    {/* Estrella base */}
                                     <StarCozyIcon
                                         className={`w-4 h-4 ${
                                             star <= rating
                                                 ? 'text-cozy-soft-yellow fill-current'
-                                                : star - 0.5 === rating
-                                                ? 'text-cozy-soft-yellow'
                                                 : 'text-cozy-light-gray'
                                         }`}
                                     />
-                                    {/* Media estrella */}
+                                    {/* Media estrella superpuesta */}
                                     {star - 0.5 === rating && (
-                                        <div className="absolute inset-0 overflow-hidden w-1/2">
-                                            <StarCozyIcon className="w-4 h-4 text-cozy-soft-yellow fill-current" />
+                                        <div className="absolute inset-0 overflow-hidden" style={{ width: '50%' }}>
+                                            <StarCozyIcon className="w-4 h-4 text-cozy-soft-yellow" style={{ fill: 'currentColor' }} />
                                         </div>
                                     )}
                                 </button>
@@ -198,9 +197,9 @@ const SelectedBookCard = ({ book, index, onRemove, onRatingChange }) => {
                         size="sm"
                         onClick={handleRemove}
                         disabled={isRemoving}
-                        className="w-8 h-8 p-0 text-cozy-medium-gray hover:text-cozy-terracotta"
+                        className="w-10 h-10 p-0 text-cozy-medium-gray hover:text-cozy-terracotta transition-all duration-200 hover:scale-110"
                     >
-                        <Trash2 className="w-5 h-5" />
+                        <Trash2 className="w-6 h-6" />
                     </ButtonCozy>
                 </div>
             </div>
@@ -464,7 +463,7 @@ export function ReadBooksStepCozy({ data, onNext, onPrev, onDataChange }) {
                         <StarCozyIcon className="w-5 h-5" />
                     </span>
                 </ButtonCozy>
-            </div> 
+            </div>
 
             {/* Nota informativa */}
             <div className="mt-6 text-center">

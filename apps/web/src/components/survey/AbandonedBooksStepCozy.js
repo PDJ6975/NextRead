@@ -62,17 +62,17 @@ const BookSearchCard = ({ book, onAdd, isAdded = false }) => {
                     {/* Información adicional */}
                     <div className="mt-1 space-y-0.5">
                         {book.publisher && (
-                            <p className="text-xs text-cozy-light-gray truncate">
+                            <p className="text-xs text-cozy-medium-gray truncate">
                                 📚 {book.publisher}
                             </p>
                         )}
                         {book.pages && (
-                            <p className="text-xs text-cozy-light-gray">
+                            <p className="text-xs text-cozy-medium-gray">
                                 📄 {book.pages} páginas
                             </p>
                         )}
                         {book.publishedYear && (
-                            <p className="text-xs text-cozy-light-gray">
+                            <p className="text-xs text-cozy-medium-gray">
                                 📅 {book.publishedYear}
                             </p>
                         )}
@@ -155,7 +155,7 @@ const AbandonedBookCard = ({ book, index, onRemove, onReasonChange }) => {
                         </p>
                         
                         {/* Información adicional */}
-                        <div className="text-xs text-cozy-light-gray space-y-0.5 mt-1">
+                        <div className="text-xs text-cozy-medium-gray space-y-0.5 mt-1">
                             {book.publisher && (
                                 <p>📚 {book.publisher}</p>
                             )}
@@ -172,9 +172,9 @@ const AbandonedBookCard = ({ book, index, onRemove, onReasonChange }) => {
                             size="sm"
                             onClick={handleRemove}
                             disabled={isRemoving}
-                            className="w-8 h-8 p-0 text-cozy-medium-gray hover:text-cozy-terracotta"
+                            className="w-10 h-10 p-0 text-cozy-medium-gray hover:text-cozy-terracotta transition-all duration-200 hover:scale-110"
                         >
-                            <Trash2 className="w-5 h-5" />
+                            <Trash2 className="w-6 h-6" />
                         </ButtonCozy>
                     </div>
                 </div>
@@ -349,7 +349,7 @@ export function AbandonedBooksStepCozy({ data, onNext, onPrev, onDataChange }) {
                     ¿Hay libros que empezaste pero no terminaste? Añádelos aquí para mejorar nuestras recomendaciones.
                 </p>
                 <div className="text-sm text-cozy-soft-yellow font-medium bg-cozy-soft-yellow/10 px-3 py-1 rounded-full inline-block">
-                    📚 Paso opcional - {abandonedBooks.length} libro{abandonedBooks.length !== 1 ? 's' : ''} añadido{abandonedBooks.length !== 1 ? 's' : ''}
+                    Paso opcional - {abandonedBooks.length} libro{abandonedBooks.length !== 1 ? 's' : ''} añadido{abandonedBooks.length !== 1 ? 's' : ''}
                 </div>
             </CardCozy>
 
@@ -437,10 +437,6 @@ export function AbandonedBooksStepCozy({ data, onNext, onPrev, onDataChange }) {
                     <h4 className="text-lg font-semibold font-cozy-display text-cozy-warm-brown mb-2">
                         ¿Algún libro pausado?
                     </h4>
-                    <p className="text-cozy-medium-gray font-cozy mb-4">
-                        Si has empezado libros que no terminaste, añádelos aquí. 
-                        Nos ayuda a entender mejor tus gustos.
-                    </p>
                     <div className="bg-cozy-mint/10 border border-cozy-mint/30 rounded-lg p-4 text-sm text-cozy-medium-gray">
                         💡 <strong>Recuerda:</strong> Este paso es completamente opcional. 
                         Puedes saltarlo y continuar sin problema.
@@ -488,7 +484,7 @@ export function AbandonedBooksStepCozy({ data, onNext, onPrev, onDataChange }) {
 
             {/* Nota informativa */}
             <div className="mt-6 text-center">
-                <p className="text-sm text-cozy-light-gray font-cozy">
+                <p className="text-sm text-cozy-medium-gray font-cozy">
                     ⏰ No te preocupes, entender qué no te gustó también es valioso
                 </p>
             </div>

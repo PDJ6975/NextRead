@@ -109,13 +109,13 @@ export function SurveyWizardCozy({ initialSurvey = null, isFirstTime = true }) {
         {
             id: 'read-books',
             title: 'Libros Leídos',
-            description: 'Tus lecturas realizadas',
+            description: 'Tus lecturas realizadas (opcional)',
             icon: BookOpen,
             color: 'cozy-terracotta'
         },
         {
             id: 'abandoned-books',
-            title: 'Tus Libros Favoritos',
+            title: 'Tus Libros Abandonados',
             description: 'Libros que dejaste (opcional)',
             icon: null,
             color: 'cozy-soft-yellow'
