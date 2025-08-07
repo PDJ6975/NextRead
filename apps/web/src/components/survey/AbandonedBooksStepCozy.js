@@ -9,16 +9,6 @@ import { BookCozyIcon, StarCozyIcon, SearchCozyIcon, ClockCozyIcon, SadCozyIcon 
 import { bookService } from '../../services/bookService';
 import { useDebounce } from '../../hooks/useDebounce';
 
-// Razones comunes para abandonar libros
-const abandonReasons = [
-    { id: 'TOO_SLOW', label: 'Muy lento', emoji: '🐌', color: 'cozy-sage' },
-    { id: 'TOO_COMPLEX', label: 'Muy complejo', emoji: '🤯', color: 'cozy-terracotta' },
-    { id: 'LOST_INTEREST', label: 'Perdí interés', emoji: '😴', color: 'cozy-soft-yellow' },
-    { id: 'BORING', label: 'Aburrido', emoji: '😑', color: 'cozy-medium-gray' },
-    { id: 'BAD_TIMING', label: 'Mal momento', emoji: '⏰', color: 'cozy-lavender' },
-    { id: 'OTHER', label: 'Otro motivo', emoji: '💭', color: 'cozy-mint' }
-];
-
 // Componente de tarjeta de libro para búsqueda
 const BookSearchCard = ({ book, onAdd, isAdded = false }) => {
     const [isAdding, setIsAdding] = useState(false);
@@ -100,15 +90,9 @@ const BookSearchCard = ({ book, onAdd, isAdded = false }) => {
     );
 };
 
-// Componente de libro abandonado con razón
-const AbandonedBookCard = ({ book, index, onRemove, onReasonChange }) => {
-    const [selectedReason, setSelectedReason] = useState(book.reason || '');
+// Componente de libro abandonado
+const AbandonedBookCard = ({ book, index, onRemove }) => {
     const [isRemoving, setIsRemoving] = useState(false);
-
-    const handleReasonChange = (reason) => {
-        setSelectedReason(reason);
-        onReasonChange(index, reason);
-    };
 
     const handleRemove = async () => {
         setIsRemoving(true);
@@ -122,84 +106,59 @@ const AbandonedBookCard = ({ book, index, onRemove, onReasonChange }) => {
                 isRemoving ? 'scale-95 opacity-50' : 'scale-100 opacity-100'
             }`}
         >
-            <div className="space-y-3">
-                {/* Información del libro */}
-                <div className="flex gap-3">
-                    <div className="flex-shrink-0 w-16 h-20 relative overflow-hidden rounded-md cozy-shadow-md">
-                        {book.coverUrl ? (
-                            <img
-                                src={book.coverUrl}
-                                alt={book.title}
-                                className="w-full h-full object-cover"
-                                onError={(e) => {
-                                    e.target.style.display = 'none';
-                                    e.target.nextSibling.style.display = 'flex';
-                                }}
-                            />
-                        ) : null}
-                        <div className={`${book.coverUrl ? 'hidden' : 'flex'} absolute inset-0 bg-gradient-to-b from-cozy-soft-yellow to-cozy-medium-gray items-center justify-center`}>
-                            <BookCozyIcon className="w-8 h-8 text-white" />
-                        </div>
-                        {/* Pequeño reloj en la esquina */}
-                        <div className="absolute -top-1 -right-1 w-3 h-3 bg-cozy-soft-yellow rounded-full flex items-center justify-center">
-                            <ClockCozyIcon className="w-2 h-2 text-cozy-warm-brown" />
-                        </div>
+            <div className="flex gap-3">
+                {/* Portada del libro */}
+                <div className="flex-shrink-0 w-16 h-20 relative overflow-hidden rounded-md cozy-shadow-md">
+                    {book.coverUrl ? (
+                        <img
+                            src={book.coverUrl}
+                            alt={book.title}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                                e.target.style.display = 'none';
+                                e.target.nextSibling.style.display = 'flex';
+                            }}
+                        />
+                    ) : null}
+                    <div className={`${book.coverUrl ? 'hidden' : 'flex'} absolute inset-0 bg-gradient-to-b from-cozy-soft-yellow to-cozy-medium-gray items-center justify-center`}>
+                        <BookCozyIcon className="w-8 h-8 text-white" />
                     </div>
-                    
-                    <div className="flex-1 min-w-0">
-                        <h4 className="font-bold font-cozy-display text-cozy-warm-brown mb-1">
-                            {book.title}
-                        </h4>
-                        <p className="text-sm text-cozy-medium-gray font-cozy">
-                            {book.authors?.map(author => author.name).join(', ') || book.author || 'Autor desconocido'}
-                        </p>
-                        
-                        {/* Información adicional */}
-                        <div className="text-xs text-cozy-medium-gray space-y-0.5 mt-1">
-                            {book.publisher && (
-                                <p>📚 {book.publisher}</p>
-                            )}
-                            {book.pages && (
-                                <p>📄 {book.pages} páginas</p>
-                            )}
-                        </div>
-                    </div>
-                    
-                    {/* Botón de eliminar */}
-                    <div className="flex-shrink-0">
-                        <ButtonCozy
-                            variant="ghost"
-                            size="sm"
-                            onClick={handleRemove}
-                            disabled={isRemoving}
-                            className="w-10 h-10 p-0 text-cozy-medium-gray hover:text-cozy-terracotta transition-all duration-200 hover:scale-110"
-                        >
-                            <Trash2 className="w-6 h-6" />
-                        </ButtonCozy>
+                    {/* Pequeño reloj en la esquina */}
+                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-cozy-soft-yellow rounded-full flex items-center justify-center">
+                        <ClockCozyIcon className="w-2 h-2 text-cozy-warm-brown" />
                     </div>
                 </div>
-
-                {/* Selector de razón */}
-                <div>
-                    <p className="text-xs font-medium text-cozy-warm-brown mb-2">
-                        ¿Por qué lo pausaste?
+                
+                <div className="flex-1 min-w-0">
+                    <h4 className="font-bold font-cozy-display text-cozy-warm-brown mb-1">
+                        {book.title}
+                    </h4>
+                    <p className="text-sm text-cozy-medium-gray font-cozy">
+                        {book.authors?.map(author => author.name).join(', ') || book.author || 'Autor desconocido'}
                     </p>
-                    <div className="grid grid-cols-3 gap-1">
-                        {abandonReasons.map((reason) => (
-                            <button
-                                key={reason.id}
-                                onClick={() => handleReasonChange(reason.id)}
-                                className={`text-xs p-2 rounded-lg border transition-all duration-200 ${
-                                    selectedReason === reason.id
-                                        ? `border-${reason.color} bg-${reason.color}/10 text-cozy-warm-brown`
-                                        : 'border-cozy-light-gray text-cozy-medium-gray hover:border-cozy-medium-gray'
-                                }`}
-                            >
-                                <div className="text-base mb-1">{reason.emoji}</div>
-                                <div className="font-cozy">{reason.label}</div>
-                            </button>
-                        ))}
+                    
+                    {/* Información adicional */}
+                    <div className="text-xs text-cozy-medium-gray space-y-0.5 mt-1">
+                        {book.publisher && (
+                            <p>📚 {book.publisher}</p>
+                        )}
+                        {book.pages && (
+                            <p>📄 {book.pages} páginas</p>
+                        )}
                     </div>
+                </div>
+                
+                {/* Botón de eliminar */}
+                <div className="flex-shrink-0">
+                    <ButtonCozy
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleRemove}
+                        disabled={isRemoving}
+                        className="w-10 h-10 p-0 text-cozy-medium-gray hover:text-cozy-terracotta transition-all duration-200 hover:scale-110"
+                    >
+                        <Trash2 className="w-6 h-6" />
+                    </ButtonCozy>
                 </div>
             </div>
         </CardCozy>
