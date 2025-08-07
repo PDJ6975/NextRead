@@ -115,7 +115,7 @@ function VerifyContent() {
                         Verificar Email
                     </h1>
                     <p className="text-cozy-medium-gray font-nunito">
-                        Hemos enviado un código mágico a tu email ✨
+                        Hemos enviado un código mágico a tu email
                     </p>
                 </div>
 
