@@ -54,7 +54,8 @@ export default function GenerateRecommendationsButtonCozy({
           <div className="relative z-10 space-y-4">
             <div className="flex justify-center">
               <div className="relative">
-                <MagicCozyIcon className="w-16 h-16 text-cozy-soft-yellow animate-spin" />
+                {/* Varita invisible para mantener las estrellas en posición exacta */}
+                <MagicCozyIcon className="w-16 h-16 invisible" />
                 <div className="absolute -top-2 -right-2">
                   <StarCozyIcon className="w-6 h-6 text-cozy-terracotta animate-bounce" />
                 </div>
