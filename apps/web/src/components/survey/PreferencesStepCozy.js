@@ -5,7 +5,8 @@ import { ButtonCozy } from '../ui/cozy/ButtonCozy';
 import { CardCozy } from '../ui/cozy/CardCozy';
 import { 
     HeartCozyIcon, 
-    BookCozyIcon, 
+    BookCozyIcon,
+    ThoughtCozyIcon,
     FastBookCozyIcon,
     CheckMarkCozyIcon, 
     StarCozyIcon,
@@ -173,7 +174,7 @@ const paceOptions = [
         id: 'SLOW',
         title: 'Libros Reflexivos',
         description: 'Me gustan los libros que requieren atención, con tramas profundas y desarrollo de personajes',
-        icon: BookCozyIcon,
+        icon: ThoughtCozyIcon,
         color: 'cozy-sage',
         books: 'Narrativa densa, clásicos, ensayos...'
     },

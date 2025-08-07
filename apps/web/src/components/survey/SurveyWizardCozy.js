@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { X, ArrowLeft, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { X, ArrowLeft, ArrowRight, CheckCircle2, BookOpen } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { ButtonCozy } from '../ui/cozy/ButtonCozy';
 import { CardCozy } from '../ui/cozy/CardCozy';
@@ -109,15 +109,15 @@ export function SurveyWizardCozy({ initialSurvey = null, isFirstTime = true }) {
         {
             id: 'read-books',
             title: 'Libros Leídos',
-            description: 'Tus lecturas favoritas',
-            icon: BookCozyIcon,
+            description: 'Tus lecturas realizadas',
+            icon: BookOpen,
             color: 'cozy-terracotta'
         },
         {
             id: 'abandoned-books',
-            title: 'Pausados',
+            title: 'Tus Libros Favoritos',
             description: 'Libros que dejaste (opcional)',
-            icon: StarCozyIcon,
+            icon: null,
             color: 'cozy-soft-yellow'
         },
         {
@@ -359,7 +359,9 @@ export function SurveyWizardCozy({ initialSurvey = null, isFirstTime = true }) {
                         {/* Título del paso actual */}
                         <div className="text-center">
                             <div className="flex items-center justify-center gap-2 mb-2">
-                                <currentStepConfig.icon className={`w-6 h-6 text-${currentStepConfig.color}`} />
+                                {currentStepConfig.icon && (
+                                    <currentStepConfig.icon className={`w-6 h-6 text-${currentStepConfig.color}`} />
+                                )}
                                 <h2 className="text-xl font-semibold font-cozy-display text-cozy-warm-brown">
                                     {currentStepConfig.title}
                                 </h2>

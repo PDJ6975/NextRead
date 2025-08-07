@@ -52,17 +52,17 @@ const BookSearchCard = ({ book, onAdd, isAdded = false }) => {
                     {/* Información adicional */}
                     <div className="mt-1 space-y-0.5">
                         {book.publisher && (
-                            <p className="text-xs text-cozy-light-gray truncate">
+                            <p className="text-xs text-cozy-medium-gray truncate">
                                 📚 {book.publisher}
                             </p>
                         )}
                         {book.pages && (
-                            <p className="text-xs text-cozy-light-gray">
+                            <p className="text-xs text-cozy-medium-gray">
                                 📄 {book.pages} páginas
                             </p>
                         )}
                         {book.publishedYear && (
-                            <p className="text-xs text-cozy-light-gray">
+                            <p className="text-xs text-cozy-medium-gray">
                                 📅 {book.publishedYear}
                             </p>
                         )}
@@ -145,7 +145,7 @@ const SelectedBookCard = ({ book, index, onRemove, onRatingChange }) => {
                     </p>
                     
                     {/* Información adicional */}
-                    <div className="text-xs text-cozy-light-gray space-y-0.5 mb-2">
+                    <div className="text-xs text-cozy-medium-gray space-y-0.5 mb-2">
                         {book.publisher && (
                             <p>📚 {book.publisher}</p>
                         )}
@@ -335,13 +335,12 @@ export function ReadBooksStepCozy({ data, onNext, onPrev, onDataChange }) {
             {/* Header */}
             <CardCozy variant="magical" className="mb-6 p-6 text-center">
                 <div className="flex items-center justify-center gap-3 mb-4">
-                    <BookCozyIcon className="w-8 h-8 text-cozy-sage" />
                     <h3 className="text-2xl font-bold font-cozy-display text-cozy-warm-brown">
                         Tus Libros Favoritos
                     </h3>
                 </div>
                 <p className="text-cozy-medium-gray font-cozy">
-                    Añade algunos libros que hayas leído y disfrutado. Esto nos ayudará a conocer tus gustos.
+                    Añade algunos libros que hayas leído. Esto nos ayudará a conocer tus gustos.
                 </p>
                 <div className="mt-3 text-sm text-cozy-sage font-medium">
                     {selectedBooks.length} libro{selectedBooks.length !== 1 ? 's' : ''} añadido{selectedBooks.length !== 1 ? 's' : ''}
@@ -465,11 +464,11 @@ export function ReadBooksStepCozy({ data, onNext, onPrev, onDataChange }) {
                         <StarCozyIcon className="w-5 h-5" />
                     </span>
                 </ButtonCozy>
-            </div>
+            </div> 
 
             {/* Nota informativa */}
             <div className="mt-6 text-center">
-                <p className="text-sm text-cozy-light-gray font-cozy">
+                <p className="text-sm text-cozy-medium-gray font-cozy">
                     💡 Tip: Puedes saltar este paso si prefieres añadir libros más tarde
                 </p>
             </div>

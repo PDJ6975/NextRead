@@ -43,8 +43,23 @@ const IconCozy = ({
   );
 };
 
-// Icono de nube de pensamiento para libros reflexivos
+// Icono de libro cozy simple con líneas (restaurado original)
 const BookCozyIcon = ({ className = '', ...props }) => (
+  <IconCozy className={className} {...props}>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-full h-full">
+      {/* Libro cerrado */}
+      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+      {/* Líneas de texto en la cubierta */}
+      <line x1="8" y1="7" x2="16" y2="7" strokeWidth="1" opacity="0.6"/>
+      <line x1="8" y1="10" x2="14" y2="10" strokeWidth="1" opacity="0.6"/>
+      <line x1="8" y1="13" x2="12" y2="13" strokeWidth="1" opacity="0.6"/>
+    </svg>
+  </IconCozy>
+);
+
+// Icono de nube de pensamiento para libros reflexivos
+const ThoughtCozyIcon = ({ className = '', ...props }) => (
   <IconCozy className={className} {...props}>
     <svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="0" className="w-full h-full">
       {/* Nube de pensamiento principal */}
@@ -579,6 +594,7 @@ const PauseCozyIcon = ({ className = '', ...props }) => (
 export {
   IconCozy,
   BookCozyIcon,
+  ThoughtCozyIcon,
   FastBookCozyIcon,
   ShelfCozyIcon,
   PlantCozyIcon,
