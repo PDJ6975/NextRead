@@ -115,7 +115,7 @@ export default function DashboardHeaderCozy({ user, onLogout }) {
             {/* Header principal con diseño cozy */}
             <header className="relative bg-white/80 backdrop-blur-md border-b-2 border-cozy-sage/20 shadow-lg">
                 {/* Textura sutil de fondo */}
-                <div className="absolute inset-0 cozy-texture-linen opacity-30" />
+                <div className="absolute inset-0 cozy-texture-paper opacity-30" />
                 
                 <div className="relative max-w-7xl mx-auto px-4 md:px-8 lg:px-12 xl:px-16 py-4">
                     <div className="flex items-center justify-between">
@@ -188,7 +188,7 @@ export default function DashboardHeaderCozy({ user, onLogout }) {
 
                                 {/* Dropdown menu cozy */}
                                 {dropdownOpen && user && (
-                                    <div className="absolute right-0 mt-2 w-48 bg-white/95 backdrop-blur-md rounded-xl shadow-xl border border-cozy-sage/20 py-2 z-[100] cozy-texture-linen">
+                                    <div className="absolute right-0 mt-2 w-48 bg-white/95 backdrop-blur-md rounded-xl shadow-xl border border-cozy-sage/20 py-2 z-[100] cozy-texture-paper">
                                         {/* Opciones del menú */}
                                         <div className="py-2">
                                             <button

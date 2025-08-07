@@ -86,25 +86,11 @@ export default function GenerateRecommendationsButtonCozy({
   return (
     <CardCozy variant="dreamy" interactive={true} className={`${className} group`}>
       <div className="p-6 text-center space-y-4">
-        {/* Fondo decorativo con partículas */}
-        <div className={`absolute inset-0 transition-opacity duration-500 ${
-          sparkleAnimation ? 'opacity-100' : 'opacity-0'
-        }`}>
-          <div className="absolute top-4 left-4 text-cozy-soft-yellow animate-ping">✨</div>
-          <div className="absolute top-8 right-6 text-cozy-sage animate-pulse">🌟</div>
-          <div className="absolute bottom-6 left-8 text-cozy-terracotta animate-bounce">💫</div>
-          <div className="absolute bottom-4 right-4 text-cozy-lavender animate-pulse">⭐</div>
-        </div>
-
-        {/* Icono principal */}
+        {/* Icono principal - simplificado sin elementos absolute */}
         <div className="relative">
           <div className="mx-auto w-20 h-20 bg-gradient-to-br from-cozy-soft-yellow/20 to-cozy-sage/20 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
             <MagicCozyIcon className="w-10 h-10 text-cozy-warm-brown group-hover:text-cozy-terracotta transition-colors duration-300" />
           </div>
-          
-          {/* Elementos decorativos flotantes */}
-          <StarCozyIcon className="absolute -top-1 -right-1 w-4 h-4 text-cozy-soft-yellow group-hover:animate-spin transition-all duration-300" />
-          <StarCozyIcon className="absolute -bottom-1 -left-1 w-3 h-3 text-cozy-sage group-hover:animate-pulse transition-all duration-300" />
         </div>
 
         {/* Contenido */}

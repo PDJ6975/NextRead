@@ -47,11 +47,13 @@ export default function HomePage() {
     return (
         <ProtectedRoute requiresFirstTime={false} allowAnonymous={true}>
             <DashboardLayoutCozy>
+                {/* Descomentamos solo el header para probarlo */}
                 <DashboardHeaderCozy user={user} onLogout={logout} />
                 <div className="flex-1 space-y-8">
                     {/* Estadísticas del Usuario - Solo mostrar si está autenticado */}
                     {user ? (
                         <section className="pt-8">
+                            {/* Descomentamos las estadísticas para probarlas */}
                             <DashboardStatsCozy ref={statsRef} />
                         </section>
                     ) : (
@@ -79,6 +81,7 @@ export default function HomePage() {
                     
                     {/* Botón Central de Generar Recomendaciones */}
                     <section className="py-12">
+                        {/* Descomentamos el botón de recomendaciones para probarlo */}
                         <GenerateRecommendationsButtonCozy 
                             onRecommendationsGenerated={handleRecommendationsGenerated}
                             className="px-6"
