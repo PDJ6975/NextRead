@@ -149,19 +149,6 @@ export default function DashboardHeaderCozy({ user, onLogout }) {
 
                         {/* Área de usuario */}
                         <div className="flex items-center space-x-4">
-                            
-                            {/* Botón de notificaciones cozy */}
-                            <div className="relative">
-                                <ButtonCozy
-                                    variant="ghost"
-                                    size="sm"
-                                    className="relative"
-                                >
-                                    <Bell className="w-5 h-5" />
-                                    {/* Badge de notificación */}
-                                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-cozy-terracotta rounded-full border border-white shadow-sm" />
-                                </ButtonCozy>
-                            </div>
 
                             {/* Dropdown de usuario */}
                             <div className="relative" ref={dropdownRef}>
