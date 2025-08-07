@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { CheckCircle, Edit3, ArrowRight, Sparkles } from 'lucide-react';
 import { ButtonCozy } from '../ui/cozy/ButtonCozy';
 import { CardCozy } from '../ui/cozy/CardCozy';
@@ -31,8 +31,17 @@ const paceLabels = {
 };
 
 // Componente de resumen de preferencias
-const PreferencesSummary = ({ pace, genres }) => {
+const PreferencesSummary = ({ pace, genres, availableGenres }) => {
     const paceInfo = paceLabels[pace];
+    
+    // Función para obtener el nombre del género a partir de su ID
+    const getGenreLabel = (genreId) => {
+        const genreObj = availableGenres.find(g => g.id === genreId);
+        if (genreObj && genreObj.selectedGenre) {
+            return genreLabels[genreObj.selectedGenre] || genreObj.selectedGenre;
+        }
+        return 'Género desconocido';
+    };
     
     return (
         <CardCozy variant="soft" className="p-6">
@@ -63,12 +72,12 @@ const PreferencesSummary = ({ pace, genres }) => {
                     Géneros favoritos ({genres.length}):
                 </h4>
                 <div className="flex flex-wrap gap-2">
-                    {genres.map((genre) => (
+                    {genres.map((genreId) => (
                         <span
-                            key={genre}
+                            key={genreId}
                             className="px-3 py-1 bg-cozy-terracotta/10 border border-cozy-terracotta/30 text-cozy-warm-brown rounded-full text-sm font-cozy"
                         >
-                            {genreLabels[genre] || genre}
+                            {getGenreLabel(genreId)}
                         </span>
                     ))}
                 </div>
@@ -156,6 +165,26 @@ const BooksSummary = ({ books, title, icon: IconComponent, emptyMessage, color =
 
 export function SurveyConfirmationCozy({ data, onComplete, onPrev, isSubmitting, isFirstTime }) {
     const [isAnimating, setIsAnimating] = useState(false);
+    const [availableGenres, setAvailableGenres] = useState([]);
+    const [isLoadingGenres, setIsLoadingGenres] = useState(true);
+
+    // Cargar géneros disponibles para mostrar nombres correctos
+    useEffect(() => {
+        const loadGenres = async () => {
+            try {
+                const { genreService } = await import('../../services/genreService');
+                const response = await genreService.getAllGenres();
+                setAvailableGenres(response.data || []);
+            } catch (error) {
+                console.error('Error loading genres:', error);
+                setAvailableGenres([]);
+            } finally {
+                setIsLoadingGenres(false);
+            }
+        };
+
+        loadGenres();
+    }, []);
 
     const handleComplete = () => {
         setIsAnimating(true);
@@ -166,6 +195,18 @@ export function SurveyConfirmationCozy({ data, onComplete, onPrev, isSubmitting,
 
     const { pace, genres, readBooks, abandonedBooks } = data;
     const totalBooks = readBooks.length + abandonedBooks.length;
+
+    // Si aún estamos cargando los géneros, mostramos un loading state
+    if (isLoadingGenres) {
+        return (
+            <div className="max-w-4xl mx-auto text-center py-12">
+                <div className="flex items-center justify-center gap-2 text-cozy-medium-gray">
+                    <div className="w-5 h-5 border-2 border-cozy-sage border-t-transparent rounded-full animate-spin" />
+                    <span className="font-cozy">Cargando información...</span>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className={`max-w-4xl mx-auto transition-all duration-500 ${isAnimating ? 'scale-95 opacity-50' : 'scale-100 opacity-100'}`}>
@@ -219,7 +260,7 @@ export function SurveyConfirmationCozy({ data, onComplete, onPrev, isSubmitting,
             {/* Resumen de información */}
             <div className="space-y-6 mb-8">
                 {/* Preferencias */}
-                <PreferencesSummary pace={pace} genres={genres} />
+                <PreferencesSummary pace={pace} genres={genres} availableGenres={availableGenres} />
                 
                 {/* Libros leídos */}
                 <BooksSummary
@@ -244,9 +285,8 @@ export function SurveyConfirmationCozy({ data, onComplete, onPrev, isSubmitting,
 
             {/* Mensaje motivacional */}
             <CardCozy variant="warm" className="mb-8 p-6 text-center bg-gradient-to-r from-cozy-sage/10 to-cozy-terracotta/10">
-                <MagicCozyIcon className="w-8 h-8 text-cozy-terracotta mx-auto mb-3" />
                 <h3 className="text-xl font-bold font-cozy-display text-cozy-warm-brown mb-2">
-                    {isFirstTime ? '🎉 ¡Bienvenido a tu aventura literaria!' : '✨ ¡Cambios guardados!'}
+                    {isFirstTime ? '¡Bienvenido a tu nueva aventura!' : '¡Cambios guardados!'}
                 </h3>
                 <p className="text-cozy-medium-gray font-cozy">
                     {isFirstTime 
@@ -294,7 +334,7 @@ export function SurveyConfirmationCozy({ data, onComplete, onPrev, isSubmitting,
 
             {/* Mensaje final */}
             <div className="mt-8 text-center">
-                <p className="text-sm text-cozy-light-gray font-cozy">
+                <p className="text-sm text-cozy-medium-gray font-cozy">
                     {isFirstTime 
                         ? '📚 Recuerda: siempre puedes actualizar tus preferencias desde tu perfil'
                         : '🔄 Los cambios se aplicarán inmediatamente a tus recomendaciones'

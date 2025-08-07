@@ -124,7 +124,7 @@ export function SurveyWizardCozy({ initialSurvey = null, isFirstTime = true }) {
             id: 'confirmation',
             title: 'Confirmación',
             description: 'Revisar y finalizar',
-            icon: MagicCozyIcon,
+            icon: null,
             color: 'cozy-lavender'
         }
     ];
