@@ -6,6 +6,7 @@ import { CardCozy } from '../ui/cozy/CardCozy';
 import { 
     HeartCozyIcon, 
     BookCozyIcon, 
+    FastBookCozyIcon,
     CheckMarkCozyIcon, 
     StarCozyIcon,
     RomanceCozyIcon,
@@ -166,21 +167,21 @@ const getGenreColor = (genreName) => {
     return colorMap[genreName] || 'cozy-sage';
 };
 
-// Configuración de ritmos de lectura
+// Configuración de ritmos de lectura con iconos cozy
 const paceOptions = [
     {
         id: 'SLOW',
         title: 'Libros Reflexivos',
-        description: 'Me gustan los libros que requieren atención y profundidad, con mucho contexto',
-        icon: '📚',
+        description: 'Me gustan los libros que requieren atención, con tramas profundas y desarrollo de personajes',
+        icon: BookCozyIcon,
         color: 'cozy-sage',
         books: 'Narrativa densa, clásicos, ensayos...'
     },
     {
         id: 'FAST',
         title: 'Libros Dinámicos',
-        description: 'Prefiero libros que se leen rápidamente, donde siempre hay acción',
-        icon: '⚡',
+        description: 'Me gustan los libros que son rápidos y emocionantes, con mucha acción y sorpresas',
+        icon: FastBookCozyIcon,
         color: 'cozy-terracotta',
         books: 'Thrillers, aventuras, romance...'
     }
@@ -261,10 +262,10 @@ export function PreferencesStepCozy({ data, onNext, onDataChange }) {
             <CardCozy variant="magical" className="mb-8 p-6">
                 <div className="text-center mb-6">
                     <h3 className="text-2xl font-bold font-cozy-display text-cozy-warm-brown mb-2">
-                        📚 ¿Cuál es tu ritmo de lectura?
+                        ¿Cuál es tu ritmo de lectura?
                     </h3>
                     <p className="text-cozy-medium-gray font-cozy">
-                        Esto nos ayudará a sugerir la cantidad perfecta de libros para ti
+                        Esto nos ayudará a conocer mejor qué tipo de libros te interesan
                     </p>
                 </div>
 
@@ -286,7 +287,9 @@ export function PreferencesStepCozy({ data, onNext, onDataChange }) {
                                 }`}
                             >
                                 <div className="text-center">
-                                    <div className="text-4xl mb-3">{option.icon}</div>
+                                    <div className="mb-3 flex justify-center">
+                                        <option.icon className={`w-9 h-9 ${selectedPace === option.id ? `text-${option.color}` : 'text-cozy-medium-gray'} transition-colors duration-300`} />
+                                    </div>
                                     <h4 className="font-bold font-cozy-display text-cozy-warm-brown mb-2">
                                         {option.title}
                                     </h4>
@@ -318,7 +321,7 @@ export function PreferencesStepCozy({ data, onNext, onDataChange }) {
             <CardCozy variant="magical" className="p-6">
                 <div className="text-center mb-6">
                     <h3 className="text-2xl font-bold font-cozy-display text-cozy-warm-brown mb-2">
-                        ✨ ¿Qué géneros te encantan?
+                        ¿Qué géneros te gustan?
                     </h3>
                     <p className="text-cozy-medium-gray font-cozy">
                         Selecciona todos los que te interesen (mínimo 1)

@@ -42,6 +42,11 @@ const InputCozy = forwardRef(({
       'focus:border-cozy-sage focus:ring-0',
       'placeholder:text-cozy-medium-gray'
     ),
+    magical: clsx(
+      'bg-cozy-soft-yellow/15 border-2 border-cozy-soft-yellow/60 text-cozy-dark-gray',
+      'focus:border-cozy-soft-yellow focus:ring-cozy-soft-yellow/20',
+      'placeholder:text-cozy-medium-gray'
+    ),
   };
 
   const sizes = {

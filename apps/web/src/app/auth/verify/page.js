@@ -159,7 +159,7 @@ function VerifyContent() {
                         />
 
                         <InputCozy
-                            variant="magical"
+                            variant="warm"
                             label="Código de verificación"
                             name="verificationCode"
                             type="text"

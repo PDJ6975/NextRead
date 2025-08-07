@@ -6,7 +6,7 @@ import { X, ArrowLeft, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { ButtonCozy } from '../ui/cozy/ButtonCozy';
 import { CardCozy } from '../ui/cozy/CardCozy';
-import { BookCozyIcon, HeartCozyIcon, StarCozyIcon, MagicCozyIcon } from '../ui/cozy/IconCozy';
+import { BookCozyIcon, HeartCozyIcon, StarCozyIcon, MagicCozyIcon} from '../ui/cozy/IconCozy';
 import { PreferencesStepCozy } from './PreferencesStepCozy';
 import { ReadBooksStepCozy } from './ReadBooksStepCozy';
 import { AbandonedBooksStepCozy } from './AbandonedBooksStepCozy';
