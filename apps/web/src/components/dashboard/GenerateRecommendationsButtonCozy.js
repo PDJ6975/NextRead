@@ -6,6 +6,7 @@ import { Sparkles, Wand2, RefreshCw } from 'lucide-react';
 import { ButtonCozy } from '../ui/cozy/ButtonCozy';
 import { CardCozy } from '../ui/cozy/CardCozy';
 import { MagicCozyIcon, StarCozyIcon } from '../ui/cozy/IconCozy';
+import { NotificationCozy } from '../ui/cozy/NotificationCozy';
 import { useAuth } from '../../contexts/AuthContext';
 import recommendationService from '../../services/recommendationService';
 
@@ -17,6 +18,7 @@ export default function GenerateRecommendationsButtonCozy({
   const router = useRouter();
   const [generating, setGenerating] = useState(false);
   const [sparkleAnimation, setSparkleAnimation] = useState(false);
+  const [rateLimitError, setRateLimitError] = useState(null);
 
   const handleClick = async () => {
     if (generating) return;
@@ -38,6 +40,16 @@ export default function GenerateRecommendationsButtonCozy({
       }
     } catch (error) {
       console.error('Error al generar recomendaciones:', error);
+      
+      // Manejar error de rate limit de manera especial
+      if (error.isRateLimit) {
+        setRateLimitError({
+          title: error.errorTitle,
+          message: error.message,
+          remainingRequests: error.remainingRequests,
+          resetTime: error.resetTime
+        });
+      }
     } finally {
       setGenerating(false);
       setTimeout(() => setSparkleAnimation(false), 2000);
@@ -85,7 +97,19 @@ export default function GenerateRecommendationsButtonCozy({
   }
 
   return (
-    <CardCozy variant="dreamy" interactive={true} className={`${className} group`}>
+    <>
+      {/* Notificación de rate limit */}
+      <NotificationCozy
+        title={rateLimitError?.title}
+        message={rateLimitError?.message}
+        type="warning"
+        isOpen={!!rateLimitError}
+        onClose={() => setRateLimitError(null)}
+        remainingRequests={rateLimitError?.remainingRequests}
+        resetTime={rateLimitError?.resetTime}
+      />
+
+      <CardCozy variant="dreamy" interactive={true} className={`${className} group`}>
       <div className="p-6 text-center space-y-4">
         {/* Icono principal*/}
         <div className="relative">
@@ -136,5 +160,6 @@ export default function GenerateRecommendationsButtonCozy({
         </p>
       </div>
     </CardCozy>
+    </>
   );
 }

@@ -51,7 +51,16 @@ class RecommendationService {
             return transformedData;
         } catch (error) {
             // Manejar errores específicos del backend
-            if (error.response?.status === 400) {
+            if (error.response?.status === 429) {
+                // Rate limit exceeded - crear error específico con datos del backend
+                const errorData = error.response?.data || {};
+                const rateLimitError = new Error(errorData.message || 'Has alcanzado el límite de recomendaciones para hoy. Inténtalo mañana.');
+                rateLimitError.isRateLimit = true;
+                rateLimitError.remainingRequests = errorData.remainingRequests || 0;
+                rateLimitError.resetTime = errorData.resetTime || '24 horas';
+                rateLimitError.errorTitle = errorData.error || 'Límite de recomendaciones alcanzado';
+                throw rateLimitError;
+            } else if (error.response?.status === 400) {
                 throw new Error('Debes completar la encuesta antes de generar recomendaciones');
             } else if (error.response?.status === 500) {
                 throw new Error('Error interno del servidor. El servicio de recomendaciones no está disponible temporalmente');

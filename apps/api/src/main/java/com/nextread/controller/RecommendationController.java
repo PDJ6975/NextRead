@@ -1,6 +1,7 @@
 package com.nextread.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,7 @@ import com.nextread.dto.RecommendationRequestDTO;
 import com.nextread.entities.Recommendation;
 import com.nextread.entities.User;
 import com.nextread.services.RecommendationService;
+import com.nextread.services.RateLimitService;
 
 import jakarta.validation.Valid;
 
@@ -27,10 +29,13 @@ import jakarta.validation.Valid;
 public class RecommendationController {
 
     private final RecommendationService recommendationService;
+    private final RateLimitService rateLimitService;
 
     @Autowired
-    public RecommendationController(RecommendationService recommendationService) {
+    public RecommendationController(RecommendationService recommendationService,
+                                   RateLimitService rateLimitService) {
         this.recommendationService = recommendationService;
+        this.rateLimitService = rateLimitService;
     }
 
     /**
@@ -39,10 +44,23 @@ public class RecommendationController {
      * @return Lista de recomendaciones generadas (no guardadas)
      */
     @PostMapping("/generate")
-    public ResponseEntity<List<GeneratedRecommendationDTO>> generateRecommendations() {
+    public ResponseEntity<?> generateRecommendations() {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             User currentUser = (User) authentication.getPrincipal();
+
+            if (!rateLimitService.canMakeRequest(currentUser)) {
+                int remainingRequests = rateLimitService.getRemainingRequests(currentUser);
+                return ResponseEntity.status(429)
+                        .body(Map.of(
+                                "error", "Límite de recomendaciones diarias alcanzado",
+                                "message", "Has alcanzado el límite de recomendaciones para hoy. Inténtalo mañana.",
+                                "remainingRequests", remainingRequests,
+                                "resetTime", "24 horas"
+                        ));
+            }
+
+            rateLimitService.recordRequest(currentUser);
 
             List<GeneratedRecommendationDTO> recommendations = recommendationService
                     .generateRecommendations(currentUser);

@@ -21,3 +21,4 @@ export {
   MagicCozyIcon,
 } from './IconCozy';
 export { default as BookCardCozy } from './BookCardCozy';
+export { NotificationCozy } from './NotificationCozy';
