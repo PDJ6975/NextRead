@@ -96,7 +96,7 @@ public class SurveyService {
             List<Genre> genres = genresIds.stream()
                     .filter(g -> g != null)
                     .map(g -> genreService.findById(g))
-                    .collect(Collectors.toList()); // Usar Collectors.toList() en lugar de .toList() para lista mutable
+                    .collect(Collectors.toList());
 
             survey.setSelectedGenres(genres);
         }

@@ -44,8 +44,6 @@ public class AuthenticationService {
         User user = new User(input.getEmail(), input.getUsername(), passwordEncoder.encode(input.getPassword()));
         // Asignar avatar por defecto aleatorio de 5 posibles
         // TODO: Cambiar la URL base a la del entorno de producción cuando se despliegue
-        // Asignar un avatar aleatorio de la carpeta avatars con URL absoluta para
-        // desarrollo local
         int randomAvatar = new Random().nextInt(6) + 1;
         user.setAvatarUrl("http://localhost:3000/avatars/avatar" + randomAvatar + ".png");
         user.setVerificationCode(generateVerificationCode());

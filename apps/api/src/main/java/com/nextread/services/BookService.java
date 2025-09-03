@@ -336,7 +336,6 @@ public class BookService {
 
     @Transactional
     public Book saveBook(Book book) {
-        // First, handle authors
         if (book.getAuthors() != null && !book.getAuthors().isEmpty()) {
             List<Author> persistedAuthors = new ArrayList<>();
             for (Author author : book.getAuthors()) {

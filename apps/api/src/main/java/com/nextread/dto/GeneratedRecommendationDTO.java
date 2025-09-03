@@ -31,6 +31,6 @@ public class GeneratedRecommendationDTO {
     // Flag para indicar si se encontró información adicional
     private boolean enriched;
 
-    // ID del libro si existe en la BD local
+    // ID del libro si existe en la BD
     private Long bookId;
 }
