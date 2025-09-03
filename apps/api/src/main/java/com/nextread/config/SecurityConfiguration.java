@@ -43,11 +43,17 @@ public class SecurityConfiguration {
         return http.build();
     }
 
-    // TODO: Cambiar enlace de producción
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:8080"));
+        // Permitir orígenes de desarrollo y producción
+        configuration.setAllowedOrigins(List.of(
+            "http://localhost:3000", 
+            "http://localhost:8080",
+            "https://*.github.io",  // GitHub Pages
+            "https://*.netlify.app", // Netlify (backup)
+            "https://*.vercel.app"   // Vercel (backup)
+        ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);

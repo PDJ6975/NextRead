@@ -43,9 +43,12 @@ public class AuthenticationService {
     public User signUp(RegisterUserDTO input) {
         User user = new User(input.getEmail(), input.getUsername(), passwordEncoder.encode(input.getPassword()));
         // Asignar avatar por defecto aleatorio de 5 posibles
-        // TODO: Cambiar la URL base a la del entorno de producción cuando se despliegue
         int randomAvatar = new Random().nextInt(6) + 1;
-        user.setAvatarUrl("http://localhost:3000/avatars/avatar" + randomAvatar + ".png");
+        String frontendUrl = System.getenv("FRONTEND_URL");
+        if (frontendUrl == null || frontendUrl.isEmpty()) {
+            frontendUrl = "http://localhost:3000"; // Fallback para desarrollo
+        }
+        user.setAvatarUrl(frontendUrl + "/avatars/avatar" + randomAvatar + ".png");
         user.setVerificationCode(generateVerificationCode());
         user.setVerificationCodeExpiresAt(LocalDateTime.now().plusMinutes(15));
         user.setEnabled(false);
