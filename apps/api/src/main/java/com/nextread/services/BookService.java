@@ -439,7 +439,7 @@ public class BookService {
         // Crear el libro directamente usando el builder de Book
         Book newBook = Book.builder()
                 .title(recommendation.getTitle())
-                .synopsis(recommendation.getReason())
+                .synopsis(recommendation.getSynopsis() != null ? recommendation.getSynopsis() : "Sinopsis no disponible")
                 .publisher(
                         recommendation.getPublisher() != null ? recommendation.getPublisher() : "Editorial desconocida")
                 .publishedYear(recommendation.getPublishedYear() != null ? recommendation.getPublishedYear()
