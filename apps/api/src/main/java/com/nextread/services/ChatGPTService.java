@@ -337,8 +337,10 @@ public class ChatGPTService {
         // Remover comillas triples que puedan quedar
         cleaned = cleaned.replaceAll("```", "");
 
-        // Remover texto explicativo común antes del JSON
-        cleaned = cleaned.replaceAll("(?i).*?(?=\\[|\\{)", "");
+        // Remover texto explicativo común antes del JSON (solo si no empieza con [ o {)
+        if (!cleaned.startsWith("[") && !cleaned.startsWith("{")) {
+            cleaned = cleaned.replaceAll("(?i).*?(?=\\[|\\{)", "");
+        }
 
         // Buscar el inicio del JSON más precisamente
         int arrayStart = cleaned.indexOf('[');

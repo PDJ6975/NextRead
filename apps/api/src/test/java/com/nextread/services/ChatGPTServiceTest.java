@@ -170,7 +170,7 @@ public class ChatGPTServiceTest {
             when(surveyService.findSurveyByUser(testUser)).thenReturn(testSurvey);
             when(userBookService.findUserBooks(testUser)).thenReturn(List.of(testUserBook));
 
-            // Usar un JSON válido con el contenido correctamente escapado
+            // Crear respuesta con 3 recomendaciones como espera el algoritmo
             String mockApiResponse = """
                     {
                         "choices": [{
@@ -185,10 +185,46 @@ public class ChatGPTServiceTest {
             when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(HttpEntity.class), eq(String.class)))
                     .thenReturn(mockResponse);
 
-            // Mock the book service to return a valid book for enrichment
-            when(bookService.findRecommendedBook("The Hobbit")).thenReturn(testBook);
-            when(bookService.findRecommendedBook("Dune")).thenReturn(testBook);
-            when(bookService.findRecommendedBook("1984")).thenReturn(testBook);
+            // Mock diferentes libros para las 3 recomendaciones
+            Book book1 = Book.builder()
+                    .id(1L)
+                    .title("The Hobbit")
+                    .isbn10("1234567890")
+                    .isbn13("1234567890123")
+                    .publisher("Test Publisher")
+                    .coverUrl("https://example.com/hobbit.jpg")
+                    .synopsis("A fantasy adventure")
+                    .pages(300)
+                    .publishedYear("1937")
+                    .build();
+
+            Book book2 = Book.builder()
+                    .id(2L)
+                    .title("Dune")
+                    .isbn10("1234567891")
+                    .isbn13("1234567890124")
+                    .publisher("Test Publisher")
+                    .coverUrl("https://example.com/dune.jpg")
+                    .synopsis("A science fiction epic")
+                    .pages(500)
+                    .publishedYear("1965")
+                    .build();
+
+            Book book3 = Book.builder()
+                    .id(3L)
+                    .title("1984")
+                    .isbn10("1234567892")
+                    .isbn13("1234567890125")
+                    .publisher("Test Publisher")
+                    .coverUrl("https://example.com/1984.jpg")
+                    .synopsis("A dystopian classic")
+                    .pages(250)
+                    .publishedYear("1949")
+                    .build();
+
+            when(bookService.findRecommendedBook("The Hobbit")).thenReturn(book1);
+            when(bookService.findRecommendedBook("Dune")).thenReturn(book2);
+            when(bookService.findRecommendedBook("1984")).thenReturn(book3);
 
             // When
             List<GeneratedRecommendationDTO> result = chatGPTService.generateRecommendations(testUser,
@@ -199,6 +235,10 @@ public class ChatGPTServiceTest {
             assertEquals(3, result.size());
             assertEquals("The Hobbit", result.get(0).getTitle());
             assertEquals("Perfect fantasy book for fast readers", result.get(0).getReason());
+            assertEquals("Dune", result.get(1).getTitle());
+            assertEquals("Epic science fiction", result.get(1).getReason());
+            assertEquals("1984", result.get(2).getTitle());
+            assertEquals("Classic dystopian novel", result.get(2).getReason());
 
             verify(surveyService).findSurveyByUser(testUser);
             verify(userBookService).findUserBooks(testUser);
