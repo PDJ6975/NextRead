@@ -1,0 +1,24 @@
+// Exportar todos los componentes desde un solo lugar
+export { ButtonCozy } from './ButtonCozy';
+export { 
+  CardCozy, 
+  CardHeaderCozy, 
+  CardContentCozy, 
+  CardFooterCozy 
+} from './CardCozy';
+export { InputCozy, TextareaCozy } from './InputCozy';
+export { 
+  IconCozy,
+  BookCozyIcon,
+  ShelfCozyIcon,
+  PlantCozyIcon,
+  HeartCozyIcon,
+  StarCozyIcon,
+  HomeCozyIcon,
+  SearchCozyIcon,
+  UserCozyIcon,
+  LoadingCozyIcon,
+  MagicCozyIcon,
+} from './IconCozy';
+export { default as BookCardCozy } from './BookCardCozy';
+export { NotificationCozy } from './NotificationCozy';
