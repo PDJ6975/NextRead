@@ -105,12 +105,16 @@ export default function ProfileEditModalCozy({
 
             {/* Marco decorativo cozy para el avatar */}
             <div className="relative">
-              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-cozy-sage to-cozy-terracotta p-1 shadow-lg">
-                <div className="w-full h-full rounded-full bg-cozy-white flex items-center justify-center">
+              <div className="w-24 h-24 rounded-full overflow-hidden shadow-lg relative"
+                   style={{
+                     background: 'linear-gradient(135deg, #8fbc8f, #d2691e)',
+                     padding: '4px'
+                   }}>
+                <div className="w-full h-full rounded-full overflow-hidden">
                   <img
                     src={avatarIcons[currentIcon]}
                     alt="Avatar actual"
-                    className="w-16 h-16 object-contain"
+                    className="w-full h-full object-cover"
                   />
                 </div>
               </div>
