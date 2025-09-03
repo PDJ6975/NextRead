@@ -27,17 +27,11 @@ public class ApplicationConfiguration {
         this.userRepository = userRepository;
     }
 
-    /**
-     * Bean para llamadas a APIs externas
-     */
     @Bean
     public RestTemplate restTemplate() {
         return new RestTemplate();
     }
 
-    /**
-     * Bean para procesamiento de JSON
-     */
     @Bean
     public ObjectMapper objectMapper() {
         ObjectMapper mapper = new ObjectMapper();
@@ -46,36 +40,22 @@ public class ApplicationConfiguration {
         return mapper;
     }
 
-    /**
-     * Bean que define cómo buscar un usuario por email para la autenticación.
-     */
     @Bean
     UserDetailsService userDetailsService() {
         return identifier -> userRepository.findByEmail(identifier)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado."));
     }
 
-    /**
-     * Bean que provee el codificador de contraseñas BCrypt.
-     */
     @Bean
     BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    /**
-     * Bean que expone el AuthenticationManager de Spring para gestionar
-     * autenticaciones.
-     */
     @Bean
     AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 
-    /**
-     * Bean que configura el proveedor de autenticación usando UserDetailsService y
-     * BCrypt.
-     */
     @SuppressWarnings("deprecation")
     @Bean
     AuthenticationProvider authenticationProvider() {

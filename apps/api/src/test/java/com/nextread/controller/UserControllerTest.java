@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -23,12 +24,16 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nextread.entities.User;
 import com.nextread.services.UserService;
+import com.nextread.services.SurveyService;
 
 @ExtendWith(MockitoExtension.class)
 public class UserControllerTest {
 
     @Mock
     private UserService userService;
+
+    @Mock
+    private SurveyService surveyService;
 
     private MockMvc mockMvc;
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -37,7 +42,7 @@ public class UserControllerTest {
 
     @BeforeEach
     void setUp() {
-        UserController controller = new UserController(userService);
+        UserController controller = new UserController(userService, surveyService);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
 
         testUser = new User();
@@ -134,10 +139,13 @@ public class UserControllerTest {
             String newNickname = "newusername";
             when(userService.updateNickname(anyString(), any(User.class))).thenReturn(newNickname);
 
+            // Crear el body en el formato esperado por el controlador
+            Map<String, String> requestBody = Map.of("nickname", newNickname);
+
             // When & Then
             mockMvc.perform(put("/users/nickname")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(newNickname)))
+                    .content(objectMapper.writeValueAsString(requestBody)))
                     .andExpect(status().isOk())
                     .andExpect(content().string(newNickname));
 
@@ -151,10 +159,13 @@ public class UserControllerTest {
             String differentNickname = "differentuser";
             when(userService.updateNickname(anyString(), any(User.class))).thenReturn(differentNickname);
 
+            // Crear el body en el formato esperado por el controlador
+            Map<String, String> requestBody = Map.of("nickname", differentNickname);
+
             // When & Then
             mockMvc.perform(put("/users/nickname")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(differentNickname)))
+                    .content(objectMapper.writeValueAsString(requestBody)))
                     .andExpect(status().isOk())
                     .andExpect(content().string(differentNickname));
 
@@ -168,10 +179,13 @@ public class UserControllerTest {
             String emptyNickname = "";
             when(userService.updateNickname(anyString(), any(User.class))).thenReturn(emptyNickname);
 
+            // Crear el body en el formato esperado por el controlador
+            Map<String, String> requestBody = Map.of("nickname", emptyNickname);
+
             // When & Then
             mockMvc.perform(put("/users/nickname")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(emptyNickname)))
+                    .content(objectMapper.writeValueAsString(requestBody)))
                     .andExpect(status().isOk())
                     .andExpect(content().string(emptyNickname));
 

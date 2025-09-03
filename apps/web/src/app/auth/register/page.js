@@ -3,9 +3,10 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../../contexts/AuthContext';
-import { Button } from '../../../components/ui/Button';
-import { Input } from '../../../components/ui/Input';
-import { Card, CardContent, CardHeader } from '../../../components/ui/Card';
+import { ButtonCozy } from '../../../components/ui/cozy/ButtonCozy';
+import { InputCozy } from '../../../components/ui/cozy/InputCozy';
+import { CardCozy } from '../../../components/ui/cozy/CardCozy';
+import { IconCozy } from '../../../components/ui/cozy/IconCozy';
 import { useValidation } from '../../../hooks/useValidation';
 import { registerSchema } from '../../../lib/validationSchemas';
 
@@ -70,21 +71,37 @@ export default function RegisterPage() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-            <Card className="w-full max-w-md">
-                <CardHeader className="text-center">
-                    <h1 className="text-2xl font-bold text-gray-900 mb-2">Crear Cuenta</h1>
-                    <p className="text-gray-600">Únete a NextRead y descubre tu próximo libro favorito</p>
-                </CardHeader>
-                <CardContent>
-                    <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="min-h-screen bg-gradient-to-br from-cozy-cream to-cozy-mint flex items-center justify-center p-4">
+            <CardCozy variant="vintage" className="w-full max-w-md cozy-animate-float p-8">
+                <div className="text-center mb-8">
+                    <div className="flex justify-center mb-4">
+                        <IconCozy 
+                            name="magic" 
+                            size="lg" 
+                            className="text-cozy-terracotta"
+                        />
+                    </div>
+                    <h1 className="text-2xl font-bold text-cozy-dark-gray mb-2 font-comfortaa">
+                        Únete a NextRead
+                    </h1>
+                    <p className="text-cozy-medium-gray font-nunito">
+                        Descubre tu próximo libro favorito y comienza tu aventura
+                    </p>
+                </div>
+
+                <div className="space-y-8">
+                    <form onSubmit={handleSubmit} className="space-y-6">
                         {errors.general && (
-                            <div className="bg-red-50 border border-red-200 rounded-md p-3">
-                                <p className="text-sm text-red-600">{errors.general}</p>
+                            <div className="bg-cozy-terracotta/10 border border-cozy-terracotta/30 rounded-lg p-3">
+                                <div className="flex items-center space-x-2">
+                                    <IconCozy name="heart" size="sm" className="text-cozy-terracotta" />
+                                    <p className="text-sm text-cozy-terracotta font-nunito">{errors.general}</p>
+                                </div>
                             </div>
                         )}
 
-                        <Input
+                        <InputCozy
+                            variant="warm"
                             label="Nombre de usuario"
                             name="username"
                             type="text"
@@ -92,10 +109,12 @@ export default function RegisterPage() {
                             onChange={handleChange}
                             error={errors.username}
                             placeholder="Tu nombre de usuario"
+                            icon="plant"
                             required
                         />
 
-                        <Input
+                        <InputCozy
+                            variant="warm"
                             label="Email"
                             name="email"
                             type="email"
@@ -103,10 +122,12 @@ export default function RegisterPage() {
                             onChange={handleChange}
                             error={errors.email}
                             placeholder="tu@email.com"
+                            icon="book"
                             required
                         />
 
-                        <Input
+                        <InputCozy
+                            variant="warm"
                             label="Contraseña"
                             name="password"
                             type="password"
@@ -114,10 +135,12 @@ export default function RegisterPage() {
                             onChange={handleChange}
                             error={errors.password}
                             placeholder="Mínimo 6 caracteres"
+                            icon="star"
                             required
                         />
 
-                        <Input
+                        <InputCozy
+                            variant="warm"
                             label="Confirmar contraseña"
                             name="confirmPassword"
                             type="password"
@@ -125,32 +148,35 @@ export default function RegisterPage() {
                             onChange={handleChange}
                             error={errors.confirmPassword}
                             placeholder="Repite tu contraseña"
+                            icon="heart"
                             required
                         />
 
-                        <Button
+                        <ButtonCozy
+                            variant="nature"
                             type="submit"
                             className="w-full"
                             loading={isLoading}
                             disabled={isLoading}
                         >
                             {isLoading ? 'Creando cuenta...' : 'Crear Cuenta'}
-                        </Button>
+                        </ButtonCozy>
                     </form>
 
-                    <div className="mt-6 text-center">
-                        <p className="text-sm text-gray-600">
+                    {/* Enlaces de navegación*/}
+                    <div className="text-center">
+                        <p className="text-sm text-cozy-medium-gray font-nunito">
                             ¿Ya tienes una cuenta?{' '}
                             <button
                                 onClick={() => router.push('/auth/login')}
-                                className="text-blue-600 hover:text-blue-700 font-medium"
+                                className="text-cozy-sage hover:text-cozy-forest font-medium transition-colors duration-200"
                             >
-                                Inicia sesión
+                                Inicia sesión aquí
                             </button>
                         </p>
                     </div>
-                </CardContent>
-            </Card>
+                </div>
+            </CardCozy>
         </div>
     );
 } 

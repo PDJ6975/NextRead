@@ -1,0 +1,579 @@
+/* ================================
+   NextRead Cozy Design System
+   ================================ */
+
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&display=swap');
+
+/* ================================
+   CSS Custom Properties
+   ================================ */
+:root {
+  /* Colores cozy principales */
+  --cozy-sage: #9CAF88;
+  --cozy-cream: #F7F5F3;
+  --cozy-terracotta: #E07A5F;
+  --cozy-warm-brown: #8D5524;
+  --cozy-soft-yellow: #F2CC8F;
+  
+  /* Colores cozy secundarios */
+  --cozy-lavender: #D4A5A5;
+  --cozy-mint: #A8D8DC;
+  --cozy-peach: #FFB5A7;
+  --cozy-forest: #6B8E6B;
+  
+  /* Neutros cálidos */
+  --cozy-white: #FDF9F6;
+  --cozy-light-gray: #E8E5E1;
+  --cozy-medium-gray: #B8B3AE;
+  --cozy-dark-gray: #6B6560;
+  
+  /* Sombras cozy */
+  --cozy-shadow-sm: 0 2px 8px rgba(139, 85, 36, 0.08);
+  --cozy-shadow: 0 4px 20px rgba(139, 85, 36, 0.1);
+  --cozy-shadow-md: 0 6px 25px rgba(139, 85, 36, 0.12);
+  --cozy-shadow-lg: 0 10px 35px rgba(139, 85, 36, 0.15);
+  --cozy-shadow-xl: 0 20px 50px rgba(139, 85, 36, 0.2);
+  
+  /* Border radius orgánicos */
+  --cozy-border-radius-sm: 0.375rem;
+  --cozy-border-radius: 0.5rem;
+  --cozy-border-radius-md: 0.75rem;
+  --cozy-border-radius-lg: 1rem;
+  --cozy-border-radius-xl: 1.5rem;
+  
+  /* Transiciones suaves */
+  --cozy-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --cozy-transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --cozy-transition-slow: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ================================
+   Efectos cozy personalizados
+   ================================ */
+
+/* Sombras cozy */
+.cozy-shadow-sm { box-shadow: var(--cozy-shadow-sm); }
+.cozy-shadow { box-shadow: var(--cozy-shadow); }
+.cozy-shadow-md { box-shadow: var(--cozy-shadow-md); }
+.cozy-shadow-lg { box-shadow: var(--cozy-shadow-lg); }
+.cozy-shadow-xl { box-shadow: var(--cozy-shadow-xl); }
+
+/* Bordes cozy */
+.cozy-border { border: 2px solid var(--cozy-sage); }
+.cozy-border-light { border: 1px solid var(--cozy-light-gray); }
+.cozy-border-warm { border: 2px solid var(--cozy-terracotta); }
+
+/* Gradientes cozy */
+.cozy-gradient-primary {
+  background: linear-gradient(135deg, var(--cozy-cream) 0%, var(--cozy-mint) 100%);
+}
+
+.cozy-gradient-warm {
+  background: linear-gradient(135deg, var(--cozy-soft-yellow) 0%, var(--cozy-peach) 100%);
+}
+
+.cozy-gradient-sage {
+  background: linear-gradient(135deg, var(--cozy-sage) 0%, var(--cozy-forest) 100%);
+}
+
+.cozy-gradient-paper {
+  background: linear-gradient(135deg, var(--cozy-white) 0%, var(--cozy-cream) 100%);
+}
+
+/* Texturas sutiles */
+.cozy-texture-paper {
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23f7f5f3' fill-opacity='0.1'%3E%3Ccircle cx='7' cy='7' r='1'/%3E%3Ccircle cx='53' cy='53' r='1'/%3E%3Ccircle cx='11' cy='47' r='1'/%3E%3Ccircle cx='41' cy='17' r='1'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+.cozy-texture-wood {
+  background-image: url("data:image/svg+xml,%3Csvg width='84' height='48' viewBox='0 0 84 48' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h12v6H0V0zm28 8h12v6H28V8zm14-8h12v6H42V0zm14 0h12v6H56V0zm0 8h12v6H56V8zm14 8h12v6H70v-6zm0-16h12v6H70V0zM28 32h12v6H28v-6zM14 16h12v6H14v-6zM0 24h12v6H0v-6zm0 8h12v6H0v-6zm14 0h12v6H14v-6zm14 8h12v6H28v-6zm-14 0h12v6H14v-6zm28 0h12v6H42v-6zm14-8h12v6H56v-6zm0-8h12v6H56v-6zm14 8h12v6H70v-6zm0 8h12v6H70v-6zM14 24h12v6H14v-6zm14-8h12v6H28v-6zM14 8h12v6H14V8zM0 8h12v6H0V8z' fill='%23e8e5e1' fill-opacity='0.05'/%3E%3C/svg%3E");
+}
+
+/* Hover effects naturales */
+.cozy-hover {
+  transition: var(--cozy-transition);
+}
+
+.cozy-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--cozy-shadow-md);
+}
+
+.cozy-hover-subtle:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--cozy-shadow);
+}
+
+/* Estados de interacción cozy */
+.cozy-interactive {
+  cursor: pointer;
+  transition: var(--cozy-transition);
+}
+
+.cozy-interactive:hover {
+  transform: scale(1.02);
+  box-shadow: var(--cozy-shadow-lg);
+}
+
+.cozy-interactive:active {
+  transform: scale(0.98);
+  box-shadow: var(--cozy-shadow-sm);
+}
+
+/* Efectos especiales para botones mágicos */
+.cozy-magical-hover {
+  position: relative;
+  overflow: hidden;
+}
+
+.cozy-magical-hover::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent, 
+    rgba(255, 255, 255, 0.3), 
+    transparent
+  );
+  transition: left 0.5s;
+}
+
+.cozy-magical-hover:hover::before {
+  left: 100%;
+}
+
+/* ================================
+   Animaciones cozy
+   ================================ */
+
+@keyframes cozy-fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes cozy-scale-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes cozy-slide-up {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes cozy-bounce-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes cozy-shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+@keyframes cozy-sparkle {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1) rotate(180deg);
+  }
+}
+
+@keyframes cozy-float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+/* Clases de animación */
+.cozy-animate-fade-in {
+  animation: cozy-fade-in 0.5s ease-out;
+}
+
+.cozy-animate-scale-in {
+  animation: cozy-scale-in 0.3s ease-out;
+}
+
+.cozy-animate-slide-up {
+  animation: cozy-slide-up 0.4s ease-out;
+}
+
+.cozy-animate-bounce-in {
+  animation: cozy-bounce-in 0.6s ease-out;
+}
+
+.cozy-animate-sparkle {
+  animation: cozy-sparkle 2s ease-in-out infinite;
+}
+
+.cozy-animate-float {
+  animation: cozy-float 3s ease-in-out infinite;
+}
+
+/* ================================
+   Utilidades de tipografía cozy
+   ================================ */
+
+.cozy-text-display {
+  font-family: 'Comfortaa', system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+.cozy-text-body {
+  font-family: 'Nunito', system-ui, sans-serif;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+.cozy-text-mono {
+  font-family: 'JetBrains Mono', Monaco, Consolas, monospace;
+  font-weight: 400;
+}
+
+/* ================================
+   Estados de carga cozy
+   ================================ */
+
+.cozy-loading {
+  position: relative;
+  overflow: hidden;
+}
+
+.cozy-loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(247, 245, 243, 0.4),
+    transparent
+  );
+  animation: cozy-shimmer 1.5s infinite;
+}
+
+/* ================================
+   Elementos decorativos
+   ================================ */
+
+.cozy-divider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--cozy-light-gray),
+    transparent
+  );
+  border: none;
+  margin: 1.5rem 0;
+}
+
+.cozy-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--cozy-border-radius);
+  font-size: 0.75rem;
+  font-weight: 500;
+  font-family: 'Nunito', sans-serif;
+  background: var(--cozy-sage);
+  color: white;
+  box-shadow: var(--cozy-shadow-sm);
+}
+
+.cozy-badge-warm {
+  background: var(--cozy-terracotta);
+}
+
+.cozy-badge-soft {
+  background: var(--cozy-soft-yellow);
+  color: var(--cozy-warm-brown);
+}
+
+/* ================================
+   Responsive cozy
+   ================================ */
+
+@media (max-width: 768px) {
+  .cozy-hover:hover {
+    transform: none;
+  }
+  
+  .cozy-interactive:hover {
+    transform: none;
+  }
+  
+  .cozy-interactive:active {
+    transform: scale(0.96);
+  }
+}
+
+/* ================================
+   Animaciones Cozy
+   ================================ */
+
+/* Animación de flotación suave */
+@keyframes cozy-float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.cozy-animate-float {
+  animation: cozy-float 3s ease-in-out infinite;
+}
+
+/* Animación de destello mágico */
+@keyframes cozy-sparkle {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+  25% {
+    opacity: 0.8;
+    transform: scale(1.1) rotate(90deg);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.2) rotate(180deg);
+  }
+  75% {
+    opacity: 0.8;
+    transform: scale(1.1) rotate(270deg);
+  }
+}
+
+.cozy-animate-sparkle {
+  animation: cozy-sparkle 2s ease-in-out infinite;
+}
+
+/* Textura de papel */
+.cozy-texture-paper {
+  background-image: 
+    radial-gradient(circle at 1px 1px, rgba(139, 85, 36, 0.15) 1px, transparent 0);
+  background-size: 20px 20px;
+}
+
+/* ================================
+   Interactive Library Cozy Styles
+   ================================ */
+
+/* BookSpine Styles */
+.book-spine-cozy {
+  position: relative;
+  transform-style: preserve-3d;
+}
+
+.book-spine-cozy:hover {
+  transform: perspective(100px) rotateY(0deg) translateY(-8px) !important;
+  z-index: 20;
+}
+
+/* DraggableBook Styles */
+.book-dragging {
+  transform: rotate(5deg) scale(1.1) !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3) !important;
+  z-index: 1000 !important;
+  opacity: 0.9;
+}
+
+.book-drag-over {
+  transform: translateY(-4px);
+}
+
+.draggable-book-cozy {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.draggable-book-cozy:hover {
+  z-index: 20;
+}
+
+.draggable-book-cozy:active {
+  cursor: grabbing;
+}
+
+/* Shelf Section Styles */
+.shelf-drop-active {
+  background: rgba(156, 175, 136, 0.2) !important;
+  border-color: #9caf88 !important;
+  transform: scale(1.02);
+}
+
+.shelf-section-cozy {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.shelf-container {
+  position: relative;
+}
+
+.shelf-container::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 8px;
+  background: linear-gradient(180deg, transparent 0%, rgba(139, 85, 36, 0.2) 100%);
+  border-radius: 0 0 12px 12px;
+}
+
+/* Recommendation Stack Styles */
+.draggable-recommendation-card {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.recommendation-stack-cozy {
+  position: relative;
+}
+
+.recommendation-stack-cozy::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(224, 122, 95, 0.3) 20%, 
+    rgba(242, 204, 143, 0.5) 50%, 
+    rgba(224, 122, 95, 0.3) 80%, 
+    transparent 100%
+  );
+  border-radius: 1px;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Bookshelf Global Styles */
+.bookshelf-cozy {
+  position: relative;
+  padding: 1rem;
+}
+
+.drag-overlay-item {
+  transform: rotate(5deg) scale(1.1);
+  filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.3));
+  z-index: 1000;
+}
+
+.bookshelf-cozy .shelf-section-cozy {
+  height: fit-content;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .bookshelf-cozy .grid-cols-1.lg\:grid-cols-3 {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .bookshelf-cozy {
+    padding: 0.5rem;
+  }
+}
+
+/* Animaciones globales para drag & drop */
+@keyframes float-particles {
+  0%, 100% {
+    transform: translateY(0) scale(0.8);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translateY(-10px) scale(1.2);
+    opacity: 0.8;
+  }
+}
+
+.magic-particles {
+  animation: float-particles 2s ease-in-out infinite;
+}
+
+/* Efectos de hover globales */
+.cozy-hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Transiciones suaves globales */
+.cozy-transition {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ================================
+   Modo oscuro cozy (futuro)
+   ================================ */
+
+@media (prefers-color-scheme: dark) {
+  .cozy-dark-mode {
+    --cozy-white: #2D2A26;
+    --cozy-cream: #3A3530;
+    --cozy-light-gray: #4A453F;
+    --cozy-medium-gray: #6B6560;
+    --cozy-dark-gray: #E8E5E1;
+  }
+}

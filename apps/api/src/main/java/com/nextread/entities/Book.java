@@ -56,12 +56,12 @@ public class Book {
     @Column(nullable = false)
     private String publisher;
 
-    @URL // Removido protocol = "https" para permitir HTTP también
-    @Column(nullable = true) // Permitir null temporalmente
+    @URL //
+    @Column(nullable = true) // Permitir null (temporal)
     private String coverUrl;
 
-    @Size(max = 5000) // Aumentado de 2000 a 5000 caracteres
-    @Column(nullable = true, length = 5000) // Permitir null y aumentar longitud
+    @Size(max = 5000)
+    @Column(nullable = true, length = 5000)
     private String synopsis;
 
     @Min(1)

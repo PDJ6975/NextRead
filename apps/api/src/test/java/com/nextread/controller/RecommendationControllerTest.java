@@ -27,6 +27,7 @@ import com.nextread.entities.Book;
 import com.nextread.entities.Recommendation;
 import com.nextread.entities.User;
 import com.nextread.services.RecommendationService;
+import com.nextread.services.RateLimitService;
 
 @ExtendWith(MockitoExtension.class)
 public class RecommendationControllerTest {
@@ -35,6 +36,9 @@ public class RecommendationControllerTest {
 
     @Mock
     private RecommendationService recommendationService;
+
+    @Mock
+    private RateLimitService rateLimitService;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -62,7 +66,7 @@ public class RecommendationControllerTest {
         testRecommendation.setReason("Test reason");
 
         // Configurar MockMvc y autenticación
-        RecommendationController controller = new RecommendationController(recommendationService);
+        RecommendationController controller = new RecommendationController(recommendationService, rateLimitService);
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
 
         // Configurar contexto de seguridad
@@ -88,6 +92,7 @@ public class RecommendationControllerTest {
                             .reason("Reason 2")
                             .build());
 
+            when(rateLimitService.canMakeRequest(any(User.class))).thenReturn(true);
             when(recommendationService.generateRecommendations(any(User.class)))
                     .thenReturn(expectedRecommendations);
 
@@ -101,7 +106,31 @@ public class RecommendationControllerTest {
                     .andExpect(jsonPath("$[1].title").value("Book 2"))
                     .andExpect(jsonPath("$[1].reason").value("Reason 2"));
 
+            verify(rateLimitService).canMakeRequest(any(User.class));
+            verify(rateLimitService).recordRequest(any(User.class));
             verify(recommendationService).generateRecommendations(any(User.class));
+        }
+
+        @Test
+        @DisplayName("Should return 429 when rate limit exceeded")
+        void shouldReturn429WhenRateLimitExceeded() throws Exception {
+            // Given
+            when(rateLimitService.canMakeRequest(any(User.class))).thenReturn(false);
+            when(rateLimitService.getRemainingRequests(any(User.class))).thenReturn(0);
+
+            // When & Then
+            mockMvc.perform(post("/recommendations/generate")
+                    .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isTooManyRequests())
+                    .andExpect(jsonPath("$.error").value("Límite de recomendaciones diarias alcanzado"))
+                    .andExpect(jsonPath("$.message").value("Has alcanzado el límite de recomendaciones para hoy. Inténtalo mañana."))
+                    .andExpect(jsonPath("$.remainingRequests").value(0))
+                    .andExpect(jsonPath("$.resetTime").value("24 horas"));
+
+            verify(rateLimitService).canMakeRequest(any(User.class));
+            verify(rateLimitService).getRemainingRequests(any(User.class));
+            verify(rateLimitService, never()).recordRequest(any(User.class));
+            verify(recommendationService, never()).generateRecommendations(any(User.class));
         }
     }
 

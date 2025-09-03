@@ -1,4 +1,5 @@
 import "./globals.css";
+import "../styles/cozy-design-system.css";
 import { AuthProvider } from "../contexts/AuthContext";
 
 export const metadata = {
@@ -13,11 +14,11 @@ export default function RootLayout({ children }) {
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800&family=Comfortaa:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600&display=swap"
           rel="stylesheet"
         />
       </head>
-      <body className="font-sans antialiased">
+      <body className="font-cozy antialiased">
         <AuthProvider>
           {children}
         </AuthProvider>

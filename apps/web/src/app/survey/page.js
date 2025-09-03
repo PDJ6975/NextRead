@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { SurveyWizard } from '../../components/survey/SurveyWizard';
+import { SurveyWizardCozy } from '../../components/survey/SurveyWizardCozy';
+import { LoadingCozyIcon } from '../../components/ui/cozy/IconCozy';
 import ProtectedRoute from '../../components/ProtectedRoute';
 
 export default function SurveyPage() {
@@ -21,7 +22,6 @@ export default function SurveyPage() {
             setInitialSurvey(response.data);
         } catch (error) {
             console.error('Error al cargar encuesta inicial:', error);
-            // No mostrar error, la encuesta se creará automáticamente
         } finally {
             setIsLoading(false);
         }
@@ -29,10 +29,13 @@ export default function SurveyPage() {
 
     if (isLoading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                    <p className="text-gray-600">Cargando encuesta...</p>
+            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-cozy-cream via-cozy-white to-cozy-mint relative overflow-hidden">
+                {/* Fondo decorativo*/}
+                <div className="absolute inset-0 cozy-texture-paper opacity-30" />
+                
+                <div className="text-center relative z-10">
+                    <LoadingCozyIcon size="2xl" className="text-cozy-sage mx-auto mb-4" />
+                    <p className="text-cozy-medium-gray font-cozy text-lg">Preparando tu cuestionario...</p>
                 </div>
             </div>
         );
@@ -40,7 +43,7 @@ export default function SurveyPage() {
 
     return (
         <ProtectedRoute requiresFirstTime={true}>
-            <SurveyWizard
+            <SurveyWizardCozy
                 initialSurvey={initialSurvey}
                 isFirstTime={user?.firstTime !== false}
             />

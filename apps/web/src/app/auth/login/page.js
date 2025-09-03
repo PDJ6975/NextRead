@@ -3,9 +3,10 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '../../../contexts/AuthContext';
-import { Button } from '../../../components/ui/Button';
-import { Input } from '../../../components/ui/Input';
-import { Card, CardContent, CardHeader } from '../../../components/ui/Card';
+import { ButtonCozy } from '../../../components/ui/cozy/ButtonCozy';
+import { InputCozy } from '../../../components/ui/cozy/InputCozy';
+import { CardCozy } from '../../../components/ui/cozy/CardCozy';
+import { IconCozy } from '../../../components/ui/cozy/IconCozy';
 import { useValidation } from '../../../hooks/useValidation';
 import { loginSchema } from '../../../lib/validationSchemas';
 
@@ -80,27 +81,47 @@ function LoginContent() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-            <Card className="w-full max-w-md">
-                <CardHeader className="text-center">
-                    <h1 className="text-2xl font-bold text-gray-900 mb-2">Iniciar Sesión</h1>
-                    <p className="text-gray-600">Bienvenido de vuelta a NextRead</p>
-                </CardHeader>
-                <CardContent>
-                    <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="min-h-screen bg-gradient-to-br from-cozy-cream to-cozy-mint flex items-center justify-center p-4">
+            <CardCozy variant="vintage" className="w-full max-w-md cozy-animate-float p-8">
+                {/* Header con icono cozy */}
+                <div className="text-center mb-8">
+                    <div className="flex justify-center mb-4">
+                        <IconCozy 
+                            name="book" 
+                            size="lg" 
+                            className="text-cozy-sage"
+                        />
+                    </div>
+                    <h1 className="text-2xl font-bold text-cozy-dark-gray mb-2 font-comfortaa">
+                        Bienvenido de vuelta
+                    </h1>
+                    <p className="text-cozy-medium-gray font-nunito">
+                        Continúa tu aventura de lectura en NextRead
+                    </p>
+                </div>
+
+                <div className="space-y-8">
+                    <form onSubmit={handleSubmit} className="space-y-6">
                         {successMessage && (
-                            <div className="bg-green-50 border border-green-200 rounded-md p-3">
-                                <p className="text-sm text-green-600">{successMessage}</p>
+                            <div className="bg-cozy-sage/10 border border-cozy-sage/30 rounded-lg p-3">
+                                <div className="flex items-center space-x-2">
+                                    <IconCozy name="star" size="sm" className="text-cozy-sage" />
+                                    <p className="text-sm text-cozy-forest font-nunito">{successMessage}</p>
+                                </div>
                             </div>
                         )}
 
                         {errors.general && (
-                            <div className="bg-red-50 border border-red-200 rounded-md p-3">
-                                <p className="text-sm text-red-600">{errors.general}</p>
+                            <div className="bg-cozy-terracotta/10 border border-cozy-terracotta/30 rounded-lg p-3">
+                                <div className="flex items-center space-x-2">
+                                    <IconCozy name="heart" size="sm" className="text-cozy-terracotta" />
+                                    <p className="text-sm text-cozy-terracotta font-nunito">{errors.general}</p>
+                                </div>
                             </div>
                         )}
 
-                        <Input
+                        <InputCozy
+                            variant="warm"
                             label="Email"
                             name="email"
                             type="email"
@@ -108,10 +129,12 @@ function LoginContent() {
                             onChange={handleChange}
                             error={errors.email}
                             placeholder="tu@email.com"
+                            icon="book"
                             required
                         />
 
-                        <Input
+                        <InputCozy
+                            variant="warm"
                             label="Contraseña"
                             name="password"
                             type="password"
@@ -119,39 +142,43 @@ function LoginContent() {
                             onChange={handleChange}
                             error={errors.password}
                             placeholder="Tu contraseña"
+                            icon="heart"
                             required
                         />
 
-                        <Button
+                        <ButtonCozy
+                            variant="warm"
                             type="submit"
                             className="w-full"
                             loading={isLoading}
                             disabled={isLoading}
                         >
                             {isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
-                        </Button>
+                        </ButtonCozy>
                     </form>
 
-                    <div className="mt-6 text-center space-y-2">
-                        <p className="text-sm text-gray-600">
+                    {/* Enlaces de navegación*/}
+                    <div className="space-y-3 text-center">
+                        <p className="text-sm text-cozy-medium-gray font-nunito">
                             ¿No tienes una cuenta?{' '}
                             <button
                                 onClick={() => router.push('/auth/register')}
-                                className="text-blue-600 hover:text-blue-700 font-medium"
+                                className="text-cozy-sage hover:text-cozy-forest font-medium transition-colors duration-200"
                             >
-                                Regístrate
+                                Regístrate aquí
                             </button>
                         </p>
 
                         <button
                             onClick={() => router.push('/')}
-                            className="text-sm text-gray-500 hover:text-gray-600"
+                            className="text-sm text-cozy-medium-gray hover:text-cozy-dark-gray transition-colors duration-200 flex items-center justify-center space-x-1"
                         >
-                            Volver al inicio
+                            <IconCozy name="plant" size="sm" />
+                            <span>Volver al inicio</span>
                         </button>
                     </div>
-                </CardContent>
-            </Card>
+                </div>
+            </CardCozy>
         </div>
     );
 }
@@ -159,8 +186,13 @@ function LoginContent() {
 export default function LoginPage() {
     return (
         <Suspense fallback={
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+            <div className="min-h-screen bg-gradient-to-br from-cozy-cream to-cozy-mint flex items-center justify-center">
+                <CardCozy variant="dreamy" className="p-12">
+                    <div className="flex flex-col items-center space-y-4">
+                        <IconCozy name="loading" size="lg" className="text-cozy-sage animate-spin" />
+                        <p className="text-cozy-medium-gray font-nunito">Cargando...</p>
+                    </div>
+                </CardCozy>
             </div>
         }>
             <LoginContent />

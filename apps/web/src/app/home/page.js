@@ -1,18 +1,19 @@
 'use client';
 
 import ProtectedRoute from '../../components/ProtectedRoute';
-import DashboardLayout from '../../components/layout/DashboardLayout';
-import DashboardHeader from '../../components/dashboard/DashboardHeader';
-import DashboardStats from '../../components/dashboard/DashboardStats';
-import GenerateRecommendationsButton from '../../components/dashboard/GenerateRecommendationsButton';
-import { Card, CardContent, CardHeader } from '../../components/ui/Card';
-import UserLibrarySection from '../../components/dashboard/UserLibrarySection';
+import DashboardLayoutCozy from '../../components/layout/DashboardLayoutCozy';
+import DashboardHeaderCozy from '../../components/dashboard/DashboardHeaderCozy';
+import DashboardStatsCozy from '../../components/dashboard/DashboardStatsCozy';
+import GenerateRecommendationsButtonCozy from '../../components/dashboard/GenerateRecommendationsButtonCozy';
+import { CardCozy } from '../../components/ui/cozy/CardCozy';
+import UserLibrarySectionCozy from '../../components/dashboard/UserLibrarySectionCozy';
 import { useAuth } from '../../contexts/AuthContext';
-import { useState } from 'react';
+import { useState, useRef, useCallback } from 'react';
 
 export default function HomePage() {
     const { user, logout } = useAuth();
     const [recommendations, setRecommendations] = useState([]);
+    const statsRef = useRef(null);
 
     const handleRecommendationsGenerated = (newRecommendations) => {
         setRecommendations(newRecommendations);
@@ -21,36 +22,64 @@ export default function HomePage() {
     // Callback para eliminar recomendación tras añadir a biblioteca
     const handleRecommendationAdded = (recommendation) => {
         setRecommendations(prev => prev.filter(rec => rec !== recommendation));
+        // Actualizar estadísticas con un pequeño delay
+        setTimeout(() => {
+            refreshStats();
+        }, 500);
     };
+
+    // Función para refrescar las estadísticas de forma optimizada
+    const refreshStats = useCallback(() => {
+        if (statsRef.current && user) {
+            // Usar actualización silenciosa
+            statsRef.current.updateQuietly();
+        }
+    }, [user]);
+
+    // Callback para cuando se añade un libro desde la biblioteca
+    const handleBookAdded = useCallback(() => {
+        // Actualizar estadísticas con un pequeño delay
+        setTimeout(() => {
+            refreshStats();
+        }, 300);
+    }, [refreshStats]);
 
     return (
         <ProtectedRoute requiresFirstTime={false} allowAnonymous={true}>
-            <DashboardLayout>
-                <DashboardHeader user={user} onLogout={logout} />
-                <div className="flex-1 p-6 space-y-6">
+            <DashboardLayoutCozy>
+                <DashboardHeaderCozy user={user} onLogout={logout} />
+                <div className="flex-1 space-y-8">
                     {/* Estadísticas del Usuario - Solo mostrar si está autenticado */}
                     {user ? (
-                        <section>
-                            <DashboardStats />
+                        <section className="pt-8">
+                            <DashboardStatsCozy ref={statsRef} />
                         </section>
                     ) : (
                         /* Mensaje de bienvenida para usuarios anónimos */
-                        <section className="text-center py-8">
-                            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-8">
-                                <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                                    ¡Bienvenido a NextRead! 📚
-                                </h2>
-                                <p className="text-gray-600 max-w-2xl mx-auto">
-                                    Descubre tu próximo libro favorito con recomendaciones personalizadas. 
-                                    Regístrate para comenzar tu viaje de lectura y guardar tu progreso.
-                                </p>
-                            </div>
+                        <section className="text-center py-12">
+                            <CardCozy variant="magical" className="max-w-4xl mx-auto p-12">
+                                <div className="space-y-6">
+                                    <h2 className="text-4xl font-bold font-cozy-display text-cozy-warm-brown mb-4">
+                                        ¡Bienvenido a tu refugio literario!
+                                    </h2>
+                                    <p className="text-lg text-cozy-dark-gray max-w-3xl mx-auto font-cozy leading-relaxed">
+                                        Descubre tu próximo libro favorito en este acogedor rincón de lectura. 
+                                        Aquí encontrarás recomendaciones personalizadas, un lugar para guardar tus libros 
+                                        y un espacio cálido para que tu amor por la lectura crezca día a día.
+                                    </p>
+                                    <div className="flex items-center justify-center space-x-3 text-cozy-sage pt-4">
+                                        <span className="text-2xl">🌿</span>
+                                        <span className="font-cozy text-cozy-medium-gray">Regístrate para comenzar tu viaje literario</span>
+                                        <span className="text-2xl">🌿</span>
+                                    </div>
+                                </div>
+                            </CardCozy>
                         </section>
                     )}
                     
                     {/* Botón Central de Generar Recomendaciones */}
                     <section className="py-12">
-                        <GenerateRecommendationsButton 
+                        <GenerateRecommendationsButtonCozy 
                             onRecommendationsGenerated={handleRecommendationsGenerated}
                             className="px-6"
                         />
@@ -59,14 +88,15 @@ export default function HomePage() {
                     {/* Biblioteca del usuario - Solo mostrar si está autenticado */}
                     {user && (
                         <section>
-                            <UserLibrarySection 
+                            <UserLibrarySectionCozy 
                                 recommendations={recommendations} 
                                 onRecommendationAdded={handleRecommendationAdded}
+                                onBookAdded={handleBookAdded}
                             />
                         </section>
                     )}
                 </div>
-            </DashboardLayout>
+            </DashboardLayoutCozy>
         </ProtectedRoute>
     );
 } 
