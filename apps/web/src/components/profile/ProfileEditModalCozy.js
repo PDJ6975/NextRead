@@ -7,8 +7,7 @@ import { InputCozy } from '../ui/cozy/InputCozy';
 import { CardCozy } from '../ui/cozy/CardCozy';
 import { IconCozy } from '../ui/cozy/IconCozy';
 
-// Lista de iconos predefinidos (puedes añadir más SVGs o iconos de librerías)
-// Usar URLs absolutas para los avatares (importante para el backend)
+// Lista de iconos predefinidos
 const AVATAR_BASE_URL = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
 const avatarIcons = [
   `${AVATAR_BASE_URL}/avatars/icono_gato_rosa.png`,
@@ -33,13 +32,11 @@ export default function ProfileEditModalCozy({
   const [saving, setSaving] = useState(false);
 
   // Actualizar el icono seleccionado si cambia el usuario o se abre el modal
-  // (por ejemplo, tras guardar cambios)
   React.useEffect(() => {
     if (isOpen) {
       setCurrentIcon(getInitialIcon());
       setUsername(user?.nickname || user?.email?.split('@')[0] || '');
     }
-    // eslint-disable-next-line
   }, [isOpen, user]);
 
   if (!isOpen) return null;
@@ -68,7 +65,7 @@ export default function ProfileEditModalCozy({
         variant="dreamy" 
         className="w-full max-w-md relative cozy-animate-float p-8"
       >
-        {/* Botón de cerrar cozy */}
+        {/* Botón de cerrar */}
         <button
           className="absolute top-4 right-4 text-cozy-medium-gray hover:text-cozy-dark-gray transition-colors duration-200"
           onClick={onClose}
@@ -77,7 +74,7 @@ export default function ProfileEditModalCozy({
           <IconCozy name="heart" size="sm" className="rotate-45" />
         </button>
 
-        {/* Header con estilo cozy */}
+        {/* Header */}
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
             <IconCozy name="star" size="lg" className="text-cozy-soft-yellow" />
@@ -90,7 +87,7 @@ export default function ProfileEditModalCozy({
           </p>
         </div>
 
-        {/* Carrusel de avatares con estilo cozy */}
+        {/* Carrusel de avatares */}
         <div className="flex flex-col items-center justify-center mb-8">
           <div className="flex items-center justify-center mb-4">
             <ButtonCozy
@@ -103,7 +100,7 @@ export default function ProfileEditModalCozy({
               <ChevronLeft className="w-5 h-5" />
             </ButtonCozy>
 
-            {/* Marco decorativo cozy para el avatar */}
+            {/* Marco decorativo para el avatar */}
             <div className="relative">
               <div className="w-24 h-24 rounded-full overflow-hidden shadow-lg relative"
                    style={{
@@ -135,7 +132,7 @@ export default function ProfileEditModalCozy({
             </ButtonCozy>
           </div>
 
-          {/* Indicadores de posición cozy */}
+          {/* Indicadores de posición */}
           <div className="flex space-x-2">
             {avatarIcons.map((_, index) => (
               <div

@@ -102,7 +102,6 @@ function VerifyContent() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-cozy-cream to-cozy-mint flex items-center justify-center p-4">
             <CardCozy variant="vintage" className="w-full max-w-md cozy-animate-float p-8">
-                {/* Header con icono cozy */}
                 <div className="text-center mb-8">
                     <div className="flex justify-center mb-4">
                         <IconCozy 
@@ -183,7 +182,7 @@ function VerifyContent() {
                         </ButtonCozy>
                     </form>
 
-                    {/* Sección de reenvío con estilo cozy */}
+                    {/* Sección de reenvío*/}
                     <div className="text-center space-y-3">
                         <p className="text-sm text-cozy-medium-gray font-nunito">
                             ¿No recibiste el código?

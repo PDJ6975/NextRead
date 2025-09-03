@@ -6,7 +6,7 @@ import { CardCozy } from '../ui/cozy/CardCozy';
 import { BookCozyIcon, StarCozyIcon, HeartCozyIcon, PlantCozyIcon } from '../ui/cozy/IconCozy';
 import userStatsService from '../../services/userStatsService';
 
-// Componente de Skeleton cozy para loading
+// Componente de Skeleton para loading
 function StatCardSkeletonCozy() {
     return (
         <CardCozy variant="default" className="animate-pulse">
@@ -23,7 +23,7 @@ function StatCardSkeletonCozy() {
     );
 }
 
-// Componente individual de estadística cozy
+// Componente individual de estadística
 function StatCardCozy({ title, value, icon: Icon, variant, description, loading, animated = true }) {
     const [isVisible, setIsVisible] = useState(false);
     const [currentValue, setCurrentValue] = useState(0);
@@ -63,7 +63,7 @@ function StatCardCozy({ title, value, icon: Icon, variant, description, loading,
 
                         return () => clearInterval(timer);
                     } else {
-                        // Carga inicial con animación más dramática
+                        // Carga inicial con animación
                         const duration = 2000; // 2 segundos
                         const increment = targetValue / (duration / 50);
                         let current = 0;
@@ -143,18 +143,15 @@ function StatCardCozy({ title, value, icon: Icon, variant, description, loading,
                 </div>
 
                 <div className="flex items-center">
-                    {/* Icono con estilo "ficha de madera" */}
                     <div className={`p-3 rounded-xl ${config.iconBg} shadow-lg group-hover:scale-110 transition-transform duration-300 flex items-center justify-center flex-shrink-0`}>
                         <Icon className={`w-6 h-6 ${config.iconColor}`} />
                     </div>
                     
                     <div className="ml-4 flex-1">
-                        {/* Título con tipografía cozy */}
                         <p className="text-sm font-medium text-cozy-dark-gray font-cozy mb-1">
                             {title}
                         </p>
                         
-                        {/* Valor con tipografía destacada */}
                         <div className="relative min-w-0 flex-1">
                             <p className={`text-3xl font-bold text-cozy-warm-brown font-cozy-display tracking-tight transition-colors duration-300 ${
                                 isUpdating ? 'text-cozy-sage' : ''
@@ -163,7 +160,6 @@ function StatCardCozy({ title, value, icon: Icon, variant, description, loading,
                             </p>
                         </div>
                         
-                        {/* Descripción */}
                         {description && (
                             <p className="text-xs text-cozy-medium-gray mt-2 font-cozy">
                                 {description}
@@ -239,7 +235,7 @@ const DashboardStatsCozy = forwardRef(function DashboardStatsCozy({ refreshTrigg
         loadStats();
     }, [refreshTrigger]); // Dependencia del refreshTrigger para recargar cuando cambie
 
-    // Configuración de las cards de estadísticas cozy
+    // Configuración de las cards de estadísticas
     const statsConfigCozy = [
         {
             title: 'Libros Completados',
@@ -264,7 +260,7 @@ const DashboardStatsCozy = forwardRef(function DashboardStatsCozy({ refreshTrigg
         }
     ];
 
-    // Estado de error con estilo cozy
+    // Estado de error
     if (error) {
         return (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -288,7 +284,7 @@ const DashboardStatsCozy = forwardRef(function DashboardStatsCozy({ refreshTrigg
 
     return (
         <div className="space-y-6">
-            {/* Título de sección con estilo cozy */}
+            {/* Título de sección*/}
             <div className="text-center">
                 <h2 className="text-2xl font-bold font-cozy-display text-cozy-warm-brown mb-2">
                     Tu Progreso Literario

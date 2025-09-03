@@ -22,7 +22,7 @@ export default function HomePage() {
     // Callback para eliminar recomendación tras añadir a biblioteca
     const handleRecommendationAdded = (recommendation) => {
         setRecommendations(prev => prev.filter(rec => rec !== recommendation));
-        // Actualizar estadísticas con un pequeño delay para mejor UX
+        // Actualizar estadísticas con un pequeño delay
         setTimeout(() => {
             refreshStats();
         }, 500);
@@ -31,14 +31,14 @@ export default function HomePage() {
     // Función para refrescar las estadísticas de forma optimizada
     const refreshStats = useCallback(() => {
         if (statsRef.current && user) {
-            // Usar actualización silenciosa para mejor UX
+            // Usar actualización silenciosa
             statsRef.current.updateQuietly();
         }
     }, [user]);
 
     // Callback para cuando se añade un libro desde la biblioteca
     const handleBookAdded = useCallback(() => {
-        // Actualizar estadísticas con un pequeño delay para mejor UX
+        // Actualizar estadísticas con un pequeño delay
         setTimeout(() => {
             refreshStats();
         }, 300);
@@ -47,17 +47,15 @@ export default function HomePage() {
     return (
         <ProtectedRoute requiresFirstTime={false} allowAnonymous={true}>
             <DashboardLayoutCozy>
-                {/* Descomentamos solo el header para probarlo */}
                 <DashboardHeaderCozy user={user} onLogout={logout} />
                 <div className="flex-1 space-y-8">
                     {/* Estadísticas del Usuario - Solo mostrar si está autenticado */}
                     {user ? (
                         <section className="pt-8">
-                            {/* Descomentamos las estadísticas para probarlas */}
                             <DashboardStatsCozy ref={statsRef} />
                         </section>
                     ) : (
-                        /* Mensaje de bienvenida cozy para usuarios anónimos */
+                        /* Mensaje de bienvenida para usuarios anónimos */
                         <section className="text-center py-12">
                             <CardCozy variant="magical" className="max-w-4xl mx-auto p-12">
                                 <div className="space-y-6">
@@ -81,7 +79,6 @@ export default function HomePage() {
                     
                     {/* Botón Central de Generar Recomendaciones */}
                     <section className="py-12">
-                        {/* Descomentamos el botón de recomendaciones para probarlo */}
                         <GenerateRecommendationsButtonCozy 
                             onRecommendationsGenerated={handleRecommendationsGenerated}
                             className="px-6"

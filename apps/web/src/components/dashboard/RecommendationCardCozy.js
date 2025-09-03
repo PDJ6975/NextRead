@@ -15,7 +15,7 @@ export default function RecommendationCardCozy({
     const [actionLoading, setActionLoading] = useState(null);
     const [imageError, setImageError] = useState(false);
 
-    // Skeleton loading cozy para cuando se están cargando las recomendaciones
+    // Skeleton loading para cuando se están cargando las recomendaciones
     if (loading) {
         return (
             <CardCozy variant="vintage" className="w-full max-w-sm animate-pulse">
@@ -129,7 +129,7 @@ export default function RecommendationCardCozy({
                         )}
                     </div>
                     
-                    {/* Marco decorativo con esquinas ornamentales */}
+                    {/* Marco decorativo*/}
                     <div className="absolute inset-3 border-2 border-white/80 rounded-lg shadow-inner pointer-events-none">
                         {/* Esquinas decorativas */}
                         <div className="absolute top-0 left-0 w-3 h-3 border-l-2 border-t-2 border-cozy-sage/60"></div>
@@ -138,7 +138,7 @@ export default function RecommendationCardCozy({
                         <div className="absolute bottom-0 right-0 w-3 h-3 border-r-2 border-b-2 border-cozy-sage/60"></div>
                     </div>
 
-                    {/* Sombra proyectada realista */}
+                    {/* Sombra proyectada*/}
                     <div className="absolute -bottom-2 left-4 right-4 h-2 bg-cozy-dark-gray/20 blur-sm rounded-full"></div>
                 </div>
 
@@ -180,7 +180,7 @@ export default function RecommendationCardCozy({
                         </p>
                     )}
 
-                    {/* Botones de acción estilo pergamino */}
+                    {/* Botones de acción*/}
                     <div className="flex space-x-3 pt-2">
                         <ButtonCozy
                             variant="warm"

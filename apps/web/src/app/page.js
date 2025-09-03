@@ -13,7 +13,7 @@ export default function RootRedirect() {
     router.replace('/home');
   }, [router]);
 
-  // Loading cozy mientras se hace la redirección
+  // Loading mientras se hace la redirección
   return (
     <div className="min-h-screen bg-gradient-to-br from-cozy-cream to-cozy-mint flex items-center justify-center">
       <CardCozy variant="dreamy" className="p-12">

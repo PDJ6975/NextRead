@@ -157,7 +157,7 @@ function LoginContent() {
                         </ButtonCozy>
                     </form>
 
-                    {/* Enlaces de navegación con estilo cozy */}
+                    {/* Enlaces de navegación*/}
                     <div className="space-y-3 text-center">
                         <p className="text-sm text-cozy-medium-gray font-nunito">
                             ¿No tienes una cuenta?{' '}

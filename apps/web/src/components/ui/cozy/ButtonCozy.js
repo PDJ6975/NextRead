@@ -42,7 +42,7 @@ const ButtonCozy = forwardRef(({
     // Variante dreamy - Colores suaves y etéreos
     dreamy: 'bg-gradient-to-r from-cozy-lavender to-cozy-mint text-white hover:from-cozy-peach hover:to-cozy-soft-yellow focus:ring-cozy-lavender cozy-shadow-sm hover:cozy-shadow-md',
     
-    // Variante vintage - Colores tierra y nostálgicos
+    // Variante vintage - Colores tierra
     vintage: 'bg-cozy-warm-brown text-cozy-cream border border-cozy-terracotta hover:bg-cozy-terracotta hover:border-cozy-warm-brown focus:ring-cozy-warm-brown cozy-shadow-sm hover:cozy-shadow-md',
   };
 

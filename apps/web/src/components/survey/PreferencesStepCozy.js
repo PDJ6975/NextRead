@@ -25,7 +25,6 @@ import {
     HorrorCozyIcon,
     AdventureCozyIcon,
     LoadingCozyIcon,
-    // Íconos adicionales para más géneros
     PoetryCozyIcon,
     ClassicCozyIcon,
     ChildrenCozyIcon,
@@ -45,7 +44,7 @@ import {
     EducationCozyIcon
 } from '../ui/cozy/IconCozy';
 
-// Función para formatear nombres de géneros a español legible
+// Función para formatear nombres de géneros a español
 const formatGenreName = (genreName) => {
     if (!genreName) return 'Género';
     
@@ -86,43 +85,42 @@ const formatGenreName = (genreName) => {
     return nameMap[genreName] || genreName.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
 };
 
-// Mapeo de géneros del backend a iconos cozy
+// Mapeo de géneros del backend a iconos
 const getGenreIcon = (genreName) => {
     if (!genreName) return BookCozyIcon;
     
     const iconMap = {
-        'ROMANCE': RomanceCozyIcon,               // ❤️ Corazón - perfecto para romance
-        'FANTASY': FantasyCozyIcon,               // 🌟 Estrella mágica - ideal para fantasía
-        'SCIENCE_FICTION': SciFiCozyIcon,         // 🚀 Cohete - clásico sci-fi
-        'MYSTERY': MysteryCozyIcon,               // 🔍 Lupa - ideal para misterio
-        'THRILLER': ThrillerCozyIcon,             // ⚡ Rayo - tension y velocidad
-        'CONTEMPORARY_FICTION': ContemporaryCozyIcon, // 🏙️ Ciudad - ficción contemporánea
-        'LITERARY_FICTION': LiteraryCozyIcon,     // 📚 Libro clásico - literatura
-        'HISTORICAL_FICTION': HistoricalCozyIcon, // 📜 Pergamino - historia
-        'NON_FICTION': NonFictionCozyIcon,        // ⏰ Reloj - tiempo/realidad
-        'BIOGRAPHY': BiographyCozyIcon,           // 👤 Persona - biografías
-        'SELF_HELP': SelfHelpCozyIcon,           // ⭐ Estrella con check - mejora personal
-        'YOUNG_ADULT': YoungAdultCozyIcon,       // 😊 Cara sonriente - juvenil
-        'HORROR': HorrorCozyIcon,                // 😱 Cara asustada - terror
-        'ADVENTURE': AdventureCozyIcon,          // ⛰️ Montaña - aventura
-        // Géneros adicionales con íconos específicos
-        'POETRY': PoetryCozyIcon,                // ✨ Estrella poética - poesía
-        'CLASSIC': ClassicCozyIcon,              // 📖 Libro con sello - clásicos
-        'CHILDREN': ChildrenCozyIcon,            // 😄 Cara infantil feliz - infantil
-        'GRAPHIC_NOVEL': GraphicNovelCozyIcon,   // 📊 Comic/gráfico - novela gráfica
-        'MEMOIR': MemoirCozyIcon,                // 👤 Persona con círculo - memorias
-        'DYSTOPIAN': DystopianCozyIcon,          // ⚔️ X en círculo - distopía
-        'CRIME': CrimeCozyIcon,                  // 🛡️ Escudo - crimen/policíaco
-        'PHILOSOPHY': PhilosophyCozyIcon,        // ❓ Signo pregunta - filosofía
-        'RELIGION': ReligionCozyIcon,            // ✝️ Cruz - religión
-        'BUSINESS': BusinessCozyIcon,            // 💼 Maletín con check - negocios
-        'TECHNOLOGY': TechnologyCozyIcon,        // 💻 Monitor - tecnología
-        'HUMOR': HumorCozyIcon,                  // 😂 Cara riéndose - humor
-        'COOKING': CookingCozyIcon,              // 🍳 Olla - cocina
-        'TRAVEL': TravelCozyIcon,                // 🌍 Globo - viajes
-        'HEALTH_FITNESS': HealthFitnessCozyIcon, // ➕ Cruz médica - salud
-        'ART_DESIGN': ArtDesignCozyIcon,         // 🎨 Paleta artística - arte
-        'EDUCATION': EducationCozyIcon           // 🎓 Gorro graduación - educación
+        'ROMANCE': RomanceCozyIcon,
+        'FANTASY': FantasyCozyIcon,
+        'SCIENCE_FICTION': SciFiCozyIcon,
+        'MYSTERY': MysteryCozyIcon,
+        'THRILLER': ThrillerCozyIcon,
+        'CONTEMPORARY_FICTION': ContemporaryCozyIcon,
+        'LITERARY_FICTION': LiteraryCozyIcon,
+        'HISTORICAL_FICTION': HistoricalCozyIcon,
+        'NON_FICTION': NonFictionCozyIcon,
+        'BIOGRAPHY': BiographyCozyIcon,
+        'SELF_HELP': SelfHelpCozyIcon,
+        'YOUNG_ADULT': YoungAdultCozyIcon,
+        'HORROR': HorrorCozyIcon,
+        'ADVENTURE': AdventureCozyIcon,
+        'POETRY': PoetryCozyIcon,
+        'CLASSIC': ClassicCozyIcon,
+        'CHILDREN': ChildrenCozyIcon,
+        'GRAPHIC_NOVEL': GraphicNovelCozyIcon,
+        'MEMOIR': MemoirCozyIcon,
+        'DYSTOPIAN': DystopianCozyIcon,
+        'CRIME': CrimeCozyIcon,
+        'PHILOSOPHY': PhilosophyCozyIcon,
+        'RELIGION': ReligionCozyIcon,
+        'BUSINESS': BusinessCozyIcon,
+        'TECHNOLOGY': TechnologyCozyIcon,
+        'HUMOR': HumorCozyIcon,
+        'COOKING': CookingCozyIcon,
+        'TRAVEL': TravelCozyIcon,
+        'HEALTH_FITNESS': HealthFitnessCozyIcon,
+        'ART_DESIGN': ArtDesignCozyIcon,
+        'EDUCATION': EducationCozyIcon
     };
     return iconMap[genreName] || BookCozyIcon;
 };
@@ -146,7 +144,6 @@ const getGenreColor = (genreName) => {
         'YOUNG_ADULT': 'cozy-lavender',
         'HORROR': 'cozy-dark-gray',
         'ADVENTURE': 'cozy-mint',
-        // Géneros adicionales del backend
         'POETRY': 'cozy-lavender',
         'CLASSIC': 'cozy-warm-brown',
         'CHILDREN': 'cozy-soft-yellow',
@@ -168,7 +165,7 @@ const getGenreColor = (genreName) => {
     return colorMap[genreName] || 'cozy-sage';
 };
 
-// Configuración de ritmos de lectura con iconos cozy
+// Configuración de ritmos de lectura con iconos
 const paceOptions = [
     {
         id: 'SLOW',

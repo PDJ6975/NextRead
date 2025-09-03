@@ -12,7 +12,7 @@ import { ReadBooksStepCozy } from './ReadBooksStepCozy';
 import { AbandonedBooksStepCozy } from './AbandonedBooksStepCozy';
 import { SurveyConfirmationCozy } from './SurveyConfirmationCozy';
 
-// Componente de Indicador de Progreso tipo "Sendero"
+// Componente de Indicador de Progreso
 const ProgressPathCozy = ({ steps, currentStep, className = '' }) => {
   return (
     <div className={`flex items-center justify-center mb-8 ${className}`}>
@@ -68,7 +68,7 @@ const ProgressPathCozy = ({ steps, currentStep, className = '' }) => {
                     />
                   </div>
                   
-                  {/* Huellas decorativas en el sendero */}
+                  {/* Huellas decorativas*/}
                   {index < currentStep && (
                     <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1">
                       <div className="w-1 h-1 bg-cozy-forest rounded-full opacity-40" />
@@ -194,7 +194,7 @@ export function SurveyWizardCozy({ initialSurvey = null, isFirstTime = true }) {
             try {
                 const surveyResponse = await surveyService.updateSurvey({
                     pace: finalData.pace,
-                    genresIds: finalData.genres // Ya son IDs numéricos del backend
+                    genresIds: finalData.genres
                 });
             } catch (surveyError) {
                 throw surveyError;
@@ -323,7 +323,7 @@ export function SurveyWizardCozy({ initialSurvey = null, isFirstTime = true }) {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-cozy-cream via-cozy-white to-cozy-mint relative overflow-hidden">
-            {/* Fondo decorativo con textura de papel */}
+            {/* Fondo decorativo */}
             <div className="absolute inset-0 cozy-texture-paper opacity-30" />
             
             {/* Elementos decorativos flotantes */}

@@ -65,7 +65,7 @@ export default function DashboardHeaderCozy({ user, onLogout }) {
         return user?.email?.[0]?.toUpperCase() || 'L';
     };
 
-    // Renderiza el avatar cozy con marco decorativo
+    // Renderiza el avatar con marco
     const renderAvatar = (size = 12) => {
         if (!user) {
             return (
@@ -76,7 +76,7 @@ export default function DashboardHeaderCozy({ user, onLogout }) {
                             <User className="w-5 h-5" />
                         </div>
                     </div>
-                    {/* Brillo sutil */}
+                    {/* Brillo*/}
                     <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </div>
             );
@@ -84,7 +84,7 @@ export default function DashboardHeaderCozy({ user, onLogout }) {
         
         return (
             <div className={`w-${size} h-${size} relative group cursor-pointer`}>
-                {/* Marco decorativo con gradiente cozy */}
+                {/* Marco decorativo con gradiente*/}
                 <div className="absolute inset-0 bg-gradient-to-br from-cozy-terracotta/30 via-cozy-sage/30 to-cozy-lavender/30 rounded-full p-0.5 shadow-lg">
                     {user?.avatarUrl ? (
                         <img
@@ -99,7 +99,7 @@ export default function DashboardHeaderCozy({ user, onLogout }) {
                     )}
                 </div>
                 
-                {/* Brillo mágico al hover */}
+                {/* Brillo al hover */}
                 <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/30 to-transparent rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 
                 {/* Pequeña decoración de estado "en línea" */}
@@ -112,25 +112,25 @@ export default function DashboardHeaderCozy({ user, onLogout }) {
 
     return (
         <>
-            {/* Header principal con diseño cozy */}
+            {/* Header principal*/}
             <header className="relative bg-white/80 backdrop-blur-md border-b-2 border-cozy-sage/20 shadow-lg">
-                {/* Textura sutil de fondo */}
+                {/* Textura de fondo */}
                 <div className="absolute inset-0 cozy-texture-paper opacity-30" />
                 
                 <div className="relative max-w-7xl mx-auto px-4 md:px-8 lg:px-12 xl:px-16 py-4">
                     <div className="flex items-center justify-between">
                         
-                        {/* Logo y título cozy */}
+                        {/* Logo y título*/}
                         <div className="flex items-center space-x-4">
                             <div className="flex items-center space-x-3 group cursor-pointer" onClick={() => router.push('/home')}>
-                                {/* Logo NextRead cozy */}
+                                {/* Logo NextRead*/}
                                 <div className="relative">
                                     <div className="w-10 h-10 bg-gradient-to-br from-cozy-terracotta to-cozy-sage rounded-lg p-2 shadow-md group-hover:shadow-lg transition-all duration-300 cozy-animate-float">
                                         <BookCozyIcon className="w-full h-full text-white" />
                                     </div>
                                 </div>
                                 
-                                {/* Título con tipografía cozy */}
+                                {/* Título*/}
                                 <div>
                                     <h1 className="text-2xl font-bold font-cozy-display text-cozy-warm-brown group-hover:text-cozy-terracotta transition-colors duration-300">
                                         NextRead
@@ -140,7 +140,7 @@ export default function DashboardHeaderCozy({ user, onLogout }) {
                             </div>
                         </div>
 
-                        {/* Área central con saludo personalizado */}
+                        {/* Área central*/}
                         <div className="hidden md:flex items-center space-x-2 bg-cozy-cream/60 px-4 py-2 rounded-full border border-cozy-sage/20 shadow-sm">
                             <span className="text-lg">{emoji}</span>
                             <span className="text-cozy-warm-brown font-medium font-cozy">{greeting}</span>
@@ -173,10 +173,10 @@ export default function DashboardHeaderCozy({ user, onLogout }) {
                                     )}
                                 </button>
 
-                                {/* Dropdown menu cozy */}
+                                {/* Dropdown menu*/}
                                 {dropdownOpen && user && (
                                     <div className="absolute right-0 mt-2 w-48 bg-white/80 backdrop-blur-md rounded-xl shadow-xl border border-cozy-sage/20 py-2 z-[100]">
-                                        {/* Textura sutil que coincide con el header */}
+                                        {/* Textura que coincide con el header */}
                                         <div className="absolute inset-0 cozy-texture-paper opacity-30 rounded-xl" />
                                         
                                         {/* Contenido del dropdown - posicionado relativamente para estar sobre la textura */}

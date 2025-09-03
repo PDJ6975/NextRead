@@ -1,4 +1,4 @@
-// Exportar todos los componentes cozy desde un solo lugar
+// Exportar todos los componentes desde un solo lugar
 export { ButtonCozy } from './ButtonCozy';
 export { 
   CardCozy, 
@@ -20,5 +20,4 @@ export {
   LoadingCozyIcon,
   MagicCozyIcon,
 } from './IconCozy';
-export { default as CozyShowcase } from './CozyShowcase';
 export { default as BookCardCozy } from './BookCardCozy';

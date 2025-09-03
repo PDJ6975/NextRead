@@ -48,7 +48,7 @@ export default function GenerateRecommendationsButtonCozy({
     return (
       <CardCozy variant="magical" className={`${className} relative overflow-hidden`}>
         <div className="p-6 text-center">
-          {/* Efecto de partículas mágicas durante carga */}
+          {/* Efecto de partículas*/}
           <div className="absolute inset-0 bg-gradient-to-r from-cozy-soft-yellow/20 via-cozy-sage/20 to-cozy-terracotta/20 animate-pulse"></div>
           
           <div className="relative z-10 space-y-4">
@@ -87,7 +87,7 @@ export default function GenerateRecommendationsButtonCozy({
   return (
     <CardCozy variant="dreamy" interactive={true} className={`${className} group`}>
       <div className="p-6 text-center space-y-4">
-        {/* Icono principal - simplificado sin elementos absolute */}
+        {/* Icono principal*/}
         <div className="relative">
           <div className="mx-auto w-20 h-20 bg-gradient-to-br from-cozy-soft-yellow/20 to-cozy-sage/20 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
             <MagicCozyIcon className="w-10 h-10 text-cozy-warm-brown group-hover:text-cozy-terracotta transition-colors duration-300" />

@@ -22,7 +22,6 @@ export default function SurveyPage() {
             setInitialSurvey(response.data);
         } catch (error) {
             console.error('Error al cargar encuesta inicial:', error);
-            // No mostrar error, la encuesta se creará automáticamente
         } finally {
             setIsLoading(false);
         }
@@ -31,7 +30,7 @@ export default function SurveyPage() {
     if (isLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-cozy-cream via-cozy-white to-cozy-mint relative overflow-hidden">
-                {/* Fondo decorativo con textura de papel */}
+                {/* Fondo decorativo*/}
                 <div className="absolute inset-0 cozy-texture-paper opacity-30" />
                 
                 <div className="text-center relative z-10">

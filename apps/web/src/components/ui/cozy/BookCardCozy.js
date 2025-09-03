@@ -13,7 +13,7 @@ export default function BookCardCozy({
     onDelete,
     onView,
     onRatingChange,
-    onStatusChange, // Nueva prop para cambiar estado
+    onStatusChange,
     className = ''
 }) {
     const [imageError, setImageError] = useState(false);
@@ -44,7 +44,7 @@ export default function BookCardCozy({
         return 'Autor desconocido';
     };
 
-    // Función para manejar clics en las estrellas (sistema mejorado)
+    // Función para manejar clics en las estrellas
     const handleStarClick = (starIndex) => {
         let newRating;
         
@@ -75,7 +75,7 @@ export default function BookCardCozy({
         return 'empty';
     };
 
-    // Componente de estrella con soporte para medias estrellas (diseño profesional)
+    // Componente de estrella con soporte para medias estrellas
     const StarWithHalf = ({ starIndex, rating, hoverRating, onHover, onClick, className }) => {
         const displayRating = hoverRating || rating;
         const starType = getStarType(starIndex, displayRating);
@@ -99,7 +99,7 @@ export default function BookCardCozy({
                         filled={false}
                     />
                 ) : (
-                    /* Media estrella con clip-path profesional */
+                    /* Media estrella con clip-path */
                     <div className="relative w-full h-full">
                         {/* Estrella base vacía */}
                         <StarCozyIcon 
@@ -246,7 +246,7 @@ export default function BookCardCozy({
 
             case 'READ':
                 // Los libros leídos NO pueden ser movidos a ninguna sección
-                // Solo rating (ya implementado) y el botón "Ver detalles" está arriba
+                // Solo rating y el botón "Ver detalles" está arriba
                 return []; // No hay botones de estado para libros leídos
 
             case 'ABANDONED':
@@ -284,7 +284,7 @@ export default function BookCardCozy({
         return buttons;
     };
 
-    // Layout compacto (estilo marcapáginas)
+    // Layout (estilo marcapáginas)
     if (config.layout === 'horizontal') {
         return (
             <CardCozy 

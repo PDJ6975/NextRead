@@ -10,13 +10,11 @@ export default function ProtectedRoute({ children, requiresFirstTime = false, al
 
     useEffect(() => {
         if (!isLoading) {
-            // Si permite acceso anónimo, no redirigir por falta de usuario
             if (!user && !allowAnonymous) {
                 router.push('/auth/login');
                 return;
             }
 
-            // Solo aplicar validaciones de firstTime si el usuario está autenticado
             if (user) {
                 if (requiresFirstTime && !user.firstTime) {
                     router.push('/home');
@@ -39,17 +37,14 @@ export default function ProtectedRoute({ children, requiresFirstTime = false, al
         );
     }
 
-    // Si permite acceso anónimo, mostrar contenido incluso sin usuario
     if (!user && !allowAnonymous) {
         return null;
     }
 
-    // Si requiere firstTime pero el usuario no lo cumple (y está autenticado)
     if (user && requiresFirstTime && !user.firstTime) {
         return null;
     }
 
-    // Si no requiere firstTime pero el usuario sí tiene firstTime (y está autenticado)
     if (user && !requiresFirstTime && user.firstTime) {
         return null;
     }

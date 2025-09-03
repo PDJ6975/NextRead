@@ -43,7 +43,7 @@ const IconCozy = ({
   );
 };
 
-// Icono de libro cozy simple con líneas (restaurado original)
+// Icono de libro cozy simple con líneas
 const BookCozyIcon = ({ className = '', ...props }) => (
   <IconCozy className={className} {...props}>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-full h-full">
@@ -58,19 +58,19 @@ const BookCozyIcon = ({ className = '', ...props }) => (
   </IconCozy>
 );
 
-// Icono de nube de pensamiento para libros reflexivos
+// Icono de pensamiento
 const ThoughtCozyIcon = ({ className = '', ...props }) => (
   <IconCozy className={className} {...props}>
     <svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="0" className="w-full h-full">
-      {/* Nube de pensamiento principal */}
+      {/* Nube de pensamiento */}
       <path d="M18 10c0-3.3-2.7-6-6-6S6 6.7 6 10c0 .6.1 1.2.3 1.8C5.5 12.1 5 12.9 5 14c0 1.7 1.3 3 3 3h10c2.2 0 4-1.8 4-4 0-2.2-1.8-4-4-4z"/>
       
-      {/* Burbujas pequeñas de pensamiento debajo */}
+      {/* Burbujas pequeñas */}
       <circle cx="8" cy="18" r="1.5" opacity="0.8"/>
       <circle cx="6" cy="20" r="1" opacity="0.6"/>
       <circle cx="4.5" cy="21.5" r="0.8" opacity="0.4"/>
       
-      {/* Detalles internos de la nube - suaves ondulaciones */}
+      {/* Detalles internos de la nube */}
       <path d="M8 10c.8-.5 1.7-.8 2.5-.8s1.7.3 2.5.8" 
             stroke="white" 
             strokeWidth="0.8" 
@@ -82,7 +82,7 @@ const ThoughtCozyIcon = ({ className = '', ...props }) => (
             fill="none" 
             opacity="0.3"/>
       
-      {/* Pequeños puntos sutiles que sugieren ideas flotantes */}
+      {/* Pequeños puntos */}
       <circle cx="10.5" cy="11" r="0.3" fill="white" opacity="0.4"/>
       <circle cx="13.5" cy="11" r="0.3" fill="white" opacity="0.4"/>
       <circle cx="12" cy="13" r="0.2" fill="white" opacity="0.3"/>
@@ -94,9 +94,9 @@ const ThoughtCozyIcon = ({ className = '', ...props }) => (
 const FastBookCozyIcon = ({ className = '', ...props }) => (
   <IconCozy className={className} {...props}>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-full h-full">
-      {/* Rayo zigzag para representar dinamismo y acción */}
+      {/* Rayo */}
       <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="currentColor" opacity="0.8"/>
-      {/* Líneas de impacto/energía alrededor */}
+      {/* Líneas de impacto alrededor */}
       <path d="M6 4l2 2" strokeWidth="1" opacity="0.5"/>
       <path d="M4 8l2-1" strokeWidth="1" opacity="0.5"/>
       <path d="M18 6l-2 2" strokeWidth="1" opacity="0.5"/>
@@ -109,7 +109,7 @@ const FastBookCozyIcon = ({ className = '', ...props }) => (
   </IconCozy>
 );
 
-// Icono de estante cozy
+// Icono de estante
 const ShelfCozyIcon = ({ className = '', ...props }) => (
   <IconCozy className={className} {...props}>
     <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full">
@@ -124,7 +124,7 @@ const ShelfCozyIcon = ({ className = '', ...props }) => (
   </IconCozy>
 );
 
-// Icono de planta cozy
+// Icono de planta
 const PlantCozyIcon = ({ className = '', ...props }) => (
   <IconCozy className={className} {...props}>
     <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full">
@@ -137,7 +137,7 @@ const PlantCozyIcon = ({ className = '', ...props }) => (
   </IconCozy>
 );
 
-// Icono de corazón cozy
+// Icono de corazón
 const HeartCozyIcon = ({ className = '', ...props }) => (
   <IconCozy className={className} {...props}>
     <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full">
@@ -146,7 +146,7 @@ const HeartCozyIcon = ({ className = '', ...props }) => (
   </IconCozy>
 );
 
-// Icono de estrella cozy
+// Icono de estrella
 const StarCozyIcon = ({ filled = false, className = '', ...props }) => (
   <IconCozy className={className} {...props}>
     <svg viewBox="0 0 24 24" fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" className="w-full h-full">
@@ -155,7 +155,7 @@ const StarCozyIcon = ({ filled = false, className = '', ...props }) => (
   </IconCozy>
 );
 
-// Icono de casa cozy
+// Icono de casa
 const HomeCozyIcon = ({ className = '', ...props }) => (
   <IconCozy className={className} {...props}>
     <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full">
@@ -167,7 +167,7 @@ const HomeCozyIcon = ({ className = '', ...props }) => (
   </IconCozy>
 );
 
-// Icono de lupa cozy
+// Icono de lupa
 const SearchCozyIcon = ({ className = '', ...props }) => (
   <IconCozy className={className} {...props}>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-full h-full">
@@ -178,7 +178,7 @@ const SearchCozyIcon = ({ className = '', ...props }) => (
   </IconCozy>
 );
 
-// Icono de usuario cozy
+// Icono de usuario
 const UserCozyIcon = ({ className = '', ...props }) => (
   <IconCozy className={className} {...props}>
     <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full">
@@ -188,7 +188,7 @@ const UserCozyIcon = ({ className = '', ...props }) => (
   </IconCozy>
 );
 
-// Icono de loading/spinner cozy
+// Icono de loading
 const LoadingCozyIcon = ({ className = '', ...props }) => (
   <IconCozy className={clsx('animate-spin', className)} {...props}>
     <svg viewBox="0 0 24 24" fill="none" className="w-full h-full">
@@ -209,29 +209,29 @@ const LoadingCozyIcon = ({ className = '', ...props }) => (
   </IconCozy>
 );
 
-// Icono mágico cozy (varita con estrella)
+// Icono mágico
 const MagicCozyIcon = ({ className = '', animated = true, ...props }) => (
   <IconCozy className={clsx(className, animated && 'cozy-animate-sparkle')} {...props}>
     <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full">
-      {/* Varita mágica */}
+      {/* Varita */}
       <rect x="4" y="18" width="12" height="1.5" rx="0.75" transform="rotate(-45 10 18.75)" opacity="0.8"/>
       
-      {/* Estrella en la punta */}
+      {/* Estrella */}
       <polygon points="19,5 20.5,8 24,8.5 21.5,11 22,15 19,13 16,15 16.5,11 14,8.5 17.5,8" opacity="0.9"/>
       
-      {/* Partículas mágicas */}
+      {/* Partículas */}
       <circle cx="8" cy="8" r="1" opacity="0.6"/>
       <circle cx="15" cy="12" r="0.8" opacity="0.5"/>
       <circle cx="6" cy="15" r="0.6" opacity="0.7"/>
       <circle cx="11" cy="6" r="0.7" opacity="0.6"/>
       
-      {/* Estelas mágicas */}
+      {/* Estelas */}
       <path d="M8 8l2 2M15 12l-2 2M6 15l2-2" stroke="currentColor" strokeWidth="0.5" opacity="0.4"/>
     </svg>
   </IconCozy>
 );
 
-// Icono de reloj cozy
+// Icono de reloj
 const ClockCozyIcon = ({ className = '', ...props }) => (
   <IconCozy className={className} {...props}>
     <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full">
@@ -242,7 +242,7 @@ const ClockCozyIcon = ({ className = '', ...props }) => (
   </IconCozy>
 );
 
-// Icono de check/marca cozy
+// Icono de check
 const CheckMarkCozyIcon = ({ className = '', ...props }) => (
   <IconCozy className={className} {...props}>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="w-full h-full">
@@ -251,7 +251,7 @@ const CheckMarkCozyIcon = ({ className = '', ...props }) => (
   </IconCozy>
 );
 
-// Icono triste cozy
+// Icono triste
 const SadCozyIcon = ({ className = '', ...props }) => (
   <IconCozy className={className} {...props}>
     <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full">
@@ -399,7 +399,7 @@ const AdventureCozyIcon = ({ className = '', ...props }) => (
   </IconCozy>
 );
 
-// Íconos adicionales para más géneros
+// Íconos adicionales
 const PoetryCozyIcon = ({ className = '', ...props }) => (
   <IconCozy className={className} {...props}>
     <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full">
@@ -570,7 +570,7 @@ const EducationCozyIcon = ({ className = '', ...props }) => (
   </IconCozy>
 );
 
-// Icono de pendiente/próximo a leer cozy
+// Icono de pendiente a leer
 const PendingCozyIcon = ({ className = '', ...props }) => (
   <IconCozy className={className} {...props}>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-full h-full">
@@ -580,7 +580,7 @@ const PendingCozyIcon = ({ className = '', ...props }) => (
   </IconCozy>
 );
 
-// Icono de pausa cozy
+// Icono de pausa
 const PauseCozyIcon = ({ className = '', ...props }) => (
   <IconCozy className={className} {...props}>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-full h-full">
@@ -625,7 +625,6 @@ export {
   YoungAdultCozyIcon,
   HorrorCozyIcon,
   AdventureCozyIcon,
-  // Íconos adicionales para más géneros
   PoetryCozyIcon,
   ClassicCozyIcon,
   ChildrenCozyIcon,

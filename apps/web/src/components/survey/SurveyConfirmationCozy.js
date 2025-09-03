@@ -6,7 +6,7 @@ import { ButtonCozy } from '../ui/cozy/ButtonCozy';
 import { CardCozy } from '../ui/cozy/CardCozy';
 import { BookCozyIcon, StarCozyIcon, HeartCozyIcon, MagicCozyIcon, ClockCozyIcon } from '../ui/cozy/IconCozy';
 
-// Configuración de géneros para mostrar etiquetas bonitas
+// Configuración de géneros para mostrar etiquetas' bonitas'
 const genreLabels = {
     'ROMANCE': 'Romance',
     'FANTASY': 'Fantasía',

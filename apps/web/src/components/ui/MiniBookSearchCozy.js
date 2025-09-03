@@ -71,7 +71,7 @@ export function MiniBookSearchCozy({ onBookSelect, placeholder = 'Buscar libro..
 
   return (
     <div className="relative w-full">
-      {/* Input de búsqueda cozy */}
+      {/* Input de búsqueda */}
       <div className="relative">
         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
           <Search className="h-4 w-4 text-cozy-medium-gray" />
@@ -93,7 +93,7 @@ export function MiniBookSearchCozy({ onBookSelect, placeholder = 'Buscar libro..
         )}
       </div>
 
-      {/* Dropdown de resultados cozy */}
+      {/* Dropdown de resultados */}
       {showDropdown && (
         <div className="absolute left-0 mt-2 w-full z-50 bg-cozy-white border-2 border-cozy-sage/20 rounded-xl shadow-lg backdrop-blur-sm min-w-[220px] max-w-[340px] overflow-hidden">
           {/* Resultados */}
@@ -145,7 +145,7 @@ export function MiniBookSearchCozy({ onBookSelect, placeholder = 'Buscar libro..
             })}
           </div>
 
-          {/* Controles de paginación cozy */}
+          {/* Controles de paginación */}
           <div className="flex flex-row justify-between items-center border-t border-cozy-light-gray bg-cozy-cream/30 px-2 py-1">
             <button
               className="p-2 text-cozy-medium-gray hover:text-cozy-sage hover:bg-cozy-sage/10 disabled:opacity-30 disabled:hover:bg-transparent rounded-sm transition-all duration-200"
@@ -175,7 +175,7 @@ export function MiniBookSearchCozy({ onBookSelect, placeholder = 'Buscar libro..
         </div>
       )}
 
-      {/* Mensaje de error cozy */}
+      {/* Mensaje de error */}
       {error && query.length > 1 && !isLoading && (
         <div className="absolute left-0 mt-2 w-full z-50 bg-cozy-white border-2 border-cozy-terracotta/20 rounded-lg shadow-md">
           <div className="px-4 py-3 flex items-center space-x-2">

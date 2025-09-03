@@ -2,3 +2,4 @@
 /apps/api/.env
 apps/api/target/
 CLAUDE.md
+DEPLOYMENT.md
