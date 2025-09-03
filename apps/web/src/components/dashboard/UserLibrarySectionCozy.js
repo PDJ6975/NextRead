@@ -573,8 +573,8 @@ export default function UserLibrarySectionCozy({ recommendations = [], onRecomme
 
       {/* Modal de detalles de recomendación */}
       {selectedRecommendation && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-          <CardCozy variant="dreamy" className="max-w-md w-full mx-4 relative animate-float-in">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+          <CardCozy variant="dreamy" className="max-w-md w-full relative animate-float-in max-h-[90vh] flex flex-col">
             <ButtonCozy
               variant="ghost"
               size="sm"
@@ -585,7 +585,8 @@ export default function UserLibrarySectionCozy({ recommendations = [], onRecomme
               <X className="w-4 h-4" />
             </ButtonCozy>
             
-            <div className="p-6">
+            {/* Header fijo */}
+            <div className="p-6 pb-0 flex-shrink-0">
               <div className="flex gap-4 mb-4">
                 <div className="flex-shrink-0">
                   <div className="w-24 h-36 overflow-hidden rounded-lg bg-cozy-cream shadow-md">
@@ -612,7 +613,10 @@ export default function UserLibrarySectionCozy({ recommendations = [], onRecomme
                   </div>
                 </div>
               </div>
-              
+            </div>
+            
+            {/* Contenido scrolleable */}
+            <div className="flex-1 overflow-y-auto px-6">
               <div className="space-y-4">
                 <div>
                   <span className="inline-block bg-cozy-soft-yellow/20 text-cozy-warm-brown text-xs px-3 py-1 rounded-full mb-2 font-cozy font-medium">
@@ -631,27 +635,30 @@ export default function UserLibrarySectionCozy({ recommendations = [], onRecomme
                     {selectedRecommendation.synopsis || 'Sin sinopsis disponible'}
                   </p>
                 </div>
+              </div>
+            </div>
+            
+            {/* Footer fijo con botones */}
+            <div className="p-6 pt-4 border-t border-cozy-light-gray flex-shrink-0">
+              <div className="flex gap-3">
+                <ButtonCozy
+                  variant="primary"
+                  onClick={() => {
+                    handleAddRecommendationToLibrary(selectedRecommendation);
+                    setSelectedRecommendation(null);
+                  }}
+                  className="flex-1"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Añadir a biblioteca
+                </ButtonCozy>
                 
-                <div className="flex gap-3 pt-4 border-t border-cozy-light-gray">
-                  <ButtonCozy
-                    variant="primary"
-                    onClick={() => {
-                      handleAddRecommendationToLibrary(selectedRecommendation);
-                      setSelectedRecommendation(null);
-                    }}
-                    className="flex-1"
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Añadir a biblioteca
-                  </ButtonCozy>
-                  
-                  <ButtonCozy
-                    variant="ghost"
-                    onClick={() => setSelectedRecommendation(null)}
-                  >
-                    Cerrar
-                  </ButtonCozy>
-                </div>
+                <ButtonCozy
+                  variant="ghost"
+                  onClick={() => setSelectedRecommendation(null)}
+                >
+                  Cerrar
+                </ButtonCozy>
               </div>
             </div>
           </CardCozy>
@@ -660,8 +667,8 @@ export default function UserLibrarySectionCozy({ recommendations = [], onRecomme
 
       {/* Modal de detalles de libro */}
       {selectedBook && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-          <CardCozy variant="dreamy" className="max-w-lg w-full mx-4 relative animate-float-in">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+          <CardCozy variant="dreamy" className="max-w-lg w-full relative animate-float-in max-h-[90vh] flex flex-col">
             <ButtonCozy
               variant="ghost"
               size="sm"
@@ -672,7 +679,8 @@ export default function UserLibrarySectionCozy({ recommendations = [], onRecomme
               <X className="w-4 h-4" />
             </ButtonCozy>
             
-            <div className="p-6">
+            {/* Header fijo */}
+            <div className="p-6 pb-0 flex-shrink-0">
               <div className="flex gap-4 mb-4">
                 <div className="flex-shrink-0">
                   <div className="w-32 h-48 overflow-hidden rounded-lg bg-cozy-cream shadow-md">
@@ -722,7 +730,10 @@ export default function UserLibrarySectionCozy({ recommendations = [], onRecomme
                   )}
                 </div>
               </div>
-              
+            </div>
+            
+            {/* Contenido scrolleable */}
+            <div className="flex-1 overflow-y-auto px-6">
               {/* Sinopsis si está disponible */}
               {selectedBook.synopsis && (
                 <div className="space-y-2">
@@ -734,8 +745,11 @@ export default function UserLibrarySectionCozy({ recommendations = [], onRecomme
                   </p>
                 </div>
               )}
-              
-              <div className="flex justify-end pt-4 border-t border-cozy-light-gray">
+            </div>
+            
+            {/* Footer fijo con botones */}
+            <div className="p-6 pt-4 border-t border-cozy-light-gray flex-shrink-0">
+              <div className="flex justify-end">
                 <ButtonCozy
                   variant="ghost"
                   onClick={() => setSelectedBook(null)}
