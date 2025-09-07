@@ -52,11 +52,12 @@ public class SecurityConfiguration {
         // Permitir orígenes de desarrollo y producción
         configuration.setAllowedOriginPatterns(List.of(
             "http://localhost:3000",  // Desarrollo local frontend
-            "https://pdj6975.github.io" // GitHub Pages producción
+            "https://pdj6975.github.io" // GitHub Pages producción (incluye subpaths)
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L); // Cache preflight por 1 hora
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
