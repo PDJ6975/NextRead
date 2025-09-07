@@ -203,7 +203,7 @@ class AuthenticationServiceTest {
                 authenticationService.authenticate(loginUserDTO);
             });
 
-            assertEquals("Usuario no encontrado.", exception.getMessage());
+            assertEquals("Las credenciales ingresadas no son válidas.", exception.getMessage());
             verify(userRepository).findByEmail("test@example.com");
             verify(authenticationManager, never()).authenticate(any());
         }
@@ -220,7 +220,7 @@ class AuthenticationServiceTest {
                 authenticationService.authenticate(loginUserDTO);
             });
 
-            assertEquals("La cuenta todavía no está verificada. Por favor, hazlo antes de iniciar sesión.",
+            assertEquals("La cuenta todavía no está verificada. Por favor, verifica tu email antes de iniciar sesión.",
                     exception.getMessage());
             verify(userRepository).findByEmail("test@example.com");
             verify(authenticationManager, never()).authenticate(any());
@@ -239,7 +239,7 @@ class AuthenticationServiceTest {
                 authenticationService.authenticate(loginUserDTO);
             });
 
-            assertEquals("Invalid credentials", exception.getMessage());
+            assertEquals("Las credenciales ingresadas no son válidas.", exception.getMessage());
             verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
         }
     }
