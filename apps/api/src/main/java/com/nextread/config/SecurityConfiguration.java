@@ -37,8 +37,8 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/actuator/health").permitAll()
-                        .requestMatchers("/actuator/info").permitAll()
                         .requestMatchers("/", "/api/status").permitAll()
+                        .requestMatchers("/actuator/**").authenticated() // Otros endpoints de actuator requieren auth
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
