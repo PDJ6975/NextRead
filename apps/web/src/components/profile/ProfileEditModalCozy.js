@@ -8,7 +8,22 @@ import { CardCozy } from '../ui/cozy/CardCozy';
 import { IconCozy } from '../ui/cozy/IconCozy';
 
 // Lista de iconos predefinidos
-const AVATAR_BASE_URL = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
+const getBasePath = () => {
+  if (typeof window !== 'undefined') {
+    // En producción GitHub Pages: https://pdj6975.github.io/NextRead/
+    // En desarrollo: http://localhost:3000/
+    const origin = window.location.origin;
+    const pathname = window.location.pathname;
+    
+    if (pathname.startsWith('/NextRead')) {
+      return `${origin}/NextRead`;
+    }
+    return origin;
+  }
+  return 'http://localhost:3000';
+};
+
+const AVATAR_BASE_URL = getBasePath();
 const avatarIcons = [
   `${AVATAR_BASE_URL}/avatars/icono_gato_rosa.png`,
   `${AVATAR_BASE_URL}/avatars/icono_gato_naranja.png`,
