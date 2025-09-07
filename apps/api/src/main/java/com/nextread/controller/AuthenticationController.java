@@ -42,7 +42,19 @@ public class AuthenticationController {
             return ResponseEntity.ok(registeredUser);
         } catch (RuntimeException e) {
             Map<String, String> errorResponse = Map.of("message", e.getMessage());
-            return ResponseEntity.badRequest().body(errorResponse);
+            
+            // Determinar el código de estado basado en el tipo de error
+            String message = e.getMessage();
+            if (message.contains("existe") || message.contains("registrada") || message.contains("uso")) {
+                // Email ya existe o nickname en uso
+                return ResponseEntity.status(409).body(errorResponse); // Conflict
+            } else if (message.contains("verificación") || message.contains("email")) {
+                // Problemas con email de verificación
+                return ResponseEntity.status(422).body(errorResponse); // Unprocessable Entity
+            } else {
+                // Otros errores de validación
+                return ResponseEntity.badRequest().body(errorResponse); // 400
+            }
         }
     }
 

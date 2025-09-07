@@ -41,26 +41,52 @@ public class AuthenticationService {
     }
 
     public User signUp(RegisterUserDTO input) {
-        User user = new User(input.getEmail(), input.getUsername(), passwordEncoder.encode(input.getPassword()));
-        // Asignar avatar por defecto aleatorio de 5 posibles
-        int randomAvatar = new Random().nextInt(6) + 1;
-        String frontendUrl = System.getenv("FRONTEND_URL");
-        if (frontendUrl == null || frontendUrl.isEmpty()) {
-            frontendUrl = "http://localhost:3000"; // Fallback para desarrollo
+        // Verificar si el usuario ya existe antes de intentar crearlo
+        if (userRepository.findByEmail(input.getEmail()).isPresent()) {
+            throw new RuntimeException("Ya existe una cuenta registrada con este email.");
         }
-        user.setAvatarUrl(frontendUrl + "/avatars/avatar" + randomAvatar + ".png");
-        user.setVerificationCode(generateVerificationCode());
-        user.setVerificationCodeExpiresAt(LocalDateTime.now().plusMinutes(15));
-        user.setEnabled(false);
-        sendVerificationEmail(user);
 
-        // Guardar el usuario primero
-        User savedUser = userRepository.save(user);
+        // Verificar si el nickname ya está en uso
+        if (userRepository.findByNickname(input.getUsername()).isPresent()) {
+            throw new RuntimeException("Este nombre de usuario ya está en uso. Elige otro.");
+        }
 
-        // Crear encuesta por defecto para el nuevo usuario
-        surveyService.findByUserOrCreate(savedUser);
+        try {
+            User user = new User(input.getEmail(), input.getUsername(), passwordEncoder.encode(input.getPassword()));
+            // Asignar avatar por defecto aleatorio de 5 posibles
+            int randomAvatar = new Random().nextInt(6) + 1;
+            String frontendUrl = System.getenv("FRONTEND_URL");
+            if (frontendUrl == null || frontendUrl.isEmpty()) {
+                frontendUrl = "http://localhost:3000"; // Fallback para desarrollo
+            }
+            user.setAvatarUrl(frontendUrl + "/avatars/avatar" + randomAvatar + ".png");
+            user.setVerificationCode(generateVerificationCode());
+            user.setVerificationCodeExpiresAt(LocalDateTime.now().plusMinutes(15));
+            user.setEnabled(false);
+            
+            // Intentar enviar email de verificación
+            try {
+                sendVerificationEmail(user);
+            } catch (Exception emailError) {
+                throw new RuntimeException("No se pudo enviar el email de verificación. Verifica tu dirección de email.");
+            }
 
-        return savedUser;
+            // Guardar el usuario primero
+            User savedUser = userRepository.save(user);
+
+            // Crear encuesta por defecto para el nuevo usuario
+            surveyService.findByUserOrCreate(savedUser);
+
+            return savedUser;
+        } catch (Exception e) {
+            // Si es una RuntimeException que ya lanzamos, re-lanzarla
+            if (e instanceof RuntimeException && e.getMessage().contains("email") || 
+                e.getMessage().contains("usuario") || e.getMessage().contains("verificación")) {
+                throw e;
+            }
+            // Para otros errores, mensaje genérico
+            throw new RuntimeException("Error al crear la cuenta. Inténtalo de nuevo más tarde.");
+        }
     }
 
     public User authenticate(LoginUserDTO input) {
