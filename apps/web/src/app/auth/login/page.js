@@ -66,11 +66,6 @@ function LoginContent() {
             }
         } catch (error) {
             console.error('Error en login:', error);
-            console.log('Error details:', {
-                status: error.response?.status,
-                data: error.response?.data,
-                message: error.message
-            });
 
             // Manejar errores específicos del backend
             let errorMessage = 'Error al iniciar sesión. Inténtalo de nuevo.';

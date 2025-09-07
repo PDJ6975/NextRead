@@ -65,15 +65,19 @@ public class AuthenticationService {
 
     public User authenticate(LoginUserDTO input) {
         User user = userRepository.findByEmail(input.getEmail())
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado."));
+                .orElseThrow(() -> new RuntimeException("Las credenciales ingresadas no son válidas."));
 
         if (!user.isEnabled()) {
             throw new RuntimeException(
-                    "La cuenta todavía no está verificada. Por favor, hazlo antes de iniciar sesión.");
+                    "La cuenta todavía no está verificada. Por favor, verifica tu email antes de iniciar sesión.");
         }
 
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(input.getEmail(), input.getPassword()));
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(input.getEmail(), input.getPassword()));
+        } catch (Exception e) {
+            throw new RuntimeException("Las credenciales ingresadas no son válidas.");
+        }
 
         return user;
     }

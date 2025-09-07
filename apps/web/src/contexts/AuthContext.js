@@ -36,6 +36,7 @@ export function AuthProvider({ children }) {
             });
         } catch (error) {
             localStorage.removeItem('token');
+            setUser(null);
         } finally {
             setIsLoading(false);
         }
@@ -43,20 +44,12 @@ export function AuthProvider({ children }) {
 
     const login = async (credentials) => {
         try {
-            console.log('AuthContext: Iniciando login...');
             const response = await authService.login(credentials);
-            console.log('AuthContext: Respuesta del backend:', response);
-            
             const { token, firstTime } = response.data;
             localStorage.setItem('token', token);
-            
-            console.log('AuthContext: Verificando token...');
             await verifyToken(token);
-            console.log('AuthContext: Token verificado, login exitoso');
-            
             return { firstTime };
         } catch (error) {
-            console.error('AuthContext: Error en login:', error);
             throw error;
         }
     };

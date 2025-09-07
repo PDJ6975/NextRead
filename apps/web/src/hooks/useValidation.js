@@ -9,7 +9,7 @@ export function useValidation(schema) {
             setErrors({});
             return true;
         } catch (error) {
-            // Verificar si es un error de Zod (tiene estructura .errors)
+            // Verificar si es un error de Zod
             if (error.errors && Array.isArray(error.errors)) {
                 const fieldErrors = {};
                 error.errors.forEach(err => {
