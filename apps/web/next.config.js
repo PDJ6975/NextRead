@@ -23,8 +23,8 @@ const nextConfig = {
     },
     trailingSlash: true,
     output: 'export',
-    basePath: '/NextRead_NOAI',
-    assetPrefix: '/NextRead_NOAI/',
+    basePath: '/NextRead',
+    assetPrefix: '/NextRead/',
     eslint: {
         ignoreDuringBuilds: true,
     },
