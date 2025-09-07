@@ -60,11 +60,45 @@ export default function RegisterPage() {
             console.error('Error en registro:', error);
 
             // Manejar errores específicos del backend
-            if (error.response?.data?.message) {
-                setErrors({ general: error.response.data.message });
-            } else {
-                setErrors({ general: 'Error al crear la cuenta. Inténtalo de nuevo.' });
+            let errorMessage = 'Error al crear la cuenta. Inténtalo de nuevo.';
+            
+            if (error.response?.status === 400) {
+                // Errores de validación o datos inválidos
+                errorMessage = error.response.data?.message || 'Los datos ingresados no son válidos. Revisa todos los campos.';
+                
+                // Si el mensaje menciona campos específicos, mostrarlos
+                const message = error.response.data?.message || '';
+                if (message.includes('email')) {
+                    if (message.includes('existe') || message.includes('registrada')) {
+                        errorMessage = 'Ya existe una cuenta con este email. Intenta iniciar sesión.';
+                    } else {
+                        errorMessage = 'El formato del email no es válido.';
+                    }
+                } else if (message.includes('usuario') || message.includes('nickname')) {
+                    errorMessage = 'Este nombre de usuario ya está en uso. Elige otro.';
+                } else if (message.includes('contraseña') || message.includes('password')) {
+                    errorMessage = 'La contraseña debe cumplir con los requisitos mínimos.';
+                } else if (message.includes('verificación')) {
+                    errorMessage = 'No se pudo enviar el email de verificación. Verifica tu dirección de email.';
+                }
+            } else if (error.response?.status === 409) {
+                // Conflicto - recurso ya existe
+                errorMessage = 'Ya existe una cuenta con estos datos. Intenta iniciar sesión.';
+            } else if (error.response?.status === 422) {
+                // Entidad no procesable - datos inválidos
+                errorMessage = 'Los datos proporcionados no son válidos. Revisa los campos e inténtalo de nuevo.';
+            } else if (error.response?.status >= 500) {
+                // Errores del servidor
+                errorMessage = 'Error en el servidor. Por favor, inténtalo más tarde.';
+            } else if (error.response?.data?.message) {
+                // Usar mensaje específico del backend si está disponible
+                errorMessage = error.response.data.message;
+            } else if (!error.response) {
+                // Sin conexión
+                errorMessage = 'No se pudo conectar con el servidor. Verifica tu conexión a internet.';
             }
+
+            setErrors({ general: errorMessage });
         } finally {
             setIsLoading(false);
         }

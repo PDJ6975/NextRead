@@ -36,6 +36,7 @@ export function AuthProvider({ children }) {
             });
         } catch (error) {
             localStorage.removeItem('token');
+            setUser(null);
         } finally {
             setIsLoading(false);
         }

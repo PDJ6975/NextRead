@@ -25,8 +25,16 @@ apiClient.interceptors.response.use(
     },
     (error) => {
         if (error.response?.status === 401) {
+            // Solo redireccionar si NO estamos ya en páginas de autenticación
+            const currentPath = window.location.pathname;
+            const isAuthPage = currentPath.startsWith('/auth/');
+            
             localStorage.removeItem('token');
-            window.location.href = '/auth/login';
+            
+            // Solo redireccionar si no estamos en una página de auth
+            if (!isAuthPage) {
+                window.location.href = '/auth/login';
+            }
         }
         return Promise.reject(error);
     }

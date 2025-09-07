@@ -8,7 +8,9 @@ export const loginSchema = z.object({
 export const registerSchema = z.object({
     username: z.string().min(2, 'El nombre de usuario debe tener al menos 2 caracteres'),
     email: z.string().email('Email inválido'),
-    password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
+    password: z.string()
+        .min(6, 'La contraseña debe tener al menos 6 caracteres')
+        .regex(/^(?=.*[a-zA-Z])/, 'La contraseña debe contener al menos una letra'),
     confirmPassword: z.string(),
 }).refine((data) => data.password === data.confirmPassword, {
     message: 'Las contraseñas no coinciden',

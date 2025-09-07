@@ -68,13 +68,24 @@ function LoginContent() {
             console.error('Error en login:', error);
 
             // Manejar errores específicos del backend
+            let errorMessage = 'Error al iniciar sesión. Inténtalo de nuevo.';
+            
             if (error.response?.status === 401) {
-                setErrors({ general: 'Email o contraseña incorrectos.' });
+                errorMessage = error.response.data?.message || 'Email o contraseña incorrectos.';
+            } else if (error.response?.status === 400) {
+                errorMessage = error.response.data?.message || 'Los datos ingresados no son válidos.';
+            } else if (error.response?.status >= 500) {
+                errorMessage = 'Error en el servidor. Por favor, inténtalo más tarde.';
             } else if (error.response?.data?.message) {
-                setErrors({ general: error.response.data.message });
-            } else {
-                setErrors({ general: 'Error al iniciar sesión. Inténtalo de nuevo.' });
+                errorMessage = error.response.data.message;
+            } else if (!error.response) {
+                errorMessage = 'No se pudo conectar con el servidor. Verifica tu conexión.';
             }
+
+            setErrors({ general: errorMessage });
+            
+            // NO limpiar el formulario en caso de error
+            // El formData se mantiene para que el usuario no tenga que volver a escribir
         } finally {
             setIsLoading(false);
         }
