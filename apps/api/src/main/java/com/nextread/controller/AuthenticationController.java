@@ -1,5 +1,7 @@
 package com.nextread.controller;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,22 +36,32 @@ public class AuthenticationController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<User> register(@RequestBody RegisterUserDTO registerUserDTO) {
-        User registeredUser = authenticationService.signUp(registerUserDTO);
-        return ResponseEntity.ok(registeredUser);
+    public ResponseEntity<?> register(@RequestBody RegisterUserDTO registerUserDTO) {
+        try {
+            User registeredUser = authenticationService.signUp(registerUserDTO);
+            return ResponseEntity.ok(registeredUser);
+        } catch (RuntimeException e) {
+            Map<String, String> errorResponse = Map.of("message", e.getMessage());
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> authenticate(@RequestBody LoginUserDTO loginUserDto) {
-        User authenticatedUser = authenticationService.authenticate(loginUserDto);
-        String jwtToken = jwtService.generateToken(authenticatedUser);
+    public ResponseEntity<?> authenticate(@RequestBody LoginUserDTO loginUserDto) {
+        try {
+            User authenticatedUser = authenticationService.authenticate(loginUserDto);
+            String jwtToken = jwtService.generateToken(authenticatedUser);
 
-        // Obtener el estado firstTime de la encuesta del usuario
-        var survey = surveyService.findSurveyByUser(authenticatedUser);
-        boolean isFirstTime = survey.getFirstTime() != null ? survey.getFirstTime() : false;
+            // Obtener el estado firstTime de la encuesta del usuario
+            var survey = surveyService.findSurveyByUser(authenticatedUser);
+            boolean isFirstTime = survey.getFirstTime() != null ? survey.getFirstTime() : false;
 
-        LoginResponse loginResponse = new LoginResponse(jwtToken, jwtService.getExpirationTime(), isFirstTime);
-        return ResponseEntity.ok(loginResponse);
+            LoginResponse loginResponse = new LoginResponse(jwtToken, jwtService.getExpirationTime(), isFirstTime);
+            return ResponseEntity.ok(loginResponse);
+        } catch (RuntimeException e) {
+            Map<String, String> errorResponse = Map.of("message", e.getMessage());
+            return ResponseEntity.status(401).body(errorResponse);
+        }
     }
 
     @PostMapping("/verify")

@@ -60,11 +60,21 @@ export default function RegisterPage() {
             console.error('Error en registro:', error);
 
             // Manejar errores específicos del backend
-            if (error.response?.data?.message) {
-                setErrors({ general: error.response.data.message });
-            } else {
-                setErrors({ general: 'Error al crear la cuenta. Inténtalo de nuevo.' });
+            let errorMessage = 'Error al crear la cuenta. Inténtalo de nuevo.';
+            
+            if (error.response?.status === 400) {
+                errorMessage = error.response.data?.message || 'Los datos ingresados no son válidos.';
+            } else if (error.response?.status === 409) {
+                errorMessage = 'Ya existe una cuenta con este email. Intenta iniciar sesión.';
+            } else if (error.response?.status >= 500) {
+                errorMessage = 'Error en el servidor. Por favor, inténtalo más tarde.';
+            } else if (error.response?.data?.message) {
+                errorMessage = error.response.data.message;
+            } else if (!error.response) {
+                errorMessage = 'No se pudo conectar con el servidor. Verifica tu conexión.';
             }
+
+            setErrors({ general: errorMessage });
         } finally {
             setIsLoading(false);
         }
