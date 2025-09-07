@@ -38,6 +38,7 @@ public class SecurityConfiguration {
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers("/actuator/info").permitAll()
+                        .requestMatchers("/", "/api/status").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
@@ -50,12 +51,8 @@ public class SecurityConfiguration {
         CorsConfiguration configuration = new CorsConfiguration();
         // Permitir orígenes de desarrollo y producción
         configuration.setAllowedOriginPatterns(List.of(
-            "http://localhost:3000", 
-            "http://localhost:8080",
-            "https://*.github.io",  // GitHub Pages
-            "https://pdj6975.github.io", // Tu GitHub Pages específico
-            "https://*.netlify.app", // Netlify (backup)
-            "https://*.vercel.app"   // Vercel (backup)
+            "http://localhost:3000",  // Desarrollo local frontend
+            "https://pdj6975.github.io" // GitHub Pages producción
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
