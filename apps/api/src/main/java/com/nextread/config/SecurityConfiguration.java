@@ -47,10 +47,11 @@ public class SecurityConfiguration {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         // Permitir orígenes de desarrollo y producción
-        configuration.setAllowedOrigins(List.of(
+        configuration.setAllowedOriginPatterns(List.of(
             "http://localhost:3000", 
             "http://localhost:8080",
             "https://*.github.io",  // GitHub Pages
+            "https://pdj6975.github.io", // Tu GitHub Pages específico
             "https://*.netlify.app", // Netlify (backup)
             "https://*.vercel.app"   // Vercel (backup)
         ));
