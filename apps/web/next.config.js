@@ -22,9 +22,9 @@ const nextConfig = {
         unoptimized: true,
     },
     trailingSlash: true,
-    output: 'export',
-    basePath: '/NextRead',
-    assetPrefix: '/NextRead/',
+    output: process.env.NODE_ENV === 'production' ? 'export' : undefined,
+    basePath: process.env.NODE_ENV === 'production' ? '/NextRead' : '',
+    assetPrefix: process.env.NODE_ENV === 'production' ? '/NextRead/' : '',
     eslint: {
         ignoreDuringBuilds: true,
     },
