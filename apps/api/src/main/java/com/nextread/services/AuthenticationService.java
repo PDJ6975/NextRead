@@ -147,13 +147,6 @@ public class AuthenticationService {
     }
 
     private void sendVerificationEmail(User user) {
-        String frontendUrl = System.getenv("FRONTEND_URL");
-        if (frontendUrl == null || frontendUrl.isEmpty()) {
-            frontendUrl = "http://localhost:3000"; // Fallback para desarrollo
-        }
-        
-        String logoUrl = frontendUrl + "/logo-email.png";  // los archivos de public de Next.js se sirven como recurso estático sin pasar por ninguna ruta especial
-        
         String subject = "Verifica tu cuenta en NextRead";
         String htmlMessage = "<!DOCTYPE html>"
                 + "<html>"
@@ -165,19 +158,9 @@ public class AuthenticationService {
                 + "<body style=\"margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #fef7ed;\">"
                 + "<div style=\"max-width: 600px; margin: 0 auto; background-color: #ffffff; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);\">"
                 
-                // Header 
-                + "<div style=\"background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); padding: 40px 32px; text-align: center;\">"
-                + "<img src=\"" + logoUrl + "\" alt=\"NextRead\" style=\"height: 48px; margin-bottom: 16px;\" onerror=\"this.style.display='none';\"/>"
-                + "<h1 style=\"color: #ffffff; font-size: 32px; font-weight: 700; margin: 0; letter-spacing: -0.02em;\">NextRead</h1>"
-                + "<p style=\"color: #fed7aa; font-size: 16px; margin: 8px 0 0 0;\">Tu pr&oacute;ximo libro favorito te est&aacute; esperando</p>"
-                + "</div>"
-                
                 // Contenido principal
                 + "<div style=\"padding: 48px 32px;\">"
                 + "<div style=\"text-align: center; margin-bottom: 32px;\">"
-                + "<div style=\"display: inline-block; padding: 16px; background-color: #fff7ed; border-radius: 50%; margin-bottom: 24px;\">"
-                + "<span style=\"font-size: 48px;\">&#x2728;</span>"
-                + "</div>"
                 + "<h2 style=\"color: #1f2937; font-size: 28px; font-weight: 600; margin: 0 0 16px 0; line-height: 1.3;\">&iexcl;Bienvenido a NextRead!</h2>"
                 + "<p style=\"color: #6b7280; font-size: 18px; line-height: 1.6; margin: 0;\">Est&aacute;s a un paso de descubrir tu pr&oacute;xima lectura favorita</p>"
                 + "</div>"
