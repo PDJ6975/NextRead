@@ -4,7 +4,7 @@
 
 ## ✨ Experiencia en vivo
 
-🌟 **[Prueba NextRead aquí →](https://PDJ6975.github.io/NextRead_NOAI/)**
+🌟 **[Prueba NextRead aquí →](https://PDJ6975.github.io/NextRead/)**
 
 *Descubre libros que realmente te van a encantar, personalizados según tus gustos únicos.*
 
