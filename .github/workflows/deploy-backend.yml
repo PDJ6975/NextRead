@@ -52,6 +52,7 @@ jobs:
   deploy-to-render:
     needs: build-and-push
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
     steps:
       - name: Deploy to Render
         uses: johnbeynon/render-deploy-action@v0.0.8
