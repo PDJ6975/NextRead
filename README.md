@@ -59,7 +59,7 @@ NextRead no es solo otra app de libros. Es tu compañero de lectura personal que
 
 ### 🚀 DevOps - El despliegue
 - **Frontend**: GitHub Pages con CI/CD automático
-- **Backend**: Railway con deploy sin interrupciones  
+- **Backend**: Render con deploy sin interrupciones  
 - **Base de datos**: Supabase con backups automáticos
 - **SSL/TLS**: Comunicación segura en todos los endpoints
 
