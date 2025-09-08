@@ -1,0 +1,10 @@
+target/
+*.log
+.mvn/
+mvnw
+mvnw.cmd
+.env
+.DS_Store
+*.iml
+.idea/
+.vscode/
