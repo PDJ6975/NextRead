@@ -146,17 +146,69 @@ public class AuthenticationService {
         }
     }
 
-    private void sendVerificationEmail(User user) { // TODO: Actualizar con nuestro logo. Asegurar mensaje adaptado
-        String subject = "Account Verification";
-        String verificationCode = "VERIFICATION CODE " + user.getVerificationCode();
-        String htmlMessage = "<html>"
-                + "<body style=\"font-family: Arial, sans-serif;\">"
-                + "<div style=\"background-color: #f5f5f5; padding: 20px;\">"
-                + "<h2 style=\"color: #333;\">Welcome to our app!</h2>"
-                + "<p style=\"font-size: 16px;\">Please enter the verification code below to continue:</p>"
-                + "<div style=\"background-color: #fff; padding: 20px; border-radius: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.1);\">"
-                + "<h3 style=\"color: #333;\">Verification Code:</h3>"
-                + "<p style=\"font-size: 18px; font-weight: bold; color: #007bff;\">" + verificationCode + "</p>"
+    private void sendVerificationEmail(User user) {
+        String frontendUrl = System.getenv("FRONTEND_URL");
+        if (frontendUrl == null || frontendUrl.isEmpty()) {
+            frontendUrl = "http://localhost:3000"; // Fallback para desarrollo
+        }
+        
+        String logoUrl = frontendUrl + "/logo-email.png";  // los archivos de public de Next.js se sirven como recurso estático sin pasar por ninguna ruta especial
+        
+        String subject = "Verifica tu cuenta en NextRead";
+        String htmlMessage = "<!DOCTYPE html>"
+                + "<html>"
+                + "<head>"
+                + "<meta charset=\"UTF-8\">"
+                + "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">"
+                + "<title>Verificaci&oacute;n de cuenta - NextRead</title>"
+                + "</head>"
+                + "<body style=\"margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #fef7ed;\">"
+                + "<div style=\"max-width: 600px; margin: 0 auto; background-color: #ffffff; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);\">"
+                
+                // Header 
+                + "<div style=\"background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); padding: 40px 32px; text-align: center;\">"
+                + "<img src=\"" + logoUrl + "\" alt=\"NextRead\" style=\"height: 48px; margin-bottom: 16px;\" onerror=\"this.style.display='none';\"/>"
+                + "<h1 style=\"color: #ffffff; font-size: 32px; font-weight: 700; margin: 0; letter-spacing: -0.02em;\">NextRead</h1>"
+                + "<p style=\"color: #fed7aa; font-size: 16px; margin: 8px 0 0 0;\">Tu pr&oacute;ximo libro favorito te est&aacute; esperando</p>"
+                + "</div>"
+                
+                // Contenido principal
+                + "<div style=\"padding: 48px 32px;\">"
+                + "<div style=\"text-align: center; margin-bottom: 32px;\">"
+                + "<div style=\"display: inline-block; padding: 16px; background-color: #fff7ed; border-radius: 50%; margin-bottom: 24px;\">"
+                + "<span style=\"font-size: 48px;\">&#x2728;</span>"
+                + "</div>"
+                + "<h2 style=\"color: #1f2937; font-size: 28px; font-weight: 600; margin: 0 0 16px 0; line-height: 1.3;\">&iexcl;Bienvenido a NextRead!</h2>"
+                + "<p style=\"color: #6b7280; font-size: 18px; line-height: 1.6; margin: 0;\">Est&aacute;s a un paso de descubrir tu pr&oacute;xima lectura favorita</p>"
+                + "</div>"
+                
+                // Código de verificación
+                + "<div style=\"background: linear-gradient(135deg, #fef3c7 0%, #fed7aa 100%); border-radius: 16px; padding: 32px; text-align: center; margin: 32px 0; border: 3px solid #f59e0b;\">"
+                + "<p style=\"color: #92400e; font-size: 16px; font-weight: 500; margin: 0 0 16px 0; text-transform: uppercase; letter-spacing: 0.05em;\">Tu c&oacute;digo de verificaci&oacute;n</p>"
+                + "<div style=\"background-color: #ffffff; border-radius: 12px; padding: 24px; margin: 16px 0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);\">"
+                + "<span style=\"font-size: 36px; font-weight: 800; color: #ea580c; letter-spacing: 0.1em; font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;\">" + user.getVerificationCode() + "</span>"
+                + "</div>"
+                + "<p style=\"color: #92400e; font-size: 14px; margin: 16px 0 0 0;\">&#x23F0; Este c&oacute;digo expira en 15 minutos</p>"
+                + "</div>"
+                
+                // Instrucciones
+                + "<div style=\"background-color: #f9fafb; border-radius: 12px; padding: 24px; margin: 24px 0;\">"
+                + "<h3 style=\"color: #374151; font-size: 18px; font-weight: 600; margin: 0 0 12px 0;\">&iquest;C&oacute;mo verificar tu cuenta?</h3>"
+                + "<ol style=\"color: #6b7280; font-size: 16px; line-height: 1.6; margin: 0; padding-left: 20px;\">"
+                + "<li style=\"margin-bottom: 8px;\">Regresa a la p&aacute;gina de NextRead</li>"
+                + "<li style=\"margin-bottom: 8px;\">Ingresa el c&oacute;digo de 6 d&iacute;gitos</li>"
+                + "<li style=\"margin-bottom: 0;\">&iexcl;Empieza a descubrir libros incre&iacute;bles!</li>"
+                + "</ol>"
+                + "</div>"
+                + "</div>"
+                
+                // Footer
+                + "<div style=\"background-color: #f9fafb; padding: 32px; text-align: center; border-top: 1px solid #e5e7eb;\">"
+                + "<p style=\"color: #9ca3af; font-size: 14px; margin: 0 0 8px 0;\">&iquest;No solicitaste esta verificaci&oacute;n?</p>"
+                + "<p style=\"color: #9ca3af; font-size: 14px; margin: 0;\">Puedes ignorar este mensaje de forma segura.</p>"
+                + "<div style=\"margin-top: 24px; padding-top: 24px; border-top: 1px solid #e5e7eb;\">"
+                + "<p style=\"color: #d1d5db; font-size: 12px; margin: 0;\">&copy; 2024 NextRead - Descubre tu pr&oacute;xima gran lectura</p>"
+                + "</div>"
                 + "</div>"
                 + "</div>"
                 + "</body>"
