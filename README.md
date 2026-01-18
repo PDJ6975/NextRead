@@ -124,7 +124,7 @@ NextRead/
 - 🐛 Reporta bugs
 - 💡 Sugiere features
 - 🔧 Envía PRs
-- 
+
 ---
 
 <div align="center">
