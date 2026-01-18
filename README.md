@@ -14,19 +14,18 @@
 
 NextRead no es solo otra app de libros. Es tu compañero de lectura personal que:
 
-- 🤖 **Te conoce realmente**: Analiza tus preferencias y patrones de lectura para sugerencias precisas
-- 🎨 **Es bonito de usar**: Diseño cozy y acogedor que hace que buscar libros sea un placer  
-- ⚡ **Respuestas inteligentes**: Integración con GPT-4 para recomendaciones con explicación detallada
-- 🔐 **Seguro y confiable**: Sistema de autenticación robusto con verificación por email
+- **Te conoce realmente**: Analiza tus preferencias y patrones de lectura para sugerencias precisas 
+- **Respuestas inteligentes**: Integración con GPT-4 para recomendaciones con explicación detallada
+- **Seguro y confiable**: Sistema de autenticación robusto con verificación por email
 
 ## 🚀 Funcionalidades principales
 
 ### Para lectores como tú
-- 📖 **Recomendaciones personalizadas**: IA que aprende de tus gustos y te sorprende con sugerencias perfectas
-- 📚 **Tu biblioteca personal**: Organiza los libros que has leído, estás leyendo o quieres leer  
-- ⭐ **Califica**: Lleva registro de qué te gustó
-- 🔍 **Búsqueda inteligente**: Encuentra cualquier libro combinando Google Books con nuestra base de datos
-- 📊 **Dashboard personalizado**: Ve tu progreso de lectura de un vistazo
+- **Recomendaciones personalizadas**: IA que aprende de tus gustos y te sorprende con sugerencias perfectas
+- **Tu biblioteca personal**: Organiza los libros que has leído, estás leyendo o quieres leer  
+- **Califica**: Lleva registro de qué te gustó
+- **Búsqueda inteligente**: Encuentra cualquier libro combinando Google Books con nuestra base de datos
+- **Dashboard personalizado**: Ve tu progreso de lectura de un vistazo
 
 ---
 
@@ -34,7 +33,7 @@ NextRead no es solo otra app de libros. Es tu compañero de lectura personal que
 
 *Para desarrolladores curiosos y reclutadores*
 
-### 🎨 Frontend - La cara bonita
+### Frontend
 **Next.js 15** con todo lo último en React
 - **App Router**: Navegación fluida y moderna
 - **Tailwind CSS**: Diseño "cozy" personalizado
@@ -42,22 +41,22 @@ NextRead no es solo otra app de libros. Es tu compañero de lectura personal que
 - **Estado global**: Context API para autenticación seamless
 - **Validación en tiempo real**: Con Zod para formularios que no fallan
 
-### ⚙️ Backend - El cerebro
-**Spring Boot 3.5.3** con arquitectura empresarial
+### Backend
+**Spring Boot 3.5.3** con arquitectura completa
 - **Seguridad robusta**: JWT + Spring Security con CORS configurado
 - **API RESTful**: Endpoints limpios que siguen las mejores prácticas
 - **Base de datos**: PostgreSQL en Supabase con schema normalizado
-- **Integración AI**: GPT-4 con prompts ingeniería cuidadosamente diseñados
+- **Integración AI**: GPT-4 con prompts cuidadosamente diseñados
 - **Email service**: Verificaciones automáticas con templates HTML
 - **Manejo de errores**: Respuestas consistentes y mensajes amigables
 
-### 🗄️ Base de datos - La memoria
+### Base de datos
 **PostgreSQL** en Supabase para escalabilidad
 - **Schema inteligente**: Relaciones optimizadas para consultas rápidas
 - **Integridad garantizada**: Constraints que mantienen datos consistentes
 - **Indexación estratégica**: Performance optimizado desde el diseño
 
-### 🚀 DevOps - El despliegue
+### DevOps - El despliegue
 - **Frontend**: GitHub Pages con CI/CD automático
 - **Backend**: Render con deploy sin interrupciones  
 - **Base de datos**: Supabase con backups automáticos
@@ -110,24 +109,6 @@ NextRead/
 
 ---
 
-## 🎉 Lo que hace este proyecto especial
-
-### Para usuarios
-- **Experiencia personalizada**: Cada recomendación está pensada para ti
-- **Interfaz acogedora**: Diseño que invita a quedarse y explorar
-- **Funciona en todos lados**: Responsive y rápido en móvil y desktop
-
-### Para desarrolladores  
-- **Código limpio**: Arquitectura clara y mantenible
-- **Stack moderno**: Tecnologías actuales y best practices
-- **Despliegue automático**: CI/CD que funciona sin intervención
-
-### Para el negocio
-- **Escalable**: Preparado para crecer sin refactorizar
-- **Seguro**: Autenticación robusta y datos protegidos
-
----
-
 ### 💭 Ideas futuras
 - 🎧 Audiolibros
 - 🤝 Red social lectora
@@ -143,13 +124,7 @@ NextRead/
 - 🐛 Reporta bugs
 - 💡 Sugiere features
 - 🔧 Envía PRs
-
----
-
-## 📄 Licencia (en proceso)
-
-MIT License - Úsalo, modifícalo, compártelo.
-
+- 
 ---
 
 <div align="center">
